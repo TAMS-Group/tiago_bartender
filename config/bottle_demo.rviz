@@ -5,7 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /TF1
+        - /RobotModel1
         - /TF1/Frames1
       Splitter Ratio: 0.62306
     Tree Height: 535
@@ -59,69 +59,6 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        apriltag2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        apriltag3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thiago/world:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        thiago_bacardi_card:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thiago_bacardi_card_atag_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thiago_bacardi_card_logo_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thiago_coke_card:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thiago_coke_card_atag_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thiago_coke_card_logo_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thiago_reset_card:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thiago_reset_card_atag_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        thiago_reset_card_logo_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        world:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
       Name: RobotModel
       Robot Description: robot_description
       TF Prefix: ""
@@ -133,31 +70,7 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        apriltag2:
-          Value: true
-        apriltag3:
-          Value: true
         map:
-          Value: true
-        thiago/world:
-          Value: true
-        thiago_bacardi_card:
-          Value: true
-        thiago_bacardi_card_atag_link:
-          Value: true
-        thiago_bacardi_card_logo_link:
-          Value: true
-        thiago_coke_card:
-          Value: true
-        thiago_coke_card_atag_link:
-          Value: true
-        thiago_coke_card_logo_link:
-          Value: true
-        thiago_reset_card:
-          Value: true
-        thiago_reset_card_atag_link:
-          Value: true
-        thiago_reset_card_logo_link:
           Value: true
         world:
           Value: true
@@ -168,35 +81,14 @@ Visualization Manager:
       Show Names: true
       Tree:
         world:
-          apriltag2:
-            {}
-          apriltag3:
-            {}
           map:
             {}
-          thiago/world:
-            {}
-          thiago_bacardi_card:
-            thiago_bacardi_card_atag_link:
-              {}
-            thiago_bacardi_card_logo_link:
-              {}
-          thiago_coke_card:
-            thiago_coke_card_atag_link:
-              {}
-            thiago_coke_card_logo_link:
-              {}
-          thiago_reset_card:
-            thiago_reset_card_atag_link:
-              {}
-            thiago_reset_card_logo_link:
-              {}
       Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: thiago/world
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
@@ -217,7 +109,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 4.38309
+      Distance: 7.7245
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -229,10 +121,10 @@ Visualization Manager:
         Z: 0.271033
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.0054
+      Pitch: 0.8354
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.386805
+      Yaw: 0.811807
     Saved: ~
 Window Geometry:
   Displays:
@@ -250,5 +142,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1200
-  X: 344
-  Y: 73
+  X: 392
+  Y: 161

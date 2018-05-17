@@ -1,5 +1,7 @@
-materpial tiago/Wood
-{20dd
+
+
+material tiago/Wood
+{
   technique
   {
     pass
@@ -8,9 +10,10 @@ materpial tiago/Wood
       diffuse 0.7 0.7 0.7 1.0
       specular 0.1 0.1 0.1 1.0
       emissive 0.1 0.1 0.1 1.0
+
       texture_unit
       {
-        texture noyer.jpg
+        texture koto.jpg
         filtering trilinear
       }
     }
@@ -26,13 +29,11 @@ material tiago/Silver
     {
       ambient 0.95 0.95 0.95 1.0
       diffuse 0.95 0.95 0.95 1.0
-      specular 0.2 0.2 0.2 1.0 10.5
+      specular 0.2 0.2 0.2 1.0 
       emissive 0.1 0.1 0.1 1.0
 
       texture_unit
       {
-        texture noyer-wood.png
-        filtering trilinear
       }
     }
   }

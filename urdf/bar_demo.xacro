@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="bar_demo">
+
+  <!-- URDF/Xacro file for our complete bar layout: bar counter,
+       three stools, cupboard, side walls.
+       Note: no bottles/glasses here, as they need to be spawned later.
+  -->
+
+  <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
+  <xacro:include filename="$(find tiago_world)/urdf/bar_counter.xacro" />
+  <xacro:include filename="$(find tiago_world)/urdf/bar_stool.xacro" />
+  <xacro:include filename="$(find tiago_world)/urdf/bar_cupboard.xacro" />
+
+
+  <link name="world" />
+  <link name="tiago/world" />
+
+  <joint name="hugo" type="fixed">
+    <parent link="world" />
+    <child  link="tiago/world" />
+  </joint>
+
+  <xacro:bar_counter name="counter" />
+  <xacro:bar_cupboard name="cupboard" />
+  <xacro:bar_stool name="stool_1" />
+  <xacro:bar_stool name="stool_2" />
+  <xacro:bar_stool name="stool_3" />
+
+
+  <joint name="bar_counter_joint" type="fixed">
+    <parent link="world" />
+    <child  link="counter" />
+    <origin xyz="0 0 0" rpy="0 0 3.1415" />
+  </joint>
+
+  <joint name="bar_cupboard_joint" type="fixed">
+    <parent link="world" />
+    <child  link="cupboard" />
+    <origin xyz="2.5 0 0" rpy="0 0 3.1415" />
+  </joint>
+
+  <joint name="bar_stool_1_joint" type="fixed">
+    <parent link="world" />
+    <child  link="stool_1" />
+    <origin xyz="-1 -1 0" rpy="0 0 0" />
+  </joint>
+
+  <joint name="bar_stool_2_joint" type="fixed">
+    <parent link="world" />
+    <child  link="stool_2" />
+    <origin xyz="-1 0 0" rpy="0 0 0" />
+  </joint>
+
+  <joint name="bar_stool_3_joint" type="fixed">
+    <parent link="world" />
+    <child  link="stool_3" />
+    <origin xyz="-1 1 0" rpy="0 0 0" />
+  </joint>
+
+</robot>

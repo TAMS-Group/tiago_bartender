@@ -15,10 +15,10 @@
        (C) 2018 fnh, hendrich@informatik.uni-hamburg.de
 
        Usage:
+       <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
        <xacro:bar_stool name="stool_1" />
    -->
 
-  <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
 
 
   <xacro:macro name="bar_stool" params="name" >
@@ -42,14 +42,14 @@
         <geometry>
           <mesh filename="file://$(find tiago_world)/meshes/bar_stool_binary.stl" scale="0.001 0.001 0.001" />
         </geometry>      
-        <material name="silver" >
-          <!-- <color rgba="1.0 1.0 1.0 1.0"/> -->
+        <material name="${name}_bar_stool_gray" >
+          <color rgba="0.7 0.4 0.4 1.0" />
         </material>
       </visual>
     </link>
     <gazebo reference="${name}">
       <!-- material/texture definition for Gazebo -->
-      <material>tiago/Silver</material> -->
+      <material>tiago/Coke</material> 
       <turnGravityOff>false</turnGravityOff>
       <selfCollide>false</selfCollide>
       <mu1>0</mu1>

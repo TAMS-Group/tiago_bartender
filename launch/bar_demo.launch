@@ -24,16 +24,16 @@
 
 
   <!-- spawn the bar counter at xzy=(0,0,0), guests approach from -x  -->
-  <param name="bar_counter_description" 
-         command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_counter_description.xacro" />
+  <param name="bar_description" 
+         command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_demo.xacro" />
 
-  <node name="spawn_bar_counter" pkg="gazebo_ros" type="spawn_model" 
-        args="-urdf -param bar_counter_description  -x 0 -y 0 -z 0 -R 0 -P 0 -Y 0 -model bar_counter" 
+  <node name="spawn_bar_model" pkg="gazebo_ros" type="spawn_model" 
+        args="-urdf -param bar_description  -x 0 -y 0 -z 0 -R 0 -P 0 -Y 0 -model bar_model" 
         respawn="false" output="screen" />
 
 
 
-  <!-- spawn three bar stools in front of the counter -->
+  <!-- spawn three bar stools in front of the counter
   <param name="bar_stool_description" 
          command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_stool.xacro" />
 
@@ -48,16 +48,18 @@
   <node name="spawn_bar_stool_3" pkg="gazebo_ros" type="spawn_model" 
         args="-urdf -param bar_stool_description  -x -0.9 -y +1.0 -z 0.001 -R 0 -P 0 -Y 0 -model bar_stool_3" 
         respawn="false" output="screen" />
+  -->
 
 
 
-  <!-- spawn the bar shelf/cupboard behind the bar counter -->
+  <!-- spawn the bar shelf/cupboard behind the bar counter 
   <param name="bar_cupboard_description" 
-         command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_cupboard_description.xacro" />
+         command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_cupboard.xacro" />
 
   <node name="spawn_bar_cupboardcounter" pkg="gazebo_ros" type="spawn_model" 
         args="-urdf -param bar_cupboard_description  -x 2.0 -y 0 -z 0 -R 0 -P 0 -Y 0 -model bar_cupboard" 
         respawn="false" output="screen" />
+  -->
 
 
   <!-- publish world transform to tf -->
@@ -68,10 +70,11 @@
  <!-- we want static transforms published to /tf -->
   <node pkg="robot_state_publisher" type="state_publisher" respawn="false"
         name="static_robot_state_publisher">
-     <param name="publish_frequency" type="double" value="100.0" />
+     <param name="publish_frequency" type="double" value="50.0" />
      <param name="tf_prefix" type="string" value="" />
-     <param name="robot_description" command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_counter.xacro" />  
-     <!-- <remap from="joint_states" to="bar_counter/joint_states" /> -->
+
+     <remap from="robot_description" to="bar_description" />
+     <remap from="joint_states" to="bar_counter/joint_states" /> 
  </node>
 
 

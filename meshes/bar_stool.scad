@@ -1,8 +1,9 @@
 
+eps = 1;
+fn = 50;
 // scale( [0.001, 0.001, 0.001] )
-//  barhocker();
-//eps = 1;
-//fn = 40;
+  barhocker();
+
 
 module barhocker( foot_diameter=500, foot_height=50,
                   foot_rest_diameter = 400, foot_rest_height = 300, foot_rest_thickness = 20,
