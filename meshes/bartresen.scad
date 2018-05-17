@@ -5,10 +5,15 @@ include <barhocker.scad>;
 
 
 
-scale( [0.001, 0.001, 0.001] ) bartresen();
+// scale( [0.001, 0.001, 0.001] ) 
+//   bartresen();
+
 
 translate( [-2.0,0,0] )
-  scale( [0.001, 0.001, 0.001] ) cupboard();
+  // scale( [0.001, 0.001, 0.001] ) 
+    cupboard();
+
+/*
 
 //translate( [-1.0, -4.0,,0] )
 //  scale( [0.001, 0.001, 0.001] ) side_barrier();
@@ -21,6 +26,7 @@ translate( [1.0, 0.0, 0.0] )
   scale( [0.001, 0.001, 0.001] ) barhocker();
 translate( [1.0, 1.0, 0.0] )
   scale( [0.001, 0.001, 0.001] ) barhocker();
+*/
 
 
 
@@ -47,7 +53,8 @@ module bartresen(
           cylinder( d=tresen_width, h=tresen_height-eps, center=true, $fn = fn );
     }
     translate( [tresen_width/2-dx/2+eps,0,tresen_height/2-base_height/2] )
-      cube( size=[dx, tresen_length+tresen_width+eps, tresen_height-counter_height-base_height], center=true );
+      cube( size=[dx+10*eps, tresen_length+tresen_width+eps, tresen_height-counter_height-base_height], center=true );
+
     translate( [-tresen_width/2+dx/2-eps,0,base_height+inset_height/2] )
       cube( size=[dx, tresen_length+tresen_width+eps, inset_height], center=true );
     translate( [-tresen_width/2+dx/2-eps,0,base_height+inset_height+base_height+inset_height/2] )

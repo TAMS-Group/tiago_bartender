@@ -1,5 +1,6 @@
 
-//barhocker();
+// scale( [0.001, 0.001, 0.001] )
+//  barhocker();
 //eps = 1;
 //fn = 40;
 
