@@ -1,0 +1,67 @@
+<?xml version="1.0" ?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="apriltag_demo">
+
+  <xacro:include filename="$(find thiago_world)/urdf/materials.xacro" />
+  <xacro:include filename="$(find thiago_world)/urdf/bottle.xacro" />
+  <xacro:include filename="$(find thiago_world)/urdf/apriltag_bottle.xacro" />
+  <xacro:include filename="$(find thiago_world)/urdf/easy_grasp_bottle.xacro" />
+  <xacro:include filename="$(find thiago_world)/urdf/ikea_glass.xacro" />
+
+
+  <link name="world" />
+  <link name="thiago/world" />
+
+  <joint name="hugo" type="fixed">
+    <parent link="world" />
+    <child  link="thiago/world" />
+  </joint>
+
+
+  <xacro:bottle 
+         namespace="" name="green_bottle" weight="0.5"
+         rvizMaterial="green" gazeboMaterial="Gazebo/Green" />
+
+  <xacro:easy_grasp_bottle 
+         namespace="" name="bitter_orange_bottle" weight="0.5"
+         rvizMaterial="orange" gazeboMaterial="Gazebo/Orange" />
+
+  <xacro:apriltag_bottle 
+         namespace="" name="apriltag_bottle_213" weight="0.5"
+         rvizMaterial="green" gazeboMaterial="Gazebo/Green" 
+         tagFamily="36h11" tagID="213" tagSize="0.06" />
+
+  <xacro:ikea_glass 
+         namespace="" name="ikea_glass_1" weight="0.5"
+         rvizMaterial="grey" gazeboMaterial="Gazebo/Grey" />
+
+
+
+  <joint name="green_bottle_joint" type="fixed">
+    <parent link="world" />
+    <child  link="green_bottle" />
+    <origin xyz="1 0 0" rpy="0 1.571 0" />
+  </joint>
+
+  <joint name="bitter_orange_bottle_joint" type="fixed">
+    <parent link="world" />
+    <child  link="bitter_orange_bottle" />
+    <origin xyz="1 0.2 0" rpy="0 1.571 0" />
+  </joint>
+
+  <joint name="apriltag_bottle_213_joint" type="fixed">
+    <parent link="world" />
+    <child  link="apriltag_bottle_213" />
+    <origin xyz="1 0.4 0" rpy="0 1.571 0" />
+  </joint>
+
+  <joint name="ikea_glass_joint" type="fixed">
+    <parent link="world" />
+    <child  link="ikea_glass_1" />
+    <origin xyz="1 0.4 0" rpy="0 1.571 0" />
+  </joint>
+
+</robot>

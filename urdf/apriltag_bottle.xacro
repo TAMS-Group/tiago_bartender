@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="apriltag_bottle">
+
+  <!-- ROS xacro/urdf model of a (Schweppes) 1-liter plastic bottle,
+       with an apriltag attached to the front for robust detection and
+       robust pose estimation.
+
+       For convenience, the origin of the bottle is at the bottom;
+       we also create an (empty) link for the bottle opening.
+
+       The meshes folder also has an OpenSCAD model that can be
+       3D-printed to create a suitable apriltag holder matching
+       the bottle radius.
+
+       2018.05.17 - created
+
+       (C) 2018 fnh, hendrich@informatik.uni-hamburg.de
+
+       Usage:
+       <xacro:apriltag_bottle 
+              namespace="" name="bitter_orange_bottle" weight="1.0"
+              rvizMaterial="orange" gazeboMaterial="Gazebo/Orange"
+              tagFamily="36h11" tagID="201" tagSize="0.06" />
+   -->
+
+  <xacro:include filename="$(find thiago_world)/urdf/materials.xacro" />
+  <xacro:include filename="$(find thiago_world)/urdf/bottle.xacro" />
+  <xacro:include filename="$(find tams_apriltags)/urdf/apriltag_marker.xacro" />
+
+
+  <xacro:macro name="apriltag_bottle" 
+               params="namespace name weight rvizMaterial gazeboMaterial tagFamily tagID tagSize " >
+
+    <!-- main bottle body -->
+    <xacro:bottle namespace="${namespace}" name="${name}" 
+                  rvizMaterial="${rvizMaterial}" gazeboMaterial="${gazeboMaterial}" />
+
+    <!-- apriltag on the front of the bottle -->
+    <link name="${namespace}${name}_atag_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="${tagSize} ${tagSize} ${0.001}" />
+        </geometry>      
+        <!-- material definition for rviz -->
+        <material name="${namespace}${name}_atag_link_material_${tagFamily}/tag${tagFamily}_${tagID}" >
+          <texture filename="file://$(find tams_apriltags)/Media/materials/textures/rviz/${tagFamily}/${tagID}.png" />
+        </material>
+      </visual>
+    </link>
+    <gazebo reference="${namespace}${name}_atag_link">
+      <!-- material/texture definition for Gazebo -->
+      <material>apriltag_${tagFamily}/tag${tagFamily}_${tagID}</material> 
+      <turnGravityOff>false</turnGravityOff>
+      <selfCollide>false</selfCollide>
+      <mu1>0</mu1>
+      <mu2>0</mu2>
+      <kp>1000000.0</kp>
+      <kd>1.0</kd>
+    </gazebo>
+
+    <joint name="${namespace}${name}_atag_joint" type="fixed">
+      <parent link="${namespace}${name}" />
+      <child link="${namespace}${name}_atag_link" />
+      <origin xyz="0.04 0 ${0.25-tagSize}" rpy="0 0 0" />
+    </joint>
+  </xacro:macro>
+
+</robot>

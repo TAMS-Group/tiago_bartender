@@ -1,0 +1,80 @@
+<?xml version="1.0" ?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="easy_grasp_bottle">
+
+  <!-- ROS xacro/urdf model of a (Schweppes) 1-liter plastic bottle.
+       This version adds an extra ring at roughly 2/3 height, to make
+       the bottle more graspable in Gazebo.
+
+       The origin of the bottle is at the bottom; additionally
+       we also create an (empty) link for the bottle opening.
+
+       2018.05.17 - created
+
+       (C) 2018 fnh, hendrich@informatik.uni-hamburg.de
+
+       Usage:
+       <xacro:apriltag_bottle 
+              namespace="" name="bitter_orange_bottle" weight="1.0"
+              rvizMaterial="orange" gazeboMaterial="Gazebo/Orange"
+              tagFamily="36h11" tagID="201" tagSize="0.06" />
+   -->
+
+  <xacro:include filename="$(find thiago_world)/urdf/materials.xacro" />
+
+
+  <xacro:macro name="bottle" 
+               params="namespace name weight rvizMaterial gazeboMaterial" >
+    <!-- main body with cylinder collision model and bottle mesh for visual -->
+
+    <link name="${namespace}${name}">
+      <inertial>
+        <!-- center of mass is centered in x and y, and in z is half
+             of the bottle height by amount of liquid in the bottle ... -->
+        <mass value="${weight}" />
+        <origin xyz="0 0 ${0.5*0.25*weight}" rpy="0 0 0" />
+        <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
+      </inertial>
+      <collision>
+        <!-- Schweppes 1-liter plastic bottle -->
+        <origin xyz="0 0 ${0.5*0.25}" rpy="0 0 0" />
+        <geometry>
+          <cylinder radius="0.04" height="0.3" />
+        </geometry>
+      </collision>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="file://$(find thiago_world)/meshes/bottle_easy_grasp_binary.stl" scale="1 1 1" />
+        </geometry>      
+        <material name="${rvizMaterial}" >
+          <!-- <color rgba="1.0 1.0 1.0 1.0"/> -->
+        </material>
+      </visual>
+    </link>
+    <gazebo reference="${namespace}${name}">
+      <!-- material/texture definition for Gazebo -->
+      <material>${gazeboMaterial}</material> -->
+      <turnGravityOff>false</turnGravityOff>
+      <selfCollide>false</selfCollide>
+      <mu1>0</mu1>
+      <mu2>0</mu2>
+      <kp>1000000.0</kp>
+      <kd>1.0</kd>
+    </gazebo>
+
+    <link name="${namespace}${name}_opening" />
+
+    <!-- Schweppes bottle has opening at height 285 mm -->
+    <joint name="${namespace}${name}_opening_joint" type="fixed">
+      <parent link="${namespace}${name}" />
+      <child link="${namespace}${name}_opening" />
+      <origin xyz="0 0 0.285" rpy="0 0 0" />
+    </joint>
+
+  </xacro:macro>
+
+</robot>
