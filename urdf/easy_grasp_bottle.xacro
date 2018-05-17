@@ -40,9 +40,9 @@
       </inertial>
       <collision>
         <!-- Schweppes 1-liter plastic bottle -->
-        <origin xyz="0 0 ${0.5*0.25}" rpy="0 0 0" />
+        <origin xyz="0 0 ${0.5*0.284}" rpy="0 0 0" />
         <geometry>
-          <cylinder radius="0.04" length="0.3" />
+          <cylinder radius="0.04" length="0.284" />
         </geometry>
       </collision>
       <visual>
@@ -68,11 +68,11 @@
 
     <link name="${namespace}${name}_opening" />
 
-    <!-- Schweppes bottle has opening at height 285 mm -->
+    <!-- Schweppes bottle has opening at height 284 mm -->
     <joint name="${namespace}${name}_opening_joint" type="fixed">
       <parent link="${namespace}${name}" />
       <child link="${namespace}${name}_opening" />
-      <origin xyz="0 0 0.285" rpy="0 0 0" />
+      <origin xyz="0 0 0.284" rpy="0 0 0" />
     </joint>
 
   </xacro:macro>

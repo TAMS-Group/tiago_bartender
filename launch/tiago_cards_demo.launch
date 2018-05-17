@@ -51,6 +51,6 @@
 
 
   <node name="rviz" pkg="rviz" type="rviz" respawn="false" output="screen"
-        args="-d $(find tiago_world)/config/tiago_cards_demo.rviz" />
+        args="-d $(find tams_apriltags)/launch/tiago_cards_demo.rviz" />
 
 </launch>

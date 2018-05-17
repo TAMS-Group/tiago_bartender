@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="yellow_glass">
+
+   <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
+   <xacro:include filename="$(find tiago_world)/urdf/ikea_glass.xacro" />
+
+   <xacro:ikea_glass
+          namespace="" name="yellow_glass" liquid_weight="0.1"
+          rvizMaterial="yellow" gazeboMaterial="Gazebo/Yellow" />
+
+
+</robot>
