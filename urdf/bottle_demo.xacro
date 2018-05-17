@@ -3,21 +3,21 @@
        xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
        xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
        xmlns:xacro="http://www.ros.org/wiki/xacro"
-       name="apriltag_demo">
+       name="bottle_demo">
 
-  <xacro:include filename="$(find thiago_world)/urdf/materials.xacro" />
-  <xacro:include filename="$(find thiago_world)/urdf/bottle.xacro" />
-  <xacro:include filename="$(find thiago_world)/urdf/apriltag_bottle.xacro" />
-  <xacro:include filename="$(find thiago_world)/urdf/easy_grasp_bottle.xacro" />
-  <xacro:include filename="$(find thiago_world)/urdf/ikea_glass.xacro" />
+  <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
+  <xacro:include filename="$(find tiago_world)/urdf/bottle.xacro" />
+  <xacro:include filename="$(find tiago_world)/urdf/apriltag_bottle.xacro" />
+  <xacro:include filename="$(find tiago_world)/urdf/easy_grasp_bottle.xacro" />
+  <xacro:include filename="$(find tiago_world)/urdf/ikea_glass.xacro" />
 
 
   <link name="world" />
-  <link name="thiago/world" />
+  <link name="tiago/world" />
 
   <joint name="hugo" type="fixed">
     <parent link="world" />
-    <child  link="thiago/world" />
+    <child  link="tiago/world" />
   </joint>
 
 
@@ -31,37 +31,37 @@
 
   <xacro:apriltag_bottle 
          namespace="" name="apriltag_bottle_213" weight="0.5"
-         rvizMaterial="green" gazeboMaterial="Gazebo/Green" 
+         rvizMaterial="blue" gazeboMaterial=""
          tagFamily="36h11" tagID="213" tagSize="0.06" />
 
   <xacro:ikea_glass 
-         namespace="" name="ikea_glass_1" weight="0.5"
-         rvizMaterial="grey" gazeboMaterial="Gazebo/Grey" />
+         namespace="" name="ikea_glass_1" liquid_weight="0.5"
+         rvizMaterial="yellow" gazeboMaterial="Gazebo/Yellow" />
 
 
 
   <joint name="green_bottle_joint" type="fixed">
     <parent link="world" />
     <child  link="green_bottle" />
-    <origin xyz="1 0 0" rpy="0 1.571 0" />
+    <origin xyz="1 0 0.001" rpy="0 0 0" />
   </joint>
 
   <joint name="bitter_orange_bottle_joint" type="fixed">
     <parent link="world" />
     <child  link="bitter_orange_bottle" />
-    <origin xyz="1 0.2 0" rpy="0 1.571 0" />
+    <origin xyz="1 0.2 0.001" rpy="0 0 0" />
   </joint>
 
   <joint name="apriltag_bottle_213_joint" type="fixed">
     <parent link="world" />
     <child  link="apriltag_bottle_213" />
-    <origin xyz="1 0.4 0" rpy="0 1.571 0" />
+    <origin xyz="1 0.4 0.001" rpy="0 0 0" />
   </joint>
 
   <joint name="ikea_glass_joint" type="fixed">
     <parent link="world" />
     <child  link="ikea_glass_1" />
-    <origin xyz="1 0.4 0" rpy="0 1.571 0" />
+    <origin xyz="1 0.6 0.002" rpy="0 0 0" />
   </joint>
 
 </robot>

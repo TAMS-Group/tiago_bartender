@@ -4,7 +4,8 @@ eps = 0.1;
 
 
 // ROS wants meters
-scale( [0.001, 0.001, 0.001] )  ikea_glass();
+// scale( [0.001, 0.001, 0.001] )  
+  ikea_glass();
 
 
 module ikea_glass() {

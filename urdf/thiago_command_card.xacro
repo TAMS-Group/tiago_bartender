@@ -3,9 +3,9 @@
        xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
        xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
        xmlns:xacro="http://www.ros.org/wiki/xacro"
-       name="thiago_card">
+       name="tiago_card">
 
-  <!-- ROS xacro/urdf model of one "Thiago demo command card",
+  <!-- ROS xacro/urdf model of one "Tiago demo command card",
        which has a command/cocktail recipe on the front and an
        apriltag marker on the back.
        Showing the card to our bartender robot will trigger the
@@ -16,7 +16,7 @@
        (C) 2018 fnh, hendrich@informatik.uni-hamburg.de
 
        Usage:
-       <xacro:thiago_command_card namespace="" name="thiago_reset_card" front="reset.png"  
+       <xacro:tiago_command_card namespace="" name="tiago_reset_card" front="reset.png"  
               family="36h11" tagID="201" dx="0.1" dy="0.06" dz="0.005"/>
 
        <xacro:apriltag_marker namespace="doro/" name="apriltag13" parent="base_link" 
@@ -28,7 +28,7 @@
   <xacro:include filename="$(find tams_apriltags)/urdf/apriltag_marker.xacro" />
 
 
-  <xacro:macro name="thiago_command_card" params="namespace name texture gazeboMaterial family tagID tagSize dx dy dz" >
+  <xacro:macro name="tiago_command_card" params="namespace name texture gazeboMaterial family tagID tagSize dx dy dz" >
     <!-- main body with collision but without visual -->
     <link name="${namespace}${name}">
       <inertial>
@@ -47,7 +47,7 @@
         <geometry>
           <box size="${dx} ${dy} ${dz}" />
         </geometry>      
-        <material name="thiago_command_card_white/${name}">
+        <material name="tiago_command_card_white/${name}">
           <color rgba="1.0 1.0 1.0 1.0"/>
         </material>
       </visual>
@@ -72,7 +72,7 @@
           <box size="${dx} ${dy} ${0.0001}" />
         </geometry>      
         <!-- material definition for rviz -->
-        <material name="thiago_command_card_texture/${name}/texture" >
+        <material name="tiago_command_card_texture/${name}/texture" >
           <texture filename="file://$(find tams_apriltags)/Media/materials/textures/${texture}" />
         </material>
       </visual>

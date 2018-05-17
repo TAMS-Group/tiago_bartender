@@ -1,4 +1,4 @@
-materpial thiago/Wood
+materpial tiago/Wood
 {20dd
   technique
   {
@@ -18,7 +18,7 @@ materpial thiago/Wood
 }
 
 
-material thiago/Silver
+material tiago/Silver
 {
   technique
   {
@@ -39,7 +39,7 @@ material thiago/Silver
 }
 
 
-material thiago/Coke
+material tiago/Coke
 {
   technique
   {
@@ -59,7 +59,7 @@ material thiago/Coke
 }
 
 
-material thiago/Bacardi
+material tiago/Bacardi
 {
   technique
   {
@@ -79,7 +79,7 @@ material thiago/Bacardi
 }
 
 
-material thiago/Fanta
+material tiago/Fanta
 {
   technique
   {
@@ -99,7 +99,7 @@ material thiago/Fanta
 }
 
 
-material thiago/Reset
+material tiago/Reset
 {
   technique
   {

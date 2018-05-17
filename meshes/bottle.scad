@@ -9,12 +9,13 @@
  */
  
  
-fn  = 10; // was: 50
+fn  = 50; // use 10 for raspi 3...
 eps = 0.1;
  
 // scale and change origin for use with ROS:
 // scale( [0.001, 0.001, 0.001] ) 
-  translate( [0,0,-284] ) bottle();
+  // translate( [0,0,-284] ) 
+    bottle();
  
  
  

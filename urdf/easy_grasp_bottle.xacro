@@ -17,16 +17,16 @@
        (C) 2018 fnh, hendrich@informatik.uni-hamburg.de
 
        Usage:
-       <xacro:apriltag_bottle 
-              namespace="" name="bitter_orange_bottle" weight="1.0"
+       <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
+       <xacro:easy_grasp_bottle
+              namespace="" name="easy_grasp__bottle" weight="1.0"
               rvizMaterial="orange" gazeboMaterial="Gazebo/Orange"
               tagFamily="36h11" tagID="201" tagSize="0.06" />
    -->
 
-  <xacro:include filename="$(find thiago_world)/urdf/materials.xacro" />
 
 
-  <xacro:macro name="bottle" 
+  <xacro:macro name="easy_grasp_bottle" 
                params="namespace name weight rvizMaterial gazeboMaterial" >
     <!-- main body with cylinder collision model and bottle mesh for visual -->
 
@@ -42,13 +42,13 @@
         <!-- Schweppes 1-liter plastic bottle -->
         <origin xyz="0 0 ${0.5*0.25}" rpy="0 0 0" />
         <geometry>
-          <cylinder radius="0.04" height="0.3" />
+          <cylinder radius="0.04" length="0.3" />
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="file://$(find thiago_world)/meshes/bottle_easy_grasp_binary.stl" scale="1 1 1" />
+          <mesh filename="file://$(find tiago_world)/meshes/easy_grasp_bottle_binary.stl" scale="0.001 0.001 0.001" />
         </geometry>      
         <material name="${rvizMaterial}" >
           <!-- <color rgba="1.0 1.0 1.0 1.0"/> -->

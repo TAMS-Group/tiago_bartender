@@ -21,23 +21,19 @@
        (C) 2018 fnh, hendrich@informatik.uni-hamburg.de
 
        Usage:
+       <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
        <xacro:apriltag_bottle 
               namespace="" name="bitter_orange_bottle" weight="1.0"
               rvizMaterial="orange" gazeboMaterial="Gazebo/Orange"
               tagFamily="36h11" tagID="201" tagSize="0.06" />
    -->
 
-  <xacro:include filename="$(find thiago_world)/urdf/materials.xacro" />
-  <xacro:include filename="$(find thiago_world)/urdf/bottle.xacro" />
+  <xacro:include filename="$(find tiago_world)/urdf/bottle.xacro" />
   <xacro:include filename="$(find tams_apriltags)/urdf/apriltag_marker.xacro" />
 
 
   <xacro:macro name="apriltag_bottle" 
                params="namespace name weight rvizMaterial gazeboMaterial tagFamily tagID tagSize " >
-
-    <!-- main bottle body -->
-    <xacro:bottle namespace="${namespace}" name="${name}" 
-                  rvizMaterial="${rvizMaterial}" gazeboMaterial="${gazeboMaterial}" />
 
     <!-- apriltag on the front of the bottle -->
     <link name="${namespace}${name}_atag_link">
@@ -63,10 +59,14 @@
       <kd>1.0</kd>
     </gazebo>
 
+    <!-- main bottle body -->
+    <xacro:bottle namespace="${namespace}" name="${name}" weight="${weight}"
+                  rvizMaterial="${rvizMaterial}" gazeboMaterial="${gazeboMaterial}" />
+
     <joint name="${namespace}${name}_atag_joint" type="fixed">
       <parent link="${namespace}${name}" />
       <child link="${namespace}${name}_atag_link" />
-      <origin xyz="0.04 0 ${0.25-tagSize}" rpy="0 0 0" />
+      <origin xyz="0.04 0 ${0.25-tagSize}" rpy="0 1.571 0" />
     </joint>
   </xacro:macro>
 

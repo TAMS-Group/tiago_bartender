@@ -6,11 +6,11 @@ include <barhocker.scad>;
 
 
 // scale( [0.001, 0.001, 0.001] ) 
-//   bartresen();
+  //bartresen();
 
 
-translate( [-2.0,0,0] )
-  // scale( [0.001, 0.001, 0.001] ) 
+//translate( [-2.0,0,0] )
+//  // scale( [0.001, 0.001, 0.001] ) 
     cupboard();
 
 /*

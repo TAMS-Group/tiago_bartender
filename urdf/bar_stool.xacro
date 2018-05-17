@@ -18,7 +18,7 @@
        <xacro:bar_stool name="stool_1" />
    -->
 
-  <xacro:include filename="$(find thiago_world)/urdf/materials.xacro" />
+  <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
 
 
   <xacro:macro name="bar_stool" params="name" >
@@ -34,13 +34,13 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="file://$(find thiago_world)/meshes/bar_stool_binary.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find tiago_world)/meshes/bar_stool_binary.stl" scale="0.001 0.001 0.001" />
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="file://$(find thiago_world)/meshes/bar_stool_binary.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find tiago_world)/meshes/bar_stool_binary.stl" scale="0.001 0.001 0.001" />
         </geometry>      
         <material name="silver" >
           <!-- <color rgba="1.0 1.0 1.0 1.0"/> -->
@@ -49,7 +49,7 @@
     </link>
     <gazebo reference="${name}">
       <!-- material/texture definition for Gazebo -->
-      <material>thiago/Silver</material> -->
+      <material>tiago/Silver</material> -->
       <turnGravityOff>false</turnGravityOff>
       <selfCollide>false</selfCollide>
       <mu1>0</mu1>
