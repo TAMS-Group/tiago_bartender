@@ -1,3 +1,4 @@
-# thiago_world
+# tiago_world
 
-Gazebo worlds, models, and launch files for our robot bartender demo, first to be shown with Thiago at IROS-2018 in Madrid.
+Gazebo worlds, models, and launch files for our robot bartender demo, 
+first to be shown with Tiago at IROS-2018 in Madrid.

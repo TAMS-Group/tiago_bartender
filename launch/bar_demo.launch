@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <!-- launches our "Thiago" bar in rviz and Gazebo.
+  <!-- launches our "Tiago" bar in rviz and Gazebo.
        As roslaunch does not support dependencies, you will have
        to launch your robot and any bottles/glasses/etc. after
        this launch has completed.
@@ -25,7 +25,7 @@
 
   <!-- spawn the bar counter at xzy=(0,0,0), guests approach from -x  -->
   <param name="bar_counter_description" 
-         command="$(find xacro)/xacro.py $(find thiago_world)/urdf/bar_counter_description.xacro" />
+         command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_counter_description.xacro" />
 
   <node name="spawn_bar_counter" pkg="gazebo_ros" type="spawn_model" 
         args="-urdf -param bar_counter_description  -x 0 -y 0 -z 0 -R 0 -P 0 -Y 0 -model bar_counter" 
@@ -35,7 +35,7 @@
 
   <!-- spawn three bar stools in front of the counter -->
   <param name="bar_stool_description" 
-         command="$(find xacro)/xacro.py $(find thiago_world)/urdf/bar_stool.xacro" />
+         command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_stool.xacro" />
 
   <node name="spawn_bar_stool_1" pkg="gazebo_ros" type="spawn_model" 
         args="-urdf -param bar_stool_description  -x -0.9 -y -1.0 -z 0.001 -R 0 -P 0 -Y 0 -model bar_stool_1" 
@@ -53,7 +53,7 @@
 
   <!-- spawn the bar shelf/cupboard behind the bar counter -->
   <param name="bar_cupboard_description" 
-         command="$(find xacro)/xacro.py $(find thiago_world)/urdf/bar_cupboard_description.xacro" />
+         command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_cupboard_description.xacro" />
 
   <node name="spawn_bar_cupboardcounter" pkg="gazebo_ros" type="spawn_model" 
         args="-urdf -param bar_cupboard_description  -x 2.0 -y 0 -z 0 -R 0 -P 0 -Y 0 -model bar_cupboard" 
@@ -70,12 +70,12 @@
         name="static_robot_state_publisher">
      <param name="publish_frequency" type="double" value="100.0" />
      <param name="tf_prefix" type="string" value="" />
-     <param name="robot_description" command="$(find xacro)/xacro.py $(find thiago_world)/urdf/bar_counter.xacro" />  
+     <param name="robot_description" command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_counter.xacro" />  
      <!-- <remap from="joint_states" to="bar_counter/joint_states" /> -->
  </node>
 
 
   <node name="rviz" pkg="rviz" type="rviz" respawn="false" output="screen"
-        args="-d $(find thiago_world)/config/bar_demo.rviz" />
+        args="-d $(find tiago_world)/config/bar_demo.rviz" />
 
 </launch>

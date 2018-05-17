@@ -14,7 +14,7 @@
 
   <!-- upload the robot xacro/urdf to the param server -->
   <param name="robot_description" 
-         command="$(find xacro)/xacro.py $(find tams_apriltags)/urdf/thiago_cards_demo.xacro" />
+         command="$(find xacro)/xacro.py $(find tams_apriltags)/urdf/tiago_cards_demo.xacro" />
 
 
 
@@ -28,8 +28,8 @@
 
 
   <!-- spawn the robot at xzy=(-1,0,0) -->
-  <node name="spawn_thiago_cards_demo" pkg="gazebo_ros" type="spawn_model" 
-        args="-urdf -param robot_description -x 0 -y 0 -z 0 -R 0 -P 0 -Y 0 -model thiago_cards" 
+  <node name="spawn_tiago_cards_demo" pkg="gazebo_ros" type="spawn_model" 
+        args="-urdf -param robot_description -x 0 -y 0 -z 0 -R 0 -P 0 -Y 0 -model tiago_cards" 
         respawn="false" output="screen" />
 
 
@@ -44,13 +44,13 @@
         name="dummy_state_publisher">
      <param name="publish_frequency" type="double" value="100.0" />
      <param name="tf_prefix" type="string" value="" />
-     <param name="robot_description" command="$(find xacro)/xacro.py $(find tams_apriltags)/urdf/thiago_cards_demo.xacro" />  
+     <param name="robot_description" command="$(find xacro)/xacro.py $(find tams_apriltags)/urdf/tiago_cards_demo.xacro" />  
      <remap from="joint_states" to="cards/joint_states" />
  </node>
 
 
 
   <node name="rviz" pkg="rviz" type="rviz" respawn="false" output="screen"
-        args="-d $(find thiago_world)/config/thiago_cards_demo.rviz" />
+        args="-d $(find tiago_world)/config/tiago_cards_demo.rviz" />
 
 </launch>
