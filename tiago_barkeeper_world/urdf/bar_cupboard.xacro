@@ -3,10 +3,10 @@
        xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
        xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
        xmlns:xacro="http://www.ros.org/wiki/xacro"
-       name="bar_counter">
+       name="bar_cupboard">
 
-  <!-- ROS xacro/urdf model of a bar counter ("Tresen") with wood
-       texture and some shelves on the back (robot) side.
+  <!-- ROS xacro/urdf model of a bar shelf/cupboard with wood
+       texture.
       
        Origin is at the bottom, centered in x and y.
 
@@ -15,33 +15,33 @@
        (C) 2018 fnh, hendrich@informatik.uni-hamburg.de
 
        Usage:
-       <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
-       <xacro:bar_counter name="counter" />
+       <xacro:include filename="$(find tiago_barkeeper_world)/urdf/materials.xacro" />
+       <xacro:bar_cupboard name="cupboard" />
    -->
 
+  <xacro:property name="scale" value="0.00075" />
 
-
-  <xacro:macro name="bar_counter" 
+  <xacro:macro name="bar_cupboard" 
                params="name" >
 
     <!-- main body with mesh collision and visual model -->
 
     <link name="${name}">
       <inertial>
-        <mass value="200" />
+        <mass value="300" />
         <origin xyz="0 0 0" rpy="0 0 0" />
         <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
       </inertial>
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="file://$(find tiago_world)/meshes/bartresen_binary.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find tiago_barkeeper_world)/meshes/cupboard_binary.stl" scale="${scale} ${scale} ${scale}" />
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="file://$(find tiago_world)/meshes/bartresen_binary.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find tiago_barkeeper_world)/meshes/cupboard_binary.stl" scale="${scale} ${scale} ${scale}" />
         </geometry>      
         <material name="noyer_wood" >
           <!-- <color rgba="1.0 1.0 1.0 1.0"/> -->

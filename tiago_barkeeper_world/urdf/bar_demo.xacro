@@ -10,26 +10,51 @@
        Note: no bottles/glasses here, as they need to be spawned later.
   -->
 
-  <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
-  <xacro:include filename="$(find tiago_world)/urdf/bar_counter.xacro" />
-  <xacro:include filename="$(find tiago_world)/urdf/bar_stool.xacro" />
-  <xacro:include filename="$(find tiago_world)/urdf/bar_cupboard.xacro" />
+  <xacro:include filename="$(find tiago_barkeeper_world)/urdf/materials.xacro" />
+  <xacro:include filename="$(find tiago_barkeeper_world)/urdf/bar_counter.xacro" />
+  <xacro:include filename="$(find tiago_barkeeper_world)/urdf/bar_stool.xacro" />
+  <xacro:include filename="$(find tiago_barkeeper_world)/urdf/bar_cupboard.xacro" />
+  <xacro:include filename="$(find tiago_barkeeper_world)/urdf/bar_corner.xacro" />
 
 
   <link name="world" />
   <link name="tiago/world" />
 
-  <joint name="hugo" type="fixed">
-    <parent link="world" />
-    <child  link="tiago/world" />
-  </joint>
-
+  <xacro:bar_corner />
   <xacro:bar_counter name="counter" />
   <xacro:bar_cupboard name="cupboard" />
   <xacro:bar_stool name="stool_1" />
   <xacro:bar_stool name="stool_2" />
   <xacro:bar_stool name="stool_3" />
 
+  <joint name="world_wall_back_joint" type="fixed">
+    <parent link="world"/>
+    <child link="wall_back"/>
+    <origin xyz="4.12 0.0 0.0" rpy="0 0 0" />
+  </joint>
+
+  <joint name="world_wall_front_joint" type="fixed">
+    <parent link="world"/>
+    <child link="wall_front"/>
+    <origin xyz="-3.0 0.0 0.0" rpy="0 0 0" />
+  </joint>
+
+  <joint name="world_wall_left_joint" type="fixed">
+    <parent link="world"/>
+    <child link="wall_left"/>
+    <origin xyz="0.5 3.0 0.0" rpy="0 0 1.5708" />
+  </joint>
+
+  <joint name="world_wall_right_joint" type="fixed">
+    <parent link="world"/>
+    <child link="wall_right"/>
+    <origin xyz="0.5 -2.88 0.0" rpy="0 0 1.5708" />
+  </joint>
+
+  <joint name="hugo" type="fixed">
+    <parent link="world" />
+    <child  link="tiago/world" />
+  </joint>
 
   <joint name="bar_counter_joint" type="fixed">
     <parent link="world" />

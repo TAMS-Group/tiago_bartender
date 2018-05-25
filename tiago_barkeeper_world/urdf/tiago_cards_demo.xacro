@@ -5,7 +5,7 @@
        xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="apriltag_demo">
 
-  <xacro:include filename="$(find tiago_world)/urdf/tiago_command_card.xacro" />
+  <xacro:include filename="$(find tiago_barkeeper_world)/urdf/tiago_command_card.xacro" />
   <xacro:include filename="$(find tams_apriltags)/urdf/apriltag_marker.xacro" />
 
 

@@ -7,7 +7,7 @@
        the absolute pathname of the object here.
   -->
 
-  <arg name="xacro_file" default="$(find tiago_world)/robots/red_bottle.xacro" />
+  <arg name="xacro_file" default="$(find tiago_barkeeper_world)/robots/red_bottle.xacro" />
   <arg name="model_name" default="object_42" />
   <arg name="x" default="0" />
   <arg name="y" default="0" />

@@ -3,10 +3,10 @@
        xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
        xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
        xmlns:xacro="http://www.ros.org/wiki/xacro"
-       name="bar_stool">
+       name="bar_counter">
 
-  <!-- ROS xacro/urdf model of a bar stool ("Hocker") with 
-       silver/red-velvet texture.
+  <!-- ROS xacro/urdf model of a bar counter ("Tresen") with wood
+       texture and some shelves on the back (robot) side.
       
        Origin is at the bottom, centered in x and y.
 
@@ -15,41 +15,42 @@
        (C) 2018 fnh, hendrich@informatik.uni-hamburg.de
 
        Usage:
-       <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
-       <xacro:bar_stool name="stool_1" />
+       <xacro:include filename="$(find tiago_barkeeper_world)/urdf/materials.xacro" />
+       <xacro:bar_counter name="counter" />
    -->
 
+  <xacro:macro name="scale" value="0.00075"/>
 
-
-  <xacro:macro name="bar_stool" params="name" >
+  <xacro:macro name="bar_counter" 
+               params="name" >
 
     <!-- main body with mesh collision and visual model -->
 
     <link name="${name}">
       <inertial>
-        <mass value="20" />
+        <mass value="200" />
         <origin xyz="0 0 0" rpy="0 0 0" />
         <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
       </inertial>
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="file://$(find tiago_world)/meshes/bar_stool_binary.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find tiago_barkeeper_world)/meshes/bartresen_binary.stl" scale="${scale} ${scale} ${scale}" />
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="file://$(find tiago_world)/meshes/bar_stool_binary.stl" scale="0.001 0.001 0.001" />
+          <mesh filename="file://$(find tiago_barkeeper_world)/meshes/bartresen_binary.stl" scale="${scale} ${scale} ${scale}" />
         </geometry>      
-        <material name="${name}_bar_stool_gray" >
-          <color rgba="0.7 0.4 0.4 1.0" />
+        <material name="noyer_wood" >
+          <!-- <color rgba="1.0 1.0 1.0 1.0"/> -->
         </material>
       </visual>
     </link>
     <gazebo reference="${name}">
       <!-- material/texture definition for Gazebo -->
-      <material>tiago/Coke</material> 
+      <material>tiago/Wood</material> -->
       <turnGravityOff>false</turnGravityOff>
       <selfCollide>false</selfCollide>
       <mu1>0</mu1>

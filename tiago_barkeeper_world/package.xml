@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>tiago_world</name>
+  <name>tiago_barkeeper_world</name>
   <version>0.0.0</version>
-  <description>The tiago_world package provides Gazebo worlds, simulation models,
+  <description>The tiago_barkeeper_world package provides Gazebo worlds, simulation models,
                and launch files for our robot bartender demo,
                first to be shown with PAL robotics Tiago at IROS-2018 in Madrid.
  e</description>

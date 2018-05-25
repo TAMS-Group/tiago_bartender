@@ -21,14 +21,14 @@
        (C) 2018 fnh, hendrich@informatik.uni-hamburg.de
 
        Usage:
-       <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
+       <xacro:include filename="$(find tiago_barkeeper_world)/urdf/materials.xacro" />
        <xacro:apriltag_bottle 
               namespace="" name="bitter_orange_bottle" weight="1.0"
               rvizMaterial="orange" gazeboMaterial="Gazebo/Orange"
               tagFamily="36h11" tagID="201" tagSize="0.06" />
    -->
 
-  <xacro:include filename="$(find tiago_world)/urdf/bottle.xacro" />
+  <xacro:include filename="$(find tiago_barkeeper_world)/urdf/bottle.xacro" />
   <xacro:include filename="$(find tams_apriltags)/urdf/apriltag_marker.xacro" />
 
 

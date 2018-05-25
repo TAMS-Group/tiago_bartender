@@ -5,8 +5,8 @@
        xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="yellow_glass">
 
-   <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
-   <xacro:include filename="$(find tiago_world)/urdf/ikea_glass.xacro" />
+   <xacro:include filename="$(find tiago_barkeeper_world)/urdf/materials.xacro" />
+   <xacro:include filename="$(find tiago_barkeeper_world)/urdf/ikea_glass.xacro" />
 
    <xacro:ikea_glass
           namespace="" name="yellow_glass" liquid_weight="0.1"

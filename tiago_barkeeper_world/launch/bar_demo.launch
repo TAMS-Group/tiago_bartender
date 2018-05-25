@@ -25,7 +25,7 @@
 
   <!-- spawn the bar counter at xzy=(0,0,0), guests approach from -x  -->
   <param name="bar_description" 
-         command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_demo.xacro" />
+         command="$(find xacro)/xacro.py $(find tiago_barkeeper_world)/urdf/bar_demo.xacro" />
 
   <node name="spawn_bar_model" pkg="gazebo_ros" type="spawn_model" 
         args="-urdf -param bar_description  -x 0 -y 0 -z 0 -R 0 -P 0 -Y 0 -model bar_model" 
@@ -35,7 +35,7 @@
 
   <!-- spawn three bar stools in front of the counter
   <param name="bar_stool_description" 
-         command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_stool.xacro" />
+         command="$(find xacro)/xacro.py $(find tiago_barkeeper_world)/urdf/bar_stool.xacro" />
 
   <node name="spawn_bar_stool_1" pkg="gazebo_ros" type="spawn_model" 
         args="-urdf -param bar_stool_description  -x -0.9 -y -1.0 -z 0.001 -R 0 -P 0 -Y 0 -model bar_stool_1" 
@@ -54,7 +54,7 @@
 
   <!-- spawn the bar shelf/cupboard behind the bar counter 
   <param name="bar_cupboard_description" 
-         command="$(find xacro)/xacro.py $(find tiago_world)/urdf/bar_cupboard.xacro" />
+         command="$(find xacro)/xacro.py $(find tiago_barkeeper_world)/urdf/bar_cupboard.xacro" />
 
   <node name="spawn_bar_cupboardcounter" pkg="gazebo_ros" type="spawn_model" 
         args="-urdf -param bar_cupboard_description  -x 2.0 -y 0 -z 0 -R 0 -P 0 -Y 0 -model bar_cupboard" 
@@ -64,7 +64,7 @@
 
   <!-- publish world transform to tf -->
   <node pkg="tf" type="static_transform_publisher" 
-        name="static_map_tf_publisher" args="0 0 0 0 0 0 world map 100" />
+        name="static_map_tf_publisher" args="1 0 0 0.2 0 0 world map 100" />
 
 
  <!-- we want static transforms published to /tf -->
@@ -79,6 +79,6 @@
 
 
   <node name="rviz" pkg="rviz" type="rviz" respawn="false" output="screen"
-        args="-d $(find tiago_world)/config/bar_demo.rviz" />
+        args="-d $(find tiago_barkeeper_world)/config/bar_demo.rviz" />
 
 </launch>

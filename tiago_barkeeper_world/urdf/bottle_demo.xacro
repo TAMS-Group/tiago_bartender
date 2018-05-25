@@ -5,11 +5,11 @@
        xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="bottle_demo">
 
-  <xacro:include filename="$(find tiago_world)/urdf/materials.xacro" />
-  <xacro:include filename="$(find tiago_world)/urdf/bottle.xacro" />
-  <xacro:include filename="$(find tiago_world)/urdf/apriltag_bottle.xacro" />
-  <xacro:include filename="$(find tiago_world)/urdf/easy_grasp_bottle.xacro" />
-  <xacro:include filename="$(find tiago_world)/urdf/ikea_glass.xacro" />
+  <xacro:include filename="$(find tiago_barkeeper_world)/urdf/materials.xacro" />
+  <xacro:include filename="$(find tiago_barkeeper_world)/urdf/bottle.xacro" />
+  <xacro:include filename="$(find tiago_barkeeper_world)/urdf/apriltag_bottle.xacro" />
+  <xacro:include filename="$(find tiago_barkeeper_world)/urdf/easy_grasp_bottle.xacro" />
+  <xacro:include filename="$(find tiago_barkeeper_world)/urdf/ikea_glass.xacro" />
 
 
   <link name="world" />
