@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <include file="$(find tiago_barkeeper_world)/launch/bar_demo.launch"/>
+  <include file="$(find tiago_barkeeper_bringup)/launch/tiago_gazebo_bringup.launch">
+    <arg name="gzpose" value="-x 1.7 -y 0.0 -z 0.0 -R 0.0 -P 0.0 -Y 0.0"/>
+  </include>
+</launch>
