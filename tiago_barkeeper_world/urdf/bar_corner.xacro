@@ -21,21 +21,21 @@
     <!-- main body with collision and visual model -->
     <link name="wall_back">
       <inertial>
-        <origin xyz="-0.06 0.0 1.5" />
+        <origin xyz="-0.06 0.0 0.15" />
         <mass value="2000" />
         <inertia  ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
       </inertial>
       <visual>
         <material name="white" />
-        <origin xyz="-0.06 0.0 1.5" />
+        <origin xyz="-0.06 0.0 0.15" />
         <geometry>
-          <box size="0.12 6.0 3.0" />
+          <box size="0.12 6.0 0.3" />
         </geometry>
       </visual>
       <collision>
-        <origin xyz="-0.06 0.0 1.5" />
+        <origin xyz="-0.06 0.0 0.15" />
         <geometry>
-          <box size="0.12 6.0 3.0" />
+          <box size="0.12 6.0 0.3" />
         </geometry>
       </collision>
     </link>
@@ -52,21 +52,21 @@
 
     <link name="wall_front">
       <inertial>
-        <origin xyz="-0.06 0.0 1.5" />
+        <origin xyz="-0.06 0.0 0.15" />
         <mass value="2000" />
         <inertia  ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
       </inertial>
       <visual>
         <material name="white" />
-        <origin xyz="-0.06 0.0 1.5" />
+        <origin xyz="-0.06 0.0 0.15" />
         <geometry>
-          <box size="0.12 6.0 3.0" />
+          <box size="0.12 6.0 0.3" />
         </geometry>
       </visual>
       <collision>
-        <origin xyz="-0.06 0.0 1.5" />
+        <origin xyz="-0.06 0.0 0.15" />
         <geometry>
-          <box size="0.12 6.0 3.0" />
+          <box size="0.12 6.0 0.3" />
         </geometry>
       </collision>
     </link>
@@ -83,21 +83,21 @@
 
     <link name="wall_left">
       <inertial>
-        <origin xyz="-0.06 0.0 1.5" />
+        <origin xyz="-0.06 0.0 0.15" />
         <mass value="2000" />
         <inertia  ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
       </inertial>
       <visual>
         <material name="white" />
-        <origin xyz="-0.06 0.0 1.5" />
+        <origin xyz="-0.06 0.0 0.15" />
         <geometry>
-          <box size="0.12 7.0 3.0" />
+          <box size="0.12 7.0 0.30" />
         </geometry>
       </visual>
       <collision>
-        <origin xyz="-0.06 0.0 1.5" />
+        <origin xyz="-0.06 0.0 0.15" />
         <geometry>
-          <box size="0.12 7.0 3.0" />
+          <box size="0.12 7.0 0.3" />
         </geometry>
       </collision>
     </link>
@@ -114,21 +114,21 @@
 
     <link name="wall_right">
       <inertial>
-        <origin xyz="-0.06 0.0 1.5" />
+        <origin xyz="-0.06 0.0 0.15" />
         <mass value="2000" />
         <inertia  ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
       </inertial>
       <visual>
         <material name="white" />
-        <origin xyz="-0.06 0.0 1.5" />
+        <origin xyz="-0.06 0.0 0.15" />
         <geometry>
-          <box size="0.12 7.0 3.0" />
+          <box size="0.12 7.0 0.3" />
         </geometry>
       </visual>
       <collision>
-        <origin xyz="-0.06 0.0 1.5" />
+        <origin xyz="-0.06 0.0 0.15" />
         <geometry>
-          <box size="0.12 7.0 3.0" />
+          <box size="0.12 7.0 0.3" />
         </geometry>
       </collision>
     </link>
