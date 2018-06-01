@@ -64,21 +64,21 @@
 
   <!-- publish world transform to tf -->
   <node pkg="tf" type="static_transform_publisher" 
-        name="static_map_tf_publisher" args="1 0 0 0.2 0 0 world map 100" />
+        name="static_map_tf_publisher" args="1.75 0 0 0 0 0 world map 100" />
 
 
  <!-- we want static transforms published to /tf -->
   <node pkg="robot_state_publisher" type="state_publisher" respawn="false"
-        name="static_robot_state_publisher">
+        name="static_bar_state_publisher">
      <param name="publish_frequency" type="double" value="50.0" />
      <param name="tf_prefix" type="string" value="" />
 
      <remap from="robot_description" to="bar_description" />
-     <remap from="joint_states" to="bar_counter/joint_states" /> 
+     <remap from="joint_states" to="bar_counter/joint_states" />
  </node>
 
 
-  <node name="rviz" pkg="rviz" type="rviz" respawn="false" output="screen"
-        args="-d $(find tiago_barkeeper_world)/config/bar_demo.rviz" />
+  <!--<node name="rviz" pkg="rviz" type="rviz" respawn="false" output="screen"
+        args="-d $(find tiago_barkeeper_world)/config/bar_demo.rviz" />-->
 
 </launch>
