@@ -1,5 +1,5 @@
-<robot name="test_bottle">
-    <link name="test_bottle">
+<robot name="bottle_pepsi">
+    <link name="bottle_pepsi">
         <inertial>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <mass value="1"/>
@@ -8,17 +8,17 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <mesh filename="package://tiago_barkeeper_world/meshes/test_bottle.dae"/>
+                <mesh filename="package://tiago_barkeeper_world/meshes/bottle_pepsi.dae"/>
             </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <mesh filename="package://tiago_barkeeper_world/meshes/test_bottle.dae"/>
+                <mesh filename="package://tiago_barkeeper_world/meshes/bottle_pepsi.dae"/>
             </geometry>
         </collision>
     </link>
-    <gazebo reference="test_bottle">
+    <gazebo reference="bottle_pepsi">
         <mu1>1.0</mu1>
         <mu2>1.0</mu2>
     </gazebo>
