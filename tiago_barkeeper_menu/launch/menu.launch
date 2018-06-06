@@ -1,0 +1,10 @@
+<launch>
+
+  <node
+    pkg="tiago_barkeeper_menu"
+    type="tiago_barkeeper_menu"
+    name="tiago_barkeeper_menu"
+    args="$(find tiago_barkeeper_menu)/data/tiagobar.yml $(find tiago_barkeeper_menu)/data/calibration.yml"
+    />
+
+</launch>

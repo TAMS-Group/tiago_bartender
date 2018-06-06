@@ -1,0 +1,9 @@
+%YAML:1.0
+template: tiagobar-03.png
+areas: tiagobar-4.png
+labels:
+    FF0000: Salzsäure
+    00FF00: Natronlauge
+    0000FF: Wasserstoffperoxid
+    FFFF00: Aceton
+    FF00FF: Benzol
