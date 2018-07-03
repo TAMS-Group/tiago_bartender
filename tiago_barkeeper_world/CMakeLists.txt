@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(tiago_barkeeper_world)
 
+add_compile_options(-std=c++11)
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp urdf
+  roscpp
+  urdf
+  moveit_ros_planning_interface
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -160,3 +165,6 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+add_executable(dummy_planning_scene_init src/dummy_planning_scene_init.cpp)
+target_link_libraries(dummy_planning_scene_init ${catkin_LIBRARIES})
+add_dependencies(dummy_planning_scene_init ${catkin_EXPORTED_TARGETS})
