@@ -11,6 +11,8 @@
 
   <env name="LC_NUMERIC" value="C" />
 
+  <node name="tiago_gripper_controller" pkg="tiago_bartender_mtc" type="tiago_gripper_controller"/>
+
   <!-- spawn robot in simulation -->
   <include file="$(find tiago_gazebo)/launch/tiago_spawn.launch">
     <arg name="robot" value="$(arg robot)"/>
@@ -33,4 +35,6 @@
   <group if="$(arg tuck_arm)">
     <node name="tuck_arm" pkg="tiago_gazebo" type="tuck_arm.py" output="screen"/>
   </group>
+
+  <param name="move_group/constraint_approximations_path" value="$(find tiago_bartender_mtc)/cadb"/>
 </launch>
