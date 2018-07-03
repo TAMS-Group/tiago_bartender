@@ -1,11 +1,20 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(tiago_barkeeper_navigation)
 
+add_compile_options(-std=c++11)
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp urdf
+  roscpp
+  urdf
+  actionlib
+  actionlib_msgs
+  std_msgs geometry_msgs
+  move_base_msgs
+  moveit_ros_planning_interface
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -56,17 +65,15 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+add_action_files(
+  DIRECTORY action
+  FILES MoveToTarget.action
+)
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+  DEPENDENCIES std_msgs geometry_msgs actionlib_msgs
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -78,6 +85,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+  CATKIN_DEPENDS actionlib_msgs geometry_msgs
 #  INCLUDE_DIRS include
 #  LIBRARIES find_user_exekutor
 #  CATKIN_DEPENDS action_exekutor roscpp
@@ -160,3 +168,15 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(move_to_target_node src/move_to_target_node.cpp)
+
+target_link_libraries(
+  move_to_target_node
+  ${catkin_LIBRARIES}
+)
+
+add_dependencies(
+  move_to_target_node
+  ${catkin_EXPORTED_TARGETS}
+)
