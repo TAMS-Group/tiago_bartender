@@ -88,7 +88,7 @@ struct StateMachine
 
   void state_move_to_bottle(const std::string& bottle_name)
   {
-    bool success = move_to_target(bottle_name);
+    bool success = move_to_target(bottle_name, true);
     if(success)
       state = [bottle_name](StateMachine* m) { m->state_grasp_bottle(bottle_name); };
     else
@@ -121,7 +121,7 @@ struct StateMachine
     geometry_msgs::PoseStamped person_pose;
     person_pose.header = last_person_position_.header;
     person_pose.pose.position = last_person_position_.point;
-    bool success = find_closest_target("glass", person_pose);
+    bool success = find_closest_target("glass", person_pose, true);
     if(success)
       state = &StateMachine::state_pour;
     else
@@ -152,13 +152,14 @@ struct StateMachine
     state = &StateMachine::state_init;
   }
  
-  bool move_to_target(const std::string& target_name)
+  bool move_to_target(const std::string& target_name, bool look_at_target)
   {
     ROS_INFO("moving to target %s", target_name.c_str());
     actionlib::SimpleActionClient<tiago_barkeeper_navigation::MoveToTargetAction> client("move_to_target", true);
     client.waitForServer();
     tiago_barkeeper_navigation::MoveToTargetGoal goal;
     goal.target = target_name;
+    goal.look_at_target = look_at_target;
     client.sendGoal(goal);
     while(!client.waitForResult(ros::Duration(5.0)))
       ROS_INFO("Waiting for move_to_target result.");
@@ -175,7 +176,7 @@ struct StateMachine
     }
   }
 
-  bool find_closest_target(const std::string& type_name, const geometry_msgs::PoseStamped& pose)
+  bool find_closest_target(const std::string& type_name, const geometry_msgs::PoseStamped& pose, bool look_at_target)
   {
     ROS_INFO("Finding closest target of type %s", type_name.c_str());
     actionlib::SimpleActionClient<tiago_barkeeper_navigation::FindClosestTargetAction> client("find_closest_target", true);
@@ -183,6 +184,7 @@ struct StateMachine
     tiago_barkeeper_navigation::FindClosestTargetGoal goal;
     goal.target_type = type_name;
     goal.target_pose = pose;
+    goal.look_at_target = look_at_target;
     client.sendGoal(goal);
     while(!client.waitForResult(ros::Duration(5.0)))
       ROS_INFO("Waiting for find_closest_target result.");

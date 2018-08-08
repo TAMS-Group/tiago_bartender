@@ -5,6 +5,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <move_base_msgs/MoveBaseAction.h>
+#include <control_msgs/PointHeadAction.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit_msgs/CollisionObject.h>
 #include <tf/transform_listener.h>
@@ -25,6 +26,7 @@ public:
                                                  as_fct_(nh_, fct_name, boost::bind(&MoveToTarget::executeFCT, this, _1), false), 
                                                  fct_action_name_(fct_name),
                                                  ac_("move_base", true),
+                                                 look_at_ac_("head_controller/look_at_action", true),
                                                  psi_()
   {
     ros::NodeHandle pn("~");
@@ -66,9 +68,9 @@ public:
     }
 
     //wait for the action server to come up
-    while(!ac_.waitForServer(ros::Duration(5.0)))
+    while(!ac_.waitForServer(ros::Duration(5.0)) || !look_at_ac_.waitForServer(ros::Duration(5.0)))
     {
-      ROS_INFO("Waiting for the move_base action server to come up");
+      ROS_INFO("Waiting for action servers to come up");
     }
 
     vis_pub_ = nh_.advertise<visualization_msgs::Marker>("move_to_target_marker", 0);
@@ -77,7 +79,7 @@ public:
     as_fct_.start();
   }
 
-  void executeMTT(const tiago_barkeeper_navigation::MoveToTargetGoalConstPtr &goal)
+  void executeMTT(const tiago_barkeeper_navigation::MoveToTargetGoalConstPtr& goal)
   {
     geometry_msgs::PoseStamped target_pose;
     if(!goal->target.empty())
@@ -89,6 +91,19 @@ public:
     {
       as_mtt_.setAborted();
       return;
+    }
+
+    // Point head to target
+    if(goal->look_at_target)
+    {
+      control_msgs::PointHeadGoal ph_goal;
+      ph_goal.target.point = goal->target_pose.pose.position;
+      ph_goal.target.header = goal->target_pose.header;
+      ph_goal.pointing_axis.z = 1.0;
+      ph_goal.pointing_frame = "xtion_optical_frame";
+      ph_goal.min_duration = ros::Duration(0.5);
+      ph_goal.max_velocity = 1.0;
+      look_at_ac_.sendGoal(ph_goal);
     }
 
     visualization_msgs::Marker marker;
@@ -117,6 +132,9 @@ public:
 
     marker.action = visualization_msgs::Marker::DELETE;
     vis_pub_.publish(marker);
+
+    if(goal->look_at_target)
+      look_at_ac_.cancelGoal();
   }
 
 
@@ -129,6 +147,19 @@ public:
     {
       as_fct_.setAborted();
       return;
+    }
+
+    // Point head to target
+    if(goal->look_at_target)
+    {
+      control_msgs::PointHeadGoal ph_goal;
+      ph_goal.target.point = goal->target_pose.pose.position;
+      ph_goal.target.header = goal->target_pose.header;
+      ph_goal.pointing_axis.z = 1.0;
+      ph_goal.pointing_frame = "xtion_optical_frame";
+      ph_goal.min_duration = ros::Duration(0.5);
+      ph_goal.max_velocity = 1.0;
+      look_at_ac_.sendGoal(ph_goal);
     }
 
     visualization_msgs::Marker marker;
@@ -157,6 +188,10 @@ public:
 
     marker.action = visualization_msgs::Marker::DELETE;
     vis_pub_.publish(marker);
+
+    if(goal->look_at_target)
+      look_at_ac_.cancelGoal();
+
   }
 
   // set fct to true if the function is used by the find closest_target action server
@@ -220,6 +255,7 @@ public:
       else
         as_fct_.setAborted(res);
     }
+
   }
 
   geometry_msgs::PoseStamped get_pose_from_id(std::string target_id)
@@ -286,6 +322,7 @@ public:
 private:
   std::vector<geometry_msgs::PoseStamped> predefined_poses_;
   actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> ac_;
+  actionlib::SimpleActionClient<control_msgs::PointHeadAction> look_at_ac_;
   moveit::planning_interface::PlanningSceneInterface psi_;
   tf::TransformListener tf_listener_;
   std::string default_frame_;
