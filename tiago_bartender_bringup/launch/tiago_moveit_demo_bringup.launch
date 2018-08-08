@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<launch>
+  <include file="$(find tiago_bartender_bringup)/launch/tiago_bar_demo_bringup.launch"/>
+  <node pkg="tf" type="static_transform_publisher"
+        name="static_robot_tf_publisher" args="0.7 0 0 -0.2 0 0 map odom 100"/>
+  <!-- we want static transforms published to /tf -->
+  <node pkg="robot_state_publisher" type="state_publisher" respawn="false"
+        name="static_robot_state_publisher2">
+     <param name="publish_frequency" type="double" value="50.0" />
+     <param name="tf_prefix" type="string" value="" />
+ </node>
+</launch>

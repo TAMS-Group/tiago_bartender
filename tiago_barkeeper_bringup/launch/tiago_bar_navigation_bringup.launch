@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<launch>
-  <include file="$(find tiago_barkeeper_navigation)/launch/navigation.launch"/>
-  <node name="dummy_planning_scene_init" pkg="tiago_barkeeper_world" type="dummy_planning_scene_init"/>
-  <include file="$(find tiago_barkeeper_navigation)/launch/move_to_target.launch"/>
-</launch>

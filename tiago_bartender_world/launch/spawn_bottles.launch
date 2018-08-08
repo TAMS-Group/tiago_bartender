@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/robots/bottle_2_coke.xacro"/>
+    <arg name="model_name" value="bottle_1"/>
+    <arg name="z" value="0.79"/>
+    <arg name="x" value="2.45"/>
+  </include>
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/robots/bottle_2_fanta.xacro"/>
+    <arg name="model_name" value="bottle_2"/>
+    <arg name="z" value="0.79"/>
+    <arg name="x" value="2.45"/>
+    <arg name="y" value="0.5"/>
+  </include>
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/robots/bottle_2_pepsi.xacro"/>
+    <arg name="model_name" value="bottle_3"/>
+    <arg name="z" value="0.79"/>
+    <arg name="x" value="2.45"/>
+    <arg name="y" value="-0.5"/>
+  </include>
+
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/robots/bottle_coke.xacro"/>
+    <arg name="model_name" value="bottle_4"/>
+    <arg name="z" value="0.79"/>
+    <arg name="x" value="2.45"/>
+    <arg name="y" value="0.8"/>
+  </include>
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/robots/bottle_fanta.xacro"/>
+    <arg name="model_name" value="bottle_5"/>
+    <arg name="z" value="0.79"/>
+    <arg name="x" value="2.45"/>
+    <arg name="y" value="-0.8"/>
+  </include>
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/robots/bottle_pepsi.xacro"/>
+    <arg name="model_name" value="bottle_6"/>
+    <arg name="z" value="0.79"/>
+    <arg name="x" value="2.45"/>
+    <arg name="y" value="1.1"/>
+  </include>
+
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/robots/yellow_glass.xacro"/>
+    <arg name="model_name" value="glass_1"/>
+    <arg name="z" value="0.9"/>
+    <arg name="x" value="0.0"/>
+    <arg name="y" value="0.0"/>
+  </include>
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/robots/yellow_glass.xacro"/>
+    <arg name="model_name" value="glass_2"/>
+    <arg name="z" value="0.9"/>
+    <arg name="x" value="0.0"/>
+    <arg name="y" value="-1.0"/>
+  </include>
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/robots/yellow_glass.xacro"/>
+    <arg name="model_name" value="glass_3"/>
+    <arg name="z" value="0.9"/>
+    <arg name="x" value="0.0"/>
+    <arg name="y" value="1.0"/>
+  </include>
+</launch>
