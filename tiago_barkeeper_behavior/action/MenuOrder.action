@@ -1,0 +1,6 @@
+geometry_msgs/PointStamped person_position
+---
+string selection
+string error_message
+---
+string state
