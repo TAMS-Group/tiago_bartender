@@ -12,23 +12,26 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   roslib
   std_msgs
+  actionlib
+  actionlib_msgs
   sound_play
   message_generation
 )
 
-## Generate services in the 'srv' folder
-add_service_files(
+add_action_files(
+  DIRECTORY action
   FILES
-  FileName.srv
+  BartenderSpeech.action
 )
 
 generate_messages(
   DEPENDENCIES
   std_msgs
+  actionlib_msgs
 )
 
 catkin_package(
-  CATKIN_DEPENDS message_runtime roslib
+  CATKIN_DEPENDS message_runtime roslib actionlib_msgs
 #  INCLUDE_DIRS include
 #  LIBRARIES tiago_bartender_speech
 #  CATKIN_DEPENDS roscpp std_msgs
