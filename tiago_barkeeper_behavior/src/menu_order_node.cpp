@@ -5,7 +5,7 @@
 #include <tiago_barkeeper_navigation/MoveToTargetAction.h>
 #include <control_msgs/PointHeadAction.h>
 #include <std_msgs/String.h>
-#include <tiago_bartender_speech/FilePath.h>
+#include <tiago_bartender_speech/FileName.h>
 
 class MenuOrder
 {
@@ -27,7 +27,7 @@ public:
   {
     command_sub_ = nh_.subscribe("/command_cards/commands", 1000, &MenuOrder::command_callback, this);
     selection_sub_ = nh_.subscribe("/selection", 1000, &MenuOrder::selection_callback, this);
-    sound_client_ = nh_.serviceClient<tiago_bartender_speech::FilePath>("play_audio_file");
+    sound_client_ = nh_.serviceClient<tiago_bartender_speech::FileName>("play_audio_file");
     move_to_target_client.waitForServer();
     point_head_client.waitForServer();
     as_.start();
@@ -75,8 +75,8 @@ public:
     as_.publishFeedback(feedback_);
 
     // tell customer to order
-    tiago_bartender_speech::FilePath srv;
-    srv.request.file_path = "ask_order.wav";
+    tiago_bartender_speech::FileName srv;
+    srv.request.file_name = "ask_order.wav";
     if (!sound_client_.call(srv))
     {
       ROS_ERROR("Failed to call sound service");
