@@ -1,4 +1,8 @@
 # name of the target in the planning scene
 string target
+# alternativley give pose directly. Only used if target is empty.
+geometry_msgs/PoseStamped target_pose
 ---
+# the pose the robot moved to
+geometry_msgs/PoseStamped pose_result
 ---

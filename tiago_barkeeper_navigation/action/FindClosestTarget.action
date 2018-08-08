@@ -1,0 +1,8 @@
+# type of the target in the planning scene
+string target_type
+# the pose relative to which the closest target is searched
+geometry_msgs/PoseStamped target_pose
+---
+# the pose the robot moved to
+geometry_msgs/PoseStamped pose_result
+---

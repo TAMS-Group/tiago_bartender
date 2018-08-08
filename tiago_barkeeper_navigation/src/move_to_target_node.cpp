@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <tiago_barkeeper_navigation/MoveToTargetAction.h>
+#include <tiago_barkeeper_navigation/FindClosestTargetAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/client/simple_action_client.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -13,14 +14,18 @@ class MoveToTarget
 {
 protected:
   ros::NodeHandle nh_;
-  actionlib::SimpleActionServer<tiago_barkeeper_navigation::MoveToTargetAction> as_;
-  std::string action_name_;
+  actionlib::SimpleActionServer<tiago_barkeeper_navigation::MoveToTargetAction> as_mtt_;
+  actionlib::SimpleActionServer<tiago_barkeeper_navigation::FindClosestTargetAction> as_fct_;
+  std::string mtt_action_name_;
+  std::string fct_action_name_;
 
 public:
-  MoveToTarget(std::string name) : as_(nh_, name, boost::bind(&MoveToTarget::executeCB, this, _1), false), 
-                                   action_name_(name),
-                                   ac_("move_base", true),
-                                   psi_()
+  MoveToTarget(std::string mtt_name, std::string fct_name) : as_mtt_(nh_, mtt_name, boost::bind(&MoveToTarget::executeMTT, this, _1), false), 
+                                                 mtt_action_name_(mtt_name),
+                                                 as_fct_(nh_, fct_name, boost::bind(&MoveToTarget::executeFCT, this, _1), false), 
+                                                 fct_action_name_(fct_name),
+                                                 ac_("move_base", true),
+                                                 psi_()
   {
     ros::NodeHandle pn("~");
 
@@ -48,7 +53,7 @@ public:
       geometry_msgs::PoseStamped pose;
       pose.header.frame_id = default_frame_;
       pose.pose.position.z = 0.0;
-      for(int i=0; i < pos_x.size(); i++)
+      for(size_t i=0; i < pos_x.size(); i++)
       {
         pose.pose.position.x = pos_x[i];
         pose.pose.position.y = pos_y[i];
@@ -68,15 +73,21 @@ public:
 
     vis_pub_ = nh_.advertise<visualization_msgs::Marker>("move_to_target_marker", 0);
 
-    as_.start();
+    as_mtt_.start();
+    as_fct_.start();
   }
 
-  void executeCB(const tiago_barkeeper_navigation::MoveToTargetGoalConstPtr &goal)
+  void executeMTT(const tiago_barkeeper_navigation::MoveToTargetGoalConstPtr &goal)
   {
-    geometry_msgs::PoseStamped target_pose = get_pose_from_id(goal->target);
+    geometry_msgs::PoseStamped target_pose;
+    if(!goal->target.empty())
+      target_pose = get_pose_from_id(goal->target);
+    else
+      target_pose = goal->target_pose;
+
     if(target_pose.header.frame_id.empty())
     {
-      as_.setAborted();
+      as_mtt_.setAborted();
       return;
     }
 
@@ -102,6 +113,55 @@ public:
     marker.text = "move to " + goal->target;
     vis_pub_.publish(marker);
 
+    move_to_target_pose(target_pose, false);
+
+    marker.action = visualization_msgs::Marker::DELETE;
+    vis_pub_.publish(marker);
+  }
+
+
+  void executeFCT(const tiago_barkeeper_navigation::FindClosestTargetGoalConstPtr &goal)
+  {
+    geometry_msgs::PoseStamped target_pose;
+    target_pose = get_pose_from_type(goal->target_type, goal->target_pose);
+
+    if(target_pose.header.frame_id.empty())
+    {
+      as_fct_.setAborted();
+      return;
+    }
+
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = "base_footprint";
+    marker.id = 0;
+    marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.pose.position.x = 0.0;
+    marker.pose.position.y = 0.0;
+    marker.pose.position.z = 1.75;
+    marker.pose.orientation.x = 0.0;
+    marker.pose.orientation.y = 0.0;
+    marker.pose.orientation.z = 0.0;
+    marker.pose.orientation.w = 1.0;
+    marker.scale.x = 0.25;
+    marker.scale.y = 0.25;
+    marker.scale.z = 0.25;
+    marker.color.a = 1.0;
+    marker.color.r = 1.0;
+    marker.color.g = 1.0;
+    marker.color.b = 1.0;
+    marker.text = "move to " + goal->target_type;
+    vis_pub_.publish(marker);
+
+    move_to_target_pose(target_pose, true);
+
+    marker.action = visualization_msgs::Marker::DELETE;
+    vis_pub_.publish(marker);
+  }
+
+  // set fct to true if the function is used by the find closest_target action server
+  void move_to_target_pose(geometry_msgs::PoseStamped target_pose, bool fct)
+  {
     geometry_msgs::PoseStamped matched_pose;
     double min_distance = std::numeric_limits<double>::max();
     for(geometry_msgs::PoseStamped pose : predefined_poses_)
@@ -116,28 +176,50 @@ public:
 
     move_base_msgs::MoveBaseGoal target;
 
-    //we'll send a goal to the robot to move 1 meter forward
     target.target_pose = matched_pose;
 
     ac_.sendGoal(target);
 
     while(!ac_.waitForResult(ros::Duration(0.5)) && ros::ok())
     {
-      if(as_.isPreemptRequested())
+      if(as_mtt_.isPreemptRequested() && !fct)
       {
         ROS_INFO("Moving to target was aborted.");
         ac_.cancelGoal();
-        as_.setPreempted();
+        as_mtt_.setPreempted();
+        return;
+      }
+
+      if(as_fct_.isPreemptRequested() && fct)
+      {
+        ROS_INFO("Finding cloest target was aborted.");
+        ac_.cancelGoal();
+        as_fct_.setPreempted();
+        return;
       }
     }
 
-    if(ac_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-      as_.setSucceeded();
-    else
-      as_.setAborted();
+    if(!fct)
+    {
+      tiago_barkeeper_navigation::MoveToTargetResult res;
+      res.pose_result = matched_pose;
 
-    marker.action = visualization_msgs::Marker::DELETE;
-    vis_pub_.publish(marker);
+      if(ac_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+        as_mtt_.setSucceeded(res);
+      else
+        as_mtt_.setAborted(res);
+    }
+
+    if(fct)
+    {
+      tiago_barkeeper_navigation::FindClosestTargetResult res;
+      res.pose_result = matched_pose;
+
+      if(ac_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+        as_fct_.setSucceeded(res);
+      else
+        as_fct_.setAborted(res);
+    }
   }
 
   geometry_msgs::PoseStamped get_pose_from_id(std::string target_id)
@@ -164,6 +246,43 @@ public:
     return pose;
   }
 
+  geometry_msgs::PoseStamped get_pose_from_type(std::string type, geometry_msgs::PoseStamped pose)
+  {
+    geometry_msgs::PoseStamped matched_pose;
+    std::map<std::string, moveit_msgs::CollisionObject> objects = psi_.getObjects();
+
+    double min_distance = std::numeric_limits<double>::max();
+    for(auto object : objects)
+    {
+      moveit_msgs::CollisionObject co = object.second;
+      if (co.id.find(type) == std::string::npos)
+      {
+        continue;
+      }
+      geometry_msgs::PoseStamped target_pose;
+      target_pose.header = co.header;
+
+      if(!co.primitive_poses.empty())
+      {
+        target_pose.pose = co.primitive_poses.at(0);
+      }
+      else if(!co.mesh_poses.empty())
+      {
+        target_pose.pose = co.mesh_poses.at(0);
+      }
+      tf_listener_.transformPose(pose.header.frame_id, target_pose, target_pose);
+
+      double distance = std::abs(target_pose.pose.position.x - pose.pose.position.x) + std::abs(target_pose.pose.position.y - pose.pose.position.y);
+      if(distance < min_distance)
+      {
+        min_distance = distance;
+        matched_pose = target_pose;
+      }
+    }
+
+    return matched_pose;
+  }
+
 private:
   std::vector<geometry_msgs::PoseStamped> predefined_poses_;
   actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> ac_;
@@ -181,7 +300,7 @@ int main(int argc, char **argv)
   spinner.start();
 
   ros::NodeHandle nh;
-  MoveToTarget mtb("move_to_target");
+  MoveToTarget mtb("move_to_target", "find_closest_target");
   while(ros::ok())
   {
 
