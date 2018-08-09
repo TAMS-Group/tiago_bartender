@@ -35,22 +35,22 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="file://$(find tiago_bartender_world)/meshes/cupboard_binary.stl" scale="${scale} ${scale} ${scale}" />
+          <mesh filename="file://$(find tiago_bartender_world)/meshes/cupboard.dae" scale="${scale} ${scale} ${scale}" />
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="file://$(find tiago_bartender_world)/meshes/cupboard_binary.stl" scale="${scale} ${scale} ${scale}" />
+          <mesh filename="file://$(find tiago_bartender_world)/meshes/cupboard.dae" scale="${scale} ${scale} ${scale}" />
         </geometry>      
-        <material name="noyer_wood" >
+        <material name="maple_wood" >
           <!-- <color rgba="1.0 1.0 1.0 1.0"/> -->
         </material>
       </visual>
     </link>
     <gazebo reference="${name}">
       <!-- material/texture definition for Gazebo -->
-      <material>tiago/Wood</material> -->
+      <!-- <material>tiago/Wood</material> -->
       <turnGravityOff>false</turnGravityOff>
       <selfCollide>false</selfCollide>
       <mu1>0</mu1>

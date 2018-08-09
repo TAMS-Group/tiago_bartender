@@ -34,13 +34,13 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="file://$(find tiago_bartender_world)/meshes/bar_stool_binary.stl" scale="${scale} ${scale} ${scale}" />
+          <mesh filename="file://$(find tiago_bartender_world)/meshes/bar_stool.dae" scale="${scale} ${scale} ${scale}" />
         </geometry>
       </collision>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="file://$(find tiago_bartender_world)/meshes/bar_stool_binary.stl" scale="${scale} ${scale} ${scale}" />
+          <mesh filename="file://$(find tiago_bartender_world)/meshes/bar_stool.dae" scale="${scale} ${scale} ${scale}" />
         </geometry>      
         <material name="${name}_bar_stool_gray" >
           <color rgba="0.7 0.4 0.4 1.0" />
@@ -49,7 +49,7 @@
     </link>
     <gazebo reference="${name}">
       <!-- material/texture definition for Gazebo -->
-      <material>tiago/Coke</material> 
+      <!-- <material>tiago/Coke</material>  -->
       <turnGravityOff>false</turnGravityOff>
       <selfCollide>false</selfCollide>
       <mu1>0</mu1>
