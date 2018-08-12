@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="command_card_pause">
+
+  <xacro:include filename="$(find tiago_bartender_world)/urdf/command_card_collada.xacro" />
+
+  <xacro:tiago_command_card namespace="" name="cc_continue" tag="404" />
+
+</robot>

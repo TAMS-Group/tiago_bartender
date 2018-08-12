@@ -1,0 +1,67 @@
+<?xml version="1.0" ?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="tiago_bar_menu_card">
+
+  <!-- ROS xacro/urdf model of the "Tiago bar" menu, 
+       a standard A4-sized paper which lists the available drinks.
+       Pointing your finger onto a drink on the card will trigger
+       an order for that drink.
+
+       We use a hardcoded Collada mesh with the menu textures,
+       as recent Gazebo does not support textures on STL files
+       anymore.
+
+       2018.08.08 - created
+
+       (C) 2018 fnh, hendrich@informatik.uni-hamburg.de
+
+       Usage:
+   -->
+
+
+   <xacro:property name="namespace" value="" />
+   <xacro:property name="name" value="tiago_bar_menu_card" />
+
+
+
+    <!-- main body with collision but without visual -->
+    <link name="${namespace}${name}">
+      <inertial>
+        <mass value="0.01" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+      </inertial>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="file://$(find tiago_bartender_world)/meshes/menu_card.dae" scale="0.01 0.01 0.1" />
+        </geometry>
+      </collision>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="file://$(find tiago_bartender_world)/meshes/menu_card.dae" scale="0.01 0.01 0.01" />
+        </geometry>      
+        <!--
+        <material name="tiago_command_card_white/${name}">
+          <color rgba="1.0 1.0 1.0 1.0"/>
+        </material>
+        -->
+      </visual>
+    </link>
+    <gazebo reference="${namespace}${name}">
+      <!-- material/texture definition for Gazebo -->
+      <!-- <material>Gazebo/White</material> -->
+      <turnGravityOff>false</turnGravityOff>
+      <selfCollide>false</selfCollide>
+      <mu1>100000</mu1>
+      <mu2>100000</mu2>
+      <kp>1000000.0</kp>
+      <kd>1.0</kd>
+    </gazebo>
+
+
+</robot>

@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- simple demo of apriltag_marker objects in rviz and Gazebo.
+  -->
+
+
+  <!-- publish world transform to tf -->
+  <node pkg="tf" type="static_transform_publisher" 
+        name="static_world_cc_pause_publisher" args="1 0 0.1 0 0 0 world cc_pause 00" />
+
+  <!-- publish world transform to tf -->
+  <node pkg="tf" type="static_transform_publisher" 
+        name="static_world_cc_tequila_publisher" args="1 0.2 0.1 0 0 0 world cc_order_tequila_sunrise 10" />
+
+  <!-- publish world transform to tf -->
+  <node pkg="tf" type="static_transform_publisher" 
+        name="static_world_torso_up_publisher" args="1 0.4 0.1 0 0 0 world cc_move_torso_up 10" />
+
+
+  <!-- upload the robot xacro/urdf to the param server -->
+  <group ns="cc_pause">
+    <param name="robot_description" 
+           command="$(find xacro)/xacro.py $(find tiago_bartender_world)/urdf/command_card_pause.xacro" />
+
+    <!-- publishes robot-state, reading the urdf robot model from the xacro -->
+     <node pkg="robot_state_publisher" type="state_publisher" respawn="false" name="dummy_state_publisher">
+        <param name="publish_frequency" type="double" value="10.0" />
+    </node>
+  </group>
+
+  <!-- upload the robot xacro/urdf to the param server -->
+  <group ns="cc_order_tequila_sunrise">
+    <param name="robot_description" 
+           command="$(find xacro)/xacro.py $(find tiago_bartender_world)/urdf/command_card_order_tequila_sunrise.xacro" />
+
+    <!-- publishes robot-state, reading the urdf robot model from the xacro -->
+     <node pkg="robot_state_publisher" type="state_publisher" respawn="false" name="dummy_state_publisher">
+        <param name="publish_frequency" type="double" value="10.0" />
+    </node>
+  </group>
+
+  <!-- upload the robot xacro/urdf to the param server -->
+  <group ns="cc_move_torso_up">
+    <param name="robot_description" 
+           command="$(find xacro)/xacro.py $(find tiago_bartender_world)/urdf/command_card_move_torso_up.xacro" />
+
+    <!-- publishes robot-state, reading the urdf robot model from the xacro -->
+     <node pkg="robot_state_publisher" type="state_publisher" respawn="false" name="dummy_state_publisher">
+        <param name="publish_frequency" type="double" value="10.0" />
+    </node>
+  </group>
+
+
+
+
+
+
+  <node name="rviz" pkg="rviz" type="rviz" respawn="false" output="screen"
+        args="-d $(find tams_apriltags)/launch/tiago_cards_rviz_only.rviz" />
+
+</launch>

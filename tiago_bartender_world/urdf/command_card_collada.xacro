@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="command_card_collada">
+
+  <!-- ROS xacro/urdf model of one "Tiago demo command card",
+       size 130x90 mm, which has "pause" written on the front, 
+       and apriltag 36h11 ID xxx on the back.
+       Showing the apriltag side of the card to our bartender 
+       robot will trigger the corresponding command.
+
+       Note: as Gazebo 7+ does not support (procedural) textures
+       on STL meshes anymore, we have to use (fixed) collada files.
+
+       2018.08.08 - created
+
+       (C) 2018 fnh, hendrich@informatik.uni-hamburg.de
+   -->
+
+
+  <xacro:macro name="tiago_command_card" params="namespace name tag" >
+    <!-- main body with collision and "front" visual -->
+    <link name="${namespace}${name}">
+      <inertial>
+        <mass value="0.01" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
+      </inertial>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.09 0.13 0.002" />
+        </geometry>
+      </collision>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="file://$(find tiago_bartender_world)/meshes/${name}.dae" scale="0.001 0.001 0.001" />
+        </geometry>      
+        <!-- <material> texture is defined in collada -->
+      </visual>
+    </link>
+    <gazebo reference="${namespace}${name}">
+      <!-- material/texture definition for Gazebo -->
+      <!-- <material>Gazebo/White</material> -->
+      <turnGravityOff>true</turnGravityOff>
+      <selfCollide>false</selfCollide>
+      <mu1>100</mu1>
+      <mu2>100</mu2>
+      <kp>1000000.0</kp>
+      <kd>1.0</kd>
+    </gazebo>
+
+    <!-- apriltag texture on the back of the command card -->
+    <link name="${namespace}${name}_atag_${tag}">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="file://$(find tiago_bartender_world)/meshes/${name}_atag_${tag}.dae" scale="0.001 0.001 0.001" />
+        </geometry>      
+      </visual>
+      <!-- no <collision> needed -->
+      <!-- no <material> needed, see collada texture -->
+    </link>
+    <gazebo reference="${namespace}${name}_atag_${tag}">
+      <turnGravityOff>true</turnGravityOff>
+      <selfCollide>false</selfCollide>
+    </gazebo>
+
+    <joint name="${namespace}${name}_atag_joint" type="fixed">
+      <parent link="${namespace}${name}" />
+      <child link="${namespace}${name}_atag_${tag}" />
+      <origin xyz="0 0 -0.0001" rpy="0 3.1415 0" />
+    </joint>
+  </xacro:macro>
+
+
+
+</robot>
