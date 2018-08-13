@@ -22,7 +22,7 @@
       <inertial>
         <mass value="0.01" />
         <origin xyz="0 0 0" rpy="0 0 0" />
-        <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
+        <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
       </inertial>
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -41,7 +41,7 @@
     <gazebo reference="${namespace}${name}">
       <!-- material/texture definition for Gazebo -->
       <!-- <material>Gazebo/White</material> -->
-      <turnGravityOff>true</turnGravityOff>
+      <turnGravityOff>false</turnGravityOff>
       <selfCollide>false</selfCollide>
       <mu1>100</mu1>
       <mu2>100</mu2>
@@ -61,7 +61,7 @@
       <!-- no <material> needed, see collada texture -->
     </link>
     <gazebo reference="${namespace}${name}_atag_${tag}">
-      <turnGravityOff>true</turnGravityOff>
+      <turnGravityOff>false</turnGravityOff>
       <selfCollide>false</selfCollide>
     </gazebo>
 
