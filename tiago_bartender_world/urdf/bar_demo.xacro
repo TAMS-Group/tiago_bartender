@@ -10,6 +10,11 @@
        Note: no bottles/glasses here, as they need to be spawned later.
   -->
 
+
+  <gazebo>
+    <static>true</static>
+  </gazebo>
+
   <xacro:include filename="$(find tiago_bartender_world)/urdf/materials.xacro" />
   <xacro:include filename="$(find tiago_bartender_world)/urdf/bar_counter.xacro" />
   <xacro:include filename="$(find tiago_bartender_world)/urdf/bar_stool.xacro" />

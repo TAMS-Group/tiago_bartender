@@ -51,8 +51,10 @@
     <gazebo reference="${name}">
       <!-- material/texture definition for Gazebo -->
       <!-- <material>tiago/Wood</material> --> 
+      <static>true</static>
       <turnGravityOff>false</turnGravityOff>
       <selfCollide>false</selfCollide>
+      <static>true</static>
       <mu1>0</mu1>
       <mu2>0</mu2>
       <kp>1000000.0</kp>
@@ -60,5 +62,9 @@
     </gazebo>
 
   </xacro:macro>
+
+  <gazebo>
+    <static>true</static>
+  </gazebo>
 
 </robot>
