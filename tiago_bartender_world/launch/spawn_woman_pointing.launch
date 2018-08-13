@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tams_3d_models)/urdf/woman_pointing.urdf"/>
+    <arg name="model_name" value="woman_pointing"/>
+    <arg name="x" value="-0.690"/>
+    <arg name="y" value=" 0.459"/>
+    <arg name="z" value=" 0.001"/>
+    <arg name="yaw" value="0.559"/>
+  </include>
+</launch>
