@@ -22,13 +22,13 @@
     <collision>
       <geometry>
         <origin xyz="0 0 0" rpy="0 0 -1.57" />
-        <mesh filename="package://tams_3d_models/meshes/cwom0010_pointing.dae" scale="1.05 1.05 1.05"/>
+        <mesh filename="package://tiago_bartender_world/meshes/cwom0010_pointing.dae" scale="1.05 1.05 1.05"/>
       </geometry>
     </collision>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 -1.57" />
       <geometry>
-        <mesh filename="package://tams_3d_models/meshes/cwom0010_pointing.dae" scale="1.05 1.05 1.05"/>
+        <mesh filename="package://tiago_bartender_world/meshes/cwom0010_pointing.dae" scale="1.05 1.05 1.05"/>
       </geometry>
     </visual>
   </link>
