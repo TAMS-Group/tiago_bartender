@@ -6,7 +6,7 @@
 
 <launch>
   <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
-    <arg name="xacro_file" value="$(find tams_3d_models)/urdf/woman_pointing.urdf"/>
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/urdf/woman_pointing.urdf"/>
     <arg name="model_name" value="woman_ordering"/>
     <arg name="x" value="-0.690"/>
     <arg name="y" value=" 0.459"/>

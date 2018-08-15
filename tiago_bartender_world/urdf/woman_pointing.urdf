@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<robot name="woman_pointing">
+  <!-- A standing woman, pointing down with her right hand,
+       hand position just high enough for the Tiago bar counter.
+       Playing with two collision volumes: a cylinder for keeping
+       balance, plus the mesh to have the pointing hand in 
+       Pointclouds...
+  -->
+
+  <link name="woman_pointing_footprint">
+    <inertial>
+      <mass value="62" />
+      <origin xyz="0 0 0.9" />
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0.9" rpy="0 0 -1.57" />
+      <geometry>
+        <cylinder radius="0.33" length="1.9" />
+      </geometry>
+    </collision>
+    <collision>
+      <geometry>
+        <origin xyz="0 0 0" rpy="0 0 -1.57" />
+        <mesh filename="package://tams_3d_models/meshes/cwom0010_pointing.dae" scale="1.05 1.05 1.05"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 -1.57" />
+      <geometry>
+        <mesh filename="package://tams_3d_models/meshes/cwom0010_pointing.dae" scale="1.05 1.05 1.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+</robot>
+
