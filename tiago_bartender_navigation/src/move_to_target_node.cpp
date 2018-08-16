@@ -19,6 +19,8 @@ protected:
   actionlib::SimpleActionServer<tiago_bartender_navigation::FindClosestTargetAction> as_fct_;
   std::string mtt_action_name_;
   std::string fct_action_name_;
+  tiago_bartender_navigation::FindClosestTargetResult fct_res_;
+  tiago_bartender_navigation::MoveToTargetResult mtt_res_;
 
 public:
   MoveToTarget(std::string mtt_name, std::string fct_name) : as_mtt_(nh_, mtt_name, boost::bind(&MoveToTarget::executeMTT, this, _1), false), 
@@ -33,38 +35,18 @@ public:
 
     pn.param("default_frame", default_frame_, std::string("map"));
 
-    std::vector<double> pos_x;
-    std::vector<double> pos_y;
-    std::vector<double> ori_x;
-    std::vector<double> ori_y;
-    std::vector<double> ori_z;
-    std::vector<double> ori_w;
-    pn.param("pos_x", pos_x, {});
-    pn.param("pos_y", pos_y, {});
-    pn.param("ori_x", ori_x, {});
-    pn.param("ori_y", ori_y, {});
-    pn.param("ori_z", ori_z, {});
-    pn.param("ori_w", ori_w, {});
+    pn.param("line_segment_a_x", line_segment_a_x_, {});
+    pn.param("line_segment_a_y", line_segment_a_y_, {});
+    pn.param("line_segment_b_x", line_segment_b_x_, {});
+    pn.param("line_segment_b_y", line_segment_b_y_, {});
+    pn.param("ori_x", ori_x_, {});
+    pn.param("ori_y", ori_y_, {});
+    pn.param("ori_z", ori_z_, {});
+    pn.param("ori_w", ori_w_, {});
 
-    if(pos_x.size() != pos_y.size() || pos_y.size() != ori_x.size() || ori_y.size() != ori_z.size() || ori_z.size() != ori_w.size())
+    if(line_segment_a_x_.size() != line_segment_a_y_.size() || line_segment_a_y_.size() != line_segment_b_x_.size() || line_segment_b_x_.size() != line_segment_b_y_.size() || line_segment_b_y_.size() != ori_x_.size() || ori_y_.size() != ori_z_.size() || ori_z_.size() != ori_w_.size())
     {
-      ROS_ERROR_STREAM("All vectors for the predefined poses must be the same size.");
-    }
-    else
-    {
-      geometry_msgs::PoseStamped pose;
-      pose.header.frame_id = default_frame_;
-      pose.pose.position.z = 0.0;
-      for(size_t i=0; i < pos_x.size(); i++)
-      {
-        pose.pose.position.x = pos_x[i];
-        pose.pose.position.y = pos_y[i];
-        pose.pose.orientation.x = ori_x[i];
-        pose.pose.orientation.y = ori_y[i];
-        pose.pose.orientation.z = ori_z[i];
-        pose.pose.orientation.w = ori_w[i];
-        predefined_poses_.push_back(pose);
-      }
+      ROS_ERROR_STREAM("All vectors for the line segments must be the same size.");
     }
 
     //wait for the action server to come up
@@ -101,7 +83,7 @@ public:
       ph_goal.target.header = goal->target_pose.header;
       ph_goal.pointing_axis.z = 1.0;
       ph_goal.pointing_frame = "xtion_optical_frame";
-      ph_goal.min_duration = ros::Duration(0.5);
+      ph_goal.min_duration = ros::Duration(1);
       ph_goal.max_velocity = 1.0;
       look_at_ac_.sendGoal(ph_goal);
     }
@@ -157,7 +139,7 @@ public:
       ph_goal.target.header = goal->target_pose.header;
       ph_goal.pointing_axis.z = 1.0;
       ph_goal.pointing_frame = "xtion_optical_frame";
-      ph_goal.min_duration = ros::Duration(0.5);
+      ph_goal.min_duration = ros::Duration(1);
       ph_goal.max_velocity = 1.0;
       look_at_ac_.sendGoal(ph_goal);
     }
@@ -198,14 +180,32 @@ public:
   void move_to_target_pose(geometry_msgs::PoseStamped target_pose, bool fct)
   {
     geometry_msgs::PoseStamped matched_pose;
+    matched_pose.header.frame_id = default_frame_;
     double min_distance = std::numeric_limits<double>::max();
-    for(geometry_msgs::PoseStamped pose : predefined_poses_)
+
+    for(size_t i = 0; i < line_segment_a_x_.size(); i++)
     {
-      double distance = std::abs(target_pose.pose.position.x - pose.pose.position.x) + std::abs(target_pose.pose.position.y - pose.pose.position.y);
+      double Ax = line_segment_a_x_[i];
+      double Ay = line_segment_a_y_[i];
+      double Bx = line_segment_b_x_[i];
+      double By = line_segment_b_y_[i];
+      double Cx = target_pose.pose.position.x;
+      double Cy = target_pose.pose.position.y;
+
+      double t=((Cx-Ax)*(Bx-Ax)+(Cy-Ay)*(By-Ay))/(std::pow(Bx-Ax, 2.0)+std::pow(By-Ay,2.0));
+      double Dx=Ax+t*(Bx-Ax);
+      double Dy=Ay+t*(By-Ay);
+      double distance = std::abs(target_pose.pose.position.x - Dx) + std::abs(target_pose.pose.position.y - Dy);
+
       if(distance < min_distance)
       {
         min_distance = distance;
-        matched_pose = pose;
+        matched_pose.pose.position.x = Dx;
+        matched_pose.pose.position.y = Dy;
+        matched_pose.pose.orientation.x = ori_x_[i];
+        matched_pose.pose.orientation.y = ori_y_[i];
+        matched_pose.pose.orientation.z = ori_z_[i];
+        matched_pose.pose.orientation.w = ori_w_[i];
       }
     }
 
@@ -236,24 +236,24 @@ public:
 
     if(!fct)
     {
-      tiago_bartender_navigation::MoveToTargetResult res;
-      res.pose_result = matched_pose;
+      mtt_res_.pose_result = matched_pose;
+      mtt_res_.target_pose_result = target_pose;
 
       if(ac_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-        as_mtt_.setSucceeded(res);
+        as_mtt_.setSucceeded(mtt_res_);
       else
-        as_mtt_.setAborted(res);
+        as_mtt_.setAborted(mtt_res_);
     }
 
     if(fct)
     {
-      tiago_bartender_navigation::FindClosestTargetResult res;
-      res.pose_result = matched_pose;
+      fct_res_.pose_result = matched_pose;
+      fct_res_.target_pose_result = target_pose;
 
       if(ac_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-        as_fct_.setSucceeded(res);
+        as_fct_.setSucceeded(fct_res_);
       else
-        as_fct_.setAborted(res);
+        as_fct_.setAborted(fct_res_);
     }
 
   }
@@ -313,6 +313,7 @@ public:
       {
         min_distance = distance;
         matched_pose = target_pose;
+        fct_res_.target_id = co.id;
       }
     }
 
@@ -320,12 +321,20 @@ public:
   }
 
 private:
-  std::vector<geometry_msgs::PoseStamped> predefined_poses_;
   actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> ac_;
   actionlib::SimpleActionClient<control_msgs::PointHeadAction> look_at_ac_;
   moveit::planning_interface::PlanningSceneInterface psi_;
   tf::TransformListener tf_listener_;
   std::string default_frame_;
+
+  std::vector<double> line_segment_a_x_;
+  std::vector<double> line_segment_a_y_;
+  std::vector<double> line_segment_b_x_;
+  std::vector<double> line_segment_b_y_;
+  std::vector<double> ori_x_;
+  std::vector<double> ori_y_;
+  std::vector<double> ori_z_;
+  std::vector<double> ori_w_;
 
   ros::Publisher vis_pub_;
 };

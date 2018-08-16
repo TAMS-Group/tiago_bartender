@@ -7,4 +7,6 @@ bool look_at_target
 ---
 # the pose the robot moved to
 geometry_msgs/PoseStamped pose_result
+# the pose of the target object in the planning scene
+geometry_msgs/PoseStamped target_pose_result
 ---
