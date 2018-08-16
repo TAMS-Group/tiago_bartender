@@ -1,0 +1,4 @@
+# forward, down, left or right. If empty target_point is used
+string direction
+geometry_msgs/PointStamped target_point
+---

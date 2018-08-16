@@ -14,10 +14,9 @@ find_package(catkin REQUIRED COMPONENTS
   move_base_msgs
 )
 
-## Generate actions in the 'action' folder
-add_action_files(
+add_service_files(
   FILES
-  MenuOrder.action
+  LookAt.srv
 )
 
 # Generate added messages and services with any dependencies listed here
