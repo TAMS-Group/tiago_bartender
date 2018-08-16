@@ -23,6 +23,16 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_ros_robot_interaction
   sensor_msgs
   cv_bridge
+  actionlib_msgs
+)
+
+add_action_files(
+  DIRECTORY action
+  FILES TakeOrder.action
+)
+
+generate_messages(
+  DEPENDENCIES actionlib_msgs std_msgs
 )
 
 catkin_package(
@@ -34,6 +44,7 @@ catkin_package(
   tf_conversions
   sensor_msgs
   cv_bridge
+  actionlib_msgs
 )
 
 include_directories(
