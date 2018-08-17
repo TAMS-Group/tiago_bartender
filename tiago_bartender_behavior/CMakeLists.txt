@@ -14,10 +14,9 @@ find_package(catkin REQUIRED COMPONENTS
   move_base_msgs
 )
 
-## Generate actions in the 'action' folder
-add_action_files(
+add_service_files(
   FILES
-  MenuOrder.action
+  LookAt.srv
 )
 
 # Generate added messages and services with any dependencies listed here
@@ -35,18 +34,6 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
-)
-
-add_executable(menu_order_node src/menu_order_node.cpp)
-
-target_link_libraries(
-  menu_order_node
-  ${catkin_LIBRARIES}
-)
-
-add_dependencies(
-  menu_order_node
-  ${catkin_EXPORTED_TARGETS}
 )
 
 add_executable(simple_idle_node src/simple_idle_node.cpp)

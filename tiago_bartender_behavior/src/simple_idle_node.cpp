@@ -3,11 +3,12 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <std_srvs/Empty.h>
 #include <trajectory_msgs/JointTrajectory.h>
+#include <tiago_bartender_behavior/LookAt.h>
 
 struct Target
 {
   move_base_msgs::MoveBaseGoal move_target;
-  trajectory_msgs::JointTrajectory head_target;
+  std::string head_target;
 };
 
 class SimpleIdle
@@ -16,24 +17,19 @@ public:
   SimpleIdle(): enabled_(false), ac_("move_base", true)
   {
     switch_service_ = nh_.advertiseService("switch_simple_idle", &SimpleIdle::switch_idle, this);
-    head_command_pub_ = nh_.advertise<trajectory_msgs::JointTrajectory>("/head_controller/command", 1000);
+    look_at_client_ = nh_.serviceClient<tiago_bartender_behavior::LookAt>("head_controller/look_at_service");
+
     Target target;
     target.move_target.target_pose.header.frame_id = "map";
     target.move_target.target_pose.pose.position.x = -0.75;
     target.move_target.target_pose.pose.position.y = -1.5;
     target.move_target.target_pose.pose.orientation.w = 0.7071;
     target.move_target.target_pose.pose.orientation.z = -0.7071;
-    target.head_target.joint_names.push_back("head_1_joint");
-    target.head_target.joint_names.push_back("head_2_joint");
-    trajectory_msgs::JointTrajectoryPoint jtp;
-    jtp.positions.push_back(-1.29);
-    jtp.positions.push_back(0.0);
-    jtp.time_from_start = ros::Duration(0.5);
-    target.head_target.points.push_back(jtp);
+    target.head_target = "right";
     targets_.push_back(target);
     target.move_target.target_pose.pose.orientation.z = 0.7071;
     target.move_target.target_pose.pose.position.y = 1.5;
-    target.head_target.points.at(0).positions.at(0) = 1.29;
+    target.head_target = "left";
     targets_.push_back(target);
 
     while(!ac_.waitForServer(ros::Duration(5.0)))
@@ -54,8 +50,12 @@ public:
       if(itr == targets_.end())
         itr = targets_.begin();
 
-      itr->head_target.header.stamp = ros::Time::now() + ros::Duration(0.1);
-      head_command_pub_.publish(itr->head_target);
+      tiago_bartender_behavior::LookAt srv;
+      srv.request.direction = itr->head_target;
+      if (!look_at_client_.call(srv))
+      {
+        ROS_ERROR("Failed to call look_at_service");
+      }
 
       ac_.sendGoal(itr->move_target);
       while(!ac_.waitForResult(ros::Duration(0.1)) && ros::ok())
@@ -79,7 +79,7 @@ private:
 
   ros::NodeHandle nh_;
   ros::ServiceServer switch_service_;
-  ros::Publisher head_command_pub_;
+  ros::ServiceClient look_at_client_;
   actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> ac_;
   bool enabled_;
   std::vector<Target> targets_;
