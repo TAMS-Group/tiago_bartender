@@ -61,6 +61,19 @@ struct StateMachine
     }
     sleep(0.1);
 
+    state = [person_position](StateMachine* m) { m->state_move_to_person(person_position); };
+  }
+
+  void state_move_to_person(const geometry_msgs::PointStamped person_position)
+  {
+    ROS_INFO("Moving to person");
+    publish_marker("state_take_move_to_person");
+    tiago_bartender_navigation::MoveToTargetGoal mtt_goal;
+    geometry_msgs::PoseStamped target_pose;
+    target_pose.header = person_position.header;
+    target_pose.pose.position = person_position.point;
+
+    move_to_pose(target_pose, true);
     state = [person_position](StateMachine* m) { m->state_take_order(person_position); };
   }
 
