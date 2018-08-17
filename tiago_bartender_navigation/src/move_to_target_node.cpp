@@ -10,6 +10,7 @@
 #include <moveit_msgs/CollisionObject.h>
 #include <tf/transform_listener.h>
 #include <visualization_msgs/Marker.h>
+#include <tiago_bartender_behavior/LookAt.h>
 
 class MoveToTarget
 {
@@ -28,7 +29,6 @@ public:
                                                  as_fct_(nh_, fct_name, boost::bind(&MoveToTarget::executeFCT, this, _1), false), 
                                                  fct_action_name_(fct_name),
                                                  ac_("move_base", true),
-                                                 look_at_ac_("head_controller/look_at_action", true),
                                                  psi_()
   {
     ros::NodeHandle pn("~");
@@ -49,10 +49,12 @@ public:
       ROS_ERROR_STREAM("All vectors for the line segments must be the same size.");
     }
 
+    look_at_client_ = nh_.serviceClient<tiago_bartender_behavior::LookAt>("head_controller/look_at_service");
+
     //wait for the action server to come up
-    while(!ac_.waitForServer(ros::Duration(5.0)) || !look_at_ac_.waitForServer(ros::Duration(5.0)))
+    while(!ac_.waitForServer(ros::Duration(5.0)))
     {
-      ROS_INFO("Waiting for action servers to come up");
+      ROS_INFO("Waiting for move base action server to come up");
     }
 
     vis_pub_ = nh_.advertise<visualization_msgs::Marker>("move_to_target_marker", 0);
@@ -78,14 +80,13 @@ public:
     // Point head to target
     if(goal->look_at_target)
     {
-      control_msgs::PointHeadGoal ph_goal;
-      ph_goal.target.point = goal->target_pose.pose.position;
-      ph_goal.target.header = goal->target_pose.header;
-      ph_goal.pointing_axis.z = 1.0;
-      ph_goal.pointing_frame = "xtion_optical_frame";
-      ph_goal.min_duration = ros::Duration(1);
-      ph_goal.max_velocity = 1.0;
-      look_at_ac_.sendGoal(ph_goal);
+      tiago_bartender_behavior::LookAt srv;
+      srv.request.target_point.header = goal->target_pose.header;
+      srv.request.target_point.point = goal->target_pose.pose.position;
+      if (!look_at_client_.call(srv))
+      {
+        ROS_ERROR("Failed to call look_at_service");
+      }
     }
 
     visualization_msgs::Marker marker;
@@ -114,9 +115,6 @@ public:
 
     marker.action = visualization_msgs::Marker::DELETE;
     vis_pub_.publish(marker);
-
-    if(goal->look_at_target)
-      look_at_ac_.cancelGoal();
   }
 
 
@@ -134,14 +132,13 @@ public:
     // Point head to target
     if(goal->look_at_target)
     {
-      control_msgs::PointHeadGoal ph_goal;
-      ph_goal.target.point = goal->target_pose.pose.position;
-      ph_goal.target.header = goal->target_pose.header;
-      ph_goal.pointing_axis.z = 1.0;
-      ph_goal.pointing_frame = "xtion_optical_frame";
-      ph_goal.min_duration = ros::Duration(1);
-      ph_goal.max_velocity = 1.0;
-      look_at_ac_.sendGoal(ph_goal);
+      tiago_bartender_behavior::LookAt srv;
+      srv.request.target_point.header = goal->target_pose.header;
+      srv.request.target_point.point = goal->target_pose.pose.position;
+      if (!look_at_client_.call(srv))
+      {
+        ROS_ERROR("Failed to call look_at_service");
+      }
     }
 
     visualization_msgs::Marker marker;
@@ -170,10 +167,6 @@ public:
 
     marker.action = visualization_msgs::Marker::DELETE;
     vis_pub_.publish(marker);
-
-    if(goal->look_at_target)
-      look_at_ac_.cancelGoal();
-
   }
 
   // set fct to true if the function is used by the find closest_target action server
@@ -322,7 +315,8 @@ public:
 
 private:
   actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> ac_;
-  actionlib::SimpleActionClient<control_msgs::PointHeadAction> look_at_ac_;
+  ros::ServiceClient look_at_client_;
+  
   moveit::planning_interface::PlanningSceneInterface psi_;
   tf::TransformListener tf_listener_;
   std::string default_frame_;
