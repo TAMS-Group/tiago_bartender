@@ -36,18 +36,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(menu_order_node src/menu_order_node.cpp)
-
-target_link_libraries(
-  menu_order_node
-  ${catkin_LIBRARIES}
-)
-
-add_dependencies(
-  menu_order_node
-  ${catkin_EXPORTED_TARGETS}
-)
-
 add_executable(simple_idle_node src/simple_idle_node.cpp)
 
 target_link_libraries(
