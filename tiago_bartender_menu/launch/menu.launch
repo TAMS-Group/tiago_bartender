@@ -4,7 +4,7 @@
     pkg="tiago_bartender_menu"
     type="tiago_bartender_menu"
     name="tiago_bartender_menu"
-    args="$(find tiago_bartender_menu)/data/tiagobar.yml $(find tiago_bartender_menu)/data/calibration.yml"
+    args="$(find tiago_bartender_menu)/data/tiagobar.yml"
     output="screen"
     />
 

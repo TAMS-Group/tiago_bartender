@@ -58,7 +58,3 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 add_executable(tiago_bartender_menu src/tiago_bartender_menu.cpp)
 add_dependencies(tiago_bartender_menu ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(tiago_bartender_menu yaml-cpp ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
-
-add_executable(tiago_bartender_menu_calibrate src/tiago_bartender_menu_calibrate.cpp)
-add_dependencies(tiago_bartender_menu_calibrate ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(tiago_bartender_menu_calibrate yaml-cpp ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})

@@ -64,12 +64,14 @@ int main(int argc, char **argv) {
 
   cv::FileStorage cfg(argv[1], cv::FileStorage::READ);
 
-  YAML::Node yaml_calibration = YAML::LoadFile(argv[2]);
+  // YAML::Node yaml_calibration = YAML::LoadFile(argv[2]);
 
   cv::RNG rng;
 
-  int minMatches;
-  node.param("min_matches", minMatches, 10);
+  int minMatches = (int)cfg["min_feature_matches"].real();
+  // node.param("min_matches", minMatches, 10);
+
+  static int max_detection_failures = (int)cfg["max_detection_failures"].real();
 
   // std::cout << cfg["template"].string() << std::endl;
 
@@ -216,7 +218,7 @@ int main(int argc, char **argv) {
   // cv::namedWindow("finger", cv::WINDOW_NORMAL);
   // cv::resizeWindow("finger", 1000, 1000);
 
-  cv::Size table_image_size = cv::Size(1024, 1024);
+  /*cv::Size table_image_size = cv::Size(1024, 1024);
   cv::Mat table_transform;
   {
     auto size = table_image_size;
@@ -241,11 +243,8 @@ int main(int argc, char **argv) {
         cv::Point2f(size.width * 0.5f - size.width * scale,
                     size.height * 0.5f + size.height * scale),
     };
-    /*for (size_t i = 0; i < 4; i++)
-      std::cout << src[i].x << " " << src[i].y << " " << dst[i].x << " "
-                << dst[i].y << std::endl;*/
     table_transform = cv::getPerspectiveTransform(src, dst);
-  }
+  }*/
 
   cv::FlannBasedMatcher matcher;
 
@@ -256,19 +255,24 @@ int main(int argc, char **argv) {
 
   cv::waitKey(1);
 
+  static int detection_failures = 0;
+
   std::thread([&]() {
     auto cancelOrderAction = []() {
       if (takeOrderAction.isActive()) {
-        tiago_bartender_menu::TakeOrderResult result;
-        result.status = "no_menu_card_detected";
-        takeOrderAction.setAborted(result);
+        detection_failures++;
+        if (detection_failures > max_detection_failures) {
+          tiago_bartender_menu::TakeOrderResult result;
+          result.status = "no_menu_card_detected";
+          takeOrderAction.setAborted(result);
+        }
       }
     };
 
     while (true) {
       // cv::waitKey(1);
 
-      usleep(100000);
+      usleep(500000);
 
       if (!takeOrderAction.isActive()) {
 
@@ -277,6 +281,13 @@ int main(int argc, char **argv) {
           image_denoise_div = 0;
           image_denoise_sum.setTo(cv::Scalar(0));
         }
+
+        {
+          std::unique_lock<std::mutex> lock(transform_x_mutex);
+          transform_x_mat = cv::Mat();
+        }
+
+        detection_failures = 0;
 
         continue;
       }
@@ -301,8 +312,9 @@ int main(int argc, char **argv) {
         captured_image.convertTo(captured_image, CV_8UC3);
       }
 
-      cv::warpPerspective(captured_image, image_scene_color, table_transform,
-                          table_image_size);
+      image_scene_color = captured_image;
+      /*cv::warpPerspective(captured_image, image_scene_color, table_transform,
+                          table_image_size);*/
 
       image_object = image_object0.clone();
 
@@ -359,13 +371,15 @@ int main(int argc, char **argv) {
         points_scene.push_back(keypoints_scene[m.trainIdx].pt);
       }
 
+      // cv::Mat transform =
+      //      cv::estimateRigidTransform(points_scene, points_object, true);
       cv::Mat transform =
-          cv::estimateRigidTransform(points_scene, points_object, false);
+          cv::findHomography(points_scene, points_object, CV_RANSAC);
 
       try {
         transform.convertTo(transform, CV_32FC1);
         cv::findTransformECC(
-            image_scene, image_object, transform, cv::MOTION_AFFINE,
+            image_scene, image_object, transform, cv::MOTION_HOMOGRAPHY,
             cv::TermCriteria(cv::TermCriteria::COUNT, 5, 0.001));
       } catch (const cv::Exception &e) {
         // std::cout << e.what() << std::endl;
@@ -385,6 +399,8 @@ int main(int argc, char **argv) {
         std::unique_lock<std::mutex> lock(transform_x_mutex);
         transform_x_mat = transform;
       }
+
+      detection_failures = 0;
 
       // std::cout << transform << std::endl;
     }
@@ -452,8 +468,9 @@ int main(int argc, char **argv) {
         continue;
 
       cv::Mat captured_image = img_ptr->image;
-      cv::warpPerspective(captured_image, image_scene_color, table_transform,
-                          table_image_size);
+      /*cv::warpPerspective(captured_image, image_scene_color, table_transform,
+                          table_image_size);*/
+      image_scene_color = captured_image;
 
       // cv::imshow("input", image_scene_color);
       publishImage(image_publisher_input, image_scene_color);
@@ -477,8 +494,8 @@ int main(int argc, char **argv) {
       }
 
       cv::Mat image_object_unprojected;
-      cv::warpAffine(image_scene_color, image_object_unprojected, transform,
-                     image_object.size());
+      cv::warpPerspective(image_scene_color, image_object_unprojected,
+                          transform, image_object.size());
 
       // cv::imshow("image_object_unprojected", image_object_unprojected);
       publishImage(image_publisher_rectified, image_object_unprojected);
@@ -569,6 +586,7 @@ int main(int argc, char **argv) {
         {
           tiago_bartender_menu::TakeOrderFeedback feedback;
           feedback.feature_matches = feature_matches;
+          feedback.detection_failures = detection_failures;
           takeOrderAction.publishFeedback(feedback);
         }
 
@@ -624,6 +642,7 @@ int main(int argc, char **argv) {
           feedback.selection_counter = current_level;
         }
         feedback.feature_matches = feature_matches;
+        feedback.detection_failures = detection_failures;
         takeOrderAction.publishFeedback(feedback);
       }
 
