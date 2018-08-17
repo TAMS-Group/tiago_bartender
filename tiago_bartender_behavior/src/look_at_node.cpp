@@ -43,9 +43,9 @@ public:
     {
       current_goal_.target.header.stamp = ros::Time::now();
       ac_.sendGoal(current_goal_);
-      ros::Duration(0.5).sleep();
-      ac_.cancelGoal();
+      ros::Duration(0.1).sleep();
     }
+    ac_.cancelGoal();
   }
 
 private:
