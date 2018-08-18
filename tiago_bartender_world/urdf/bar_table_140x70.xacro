@@ -1,0 +1,105 @@
+<?xml version="1.0" ?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://www.ros.org/wiki/xacro"
+       name="bar_table_140x70">
+
+  <!-- ROS xacro/urdf model of a standard wooden table,
+       size 140x70, height 75 cm.
+      
+       Origin is at the bottom, centered in x and y.
+       To simplify/stabilize simulation, center-of-gravity is at z=0.
+
+       2018.08.18 - created
+
+       (C) 2018 fnh, hendrich@informatik.uni-hamburg.de
+   -->
+
+
+<xacro:macro name="bar_table_140x70" params="name">
+
+  <!-- main body with mesh collision and visual model -->
+  <!-- to simplify simulation, center-of-mass is at the bottom! -->
+  <link name="${name}">
+    <inertial>
+      <mass value="20" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0.74" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find tiago_bartender_world)/meshes/table_plate_140x70x2.dae" scale="0.001 0.001 0.001" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0.74" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="file://$(find tiago_bartender_world)/meshes/table_plate_140x70x2.dae" scale="0.001 0.001 0.001" />
+      </geometry>
+    </visual>
+  </link>
+  <gazebo reference="${name}">
+    <!-- <material>tiago/Wood</material> --> 
+    <static>true</static>
+    <turnGravityOff>false</turnGravityOff>
+    <selfCollide>false</selfCollide>
+    <mu1>1000</mu1>
+    <mu2>1000</mu2>
+    <kp>1000000.0</kp>
+    <kd>1.0</kd>
+  </gazebo>
+
+  <xacro:macro name="table_leg" params="name id *origin">
+    <link name="${name}_${id}">
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.02 0.02 0.73" rpy="0 0 0"/>
+        </geometry>
+      </collision>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="black" />
+        <geometry>
+          <box size="0.02 0.02 0.73" rpy="0 0 0"/>
+        </geometry>
+      </visual>
+    </link>
+    <joint name="${name}_${id}_joint" type="fixed">
+      <insert_block name="origin"/>
+      <parent link="${name}" />
+      <child  link="${name}_${id}" />
+    </joint>
+    <gazebo reference="${name}_${id}">
+      <material>Gazebo/Black</material>
+      <static>true</static>
+      <turnGravityOff>false</turnGravityOff>
+      <selfCollide>false</selfCollide>
+    </gazebo>
+  </xacro:macro>
+  
+
+  <xacro:table_leg name="${name}" id="leg1">
+    <origin xyz="${1.4/2-0.02/2} ${0.7/2-0.02/2} ${0.73/2}" rpy="0 0 0" />
+  </xacro:table_leg>
+
+  <xacro:table_leg name="${name}" id="leg2">
+    <origin xyz="${-1.4/2+0.02/2} ${0.7/2-0.02/2} ${0.73/2}" rpy="0 0 0" />
+  </xacro:table_leg>
+
+  <xacro:table_leg name="${name}" id="leg3">
+    <origin xyz="${1.4/2-0.02/2} ${-0.7/2+0.02/2} ${0.73/2}" rpy="0 0 0" />
+  </xacro:table_leg>
+
+  <xacro:table_leg name="${name}" id="leg4">
+    <origin xyz="${-1.4/2+0.02/2} ${-0.7/2+0.02/2} ${0.73/2}" rpy="0 0 0" />
+  </xacro:table_leg>
+
+</xacro:macro>
+  
+
+<!-- <xacro:bar_table_140x70 name="hugo"/> -->
+
+</robot>
