@@ -19,10 +19,9 @@
        <xacro:bar_counter name="counter" />
    -->
 
-  <xacro:macro name="scale" value="0.00075"/>
 
   <xacro:macro name="bar_counter" 
-               params="name" >
+               params="name scale" >
 
     <!-- main body with mesh collision and visual model -->
 

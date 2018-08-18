@@ -26,7 +26,7 @@
   <link name="tiago/world" />
 
   <xacro:bar_corner />
-  <xacro:bar_counter name="counter" />
+  <xacro:bar_counter name="counter" scale="0.00075" />
   <xacro:bar_cupboard name="cupboard" />
   <xacro:bar_stool name="stool_1" />
   <xacro:bar_stool name="stool_2" />

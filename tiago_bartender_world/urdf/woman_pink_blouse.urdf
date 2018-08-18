@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<robot name="woman_pink_blouse" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- standing young woman, pink shirt, blue trousers -->
+
+  <link name="woman_pink_blouse/base_footprint">
+    <inertial>
+      <mass value="65" />
+      <origin xyz="0 0 0.0" rpy="0 0 0" />
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder length="0.001" radius="0.35" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder length="0.001" radius="0.25" />
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="woman_pink_blouse/base_link_joint" type="fixed">
+    <origin xyz="0 0 0.9" rpy="0 0 0" />
+    <parent link="woman_pink_blouse/base_footprint"/>
+    <child link="woman_pink_blouse/base_link" />
+  </joint>
+
+  <link name="woman_pink_blouse/base_link">
+    <inertial>
+      <mass value="1" />
+      <origin xyz="0 0 -0.9" rpy="0 0 0" />
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+    <collision>
+      <!-- approximate cylinder to speed up collision checking
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder length="1.80" radius="0.25" />
+      </geometry>
+      -->
+      <origin xyz="0.1 -0.25 -0.9" rpy="0 0 1.5707" />
+      <geometry>
+        <mesh filename="package://tiago_bartender_world/meshes/woman_standing.dae" scale="0.42 0.42 0.42"/> 
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0.1 -0.25 -0.9" rpy="0 0 1.5707" />
+      <geometry>
+        <mesh filename="package://tiago_bartender_world/meshes/woman_standing.dae" scale="0.42 0.42 0.42"/> 
+      </geometry>
+    </visual>
+  </link>
+
+</robot>

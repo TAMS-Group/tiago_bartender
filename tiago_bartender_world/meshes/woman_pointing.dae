@@ -12,15 +12,16 @@
   </asset>
   <library_images>
     <image id="cwom0010_tif_001" name="cwom0010_tif_001">
-      <init_from>cwom0010.tif.001.tif</init_from>
+      <Xinit_from>cwom0010.tif.001.tif</Xinit_from>
+      <init_from>woman_pointing.png</init_from>
     </image>
-  </library_images>
+   </library_images>
   <library_effects>
     <effect id="CWom0010_001-effect">
       <profile_COMMON>
         <newparam sid="cwom0010_tif_001-surface">
           <surface type="2D">
-            <init_from>cwom0010_tif_001</init_from>
+-            <init_from>cwom0010_tif_001</init_from>
           </surface>
         </newparam>
         <newparam sid="cwom0010_tif_001-sampler">

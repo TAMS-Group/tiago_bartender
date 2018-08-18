@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/urdf/man_suit.urdf"/>
+    <arg name="model_name" value="man_suit"/>
+    <arg name="x" value="3.0"/>
+    <arg name="y" value="1.0"/>
+    <arg name="z" value="0.001"/>
+    <arg name="yaw" value="0.0"/>
+  </include>
+</launch>
