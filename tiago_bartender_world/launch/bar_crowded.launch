@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- launches our simplified "Tiago" bar in rviz and Gazebo,
+       with tables as furniture.
+       Also spawns a couple of people to test person detection.
+
+       As roslaunch does not support dependencies, you will have
+       to launch your robot and any bottles/glasses/etc. after
+       this launch has completed.
+  -->
+
+  <arg name="x" default="0" />
+  <arg name="y" default="0" />
+  <arg name="z" default="0.01" />
+
+  <!-- doesn't work anymore <arg name="world_name" default="$(find gazebo_ros)/worlds/empty.world" /> -->
+  <arg name="world_name" default="worlds/empty.world" /> -->
+
+
+
+  <!-- start gazebo server (gzserver/debug) and the main GUI-->
+  <node name="gazebo" pkg="gazebo_ros" type="gzserver" respawn="false" output="screen"
+        args="$(arg world_name)" />
+
+  <node name="gazebo_gui" pkg="gazebo_ros" type="gzclient" respawn="false" output="screen"/>
+
+
+
+  <!-- spawn the bar counter at xzy=(0,0,0), guests approach from -x  -->
+  <param name="bar_description" 
+         command="$(find xacro)/xacro.py $(find tiago_bartender_world)/urdf/bar_demo_tables.xacro" />
+
+  <node name="spawn_bar_model" pkg="gazebo_ros" type="spawn_model" 
+        args="-urdf -param bar_description  -x 0 -y 0 -z 0 -R 0 -P 0 -Y 0 -model bar_model" 
+        respawn="false" output="screen" />
+
+
+  <!-- a professor discussing with his postdoc and favorite phd student -->
+
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/urdf/professor.urdf" />
+    <arg name="model_name" value="professor"/>
+    <arg name="x"   value="-0.8"/>
+    <arg name="y"   value="-1.5"/>
+    <arg name="z"   value="0.001"/>
+    <arg name="yaw" value="1.15" />
+  </include>
+
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/urdf/postdoc.urdf" />
+    <arg name="model_name" value="postdoc"/>
+    <arg name="x"   value="-1.35"/>
+    <arg name="y"   value="-1.1"/>
+    <arg name="z"   value="0.001"/>
+    <arg name="yaw" value="-0.08" />
+  </include>
+
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/urdf/phd.urdf" />
+    <arg name="model_name" value="phd"/>
+    <arg name="x"   value="-1.05"/>
+    <arg name="y"   value="-0.55"/>
+    <arg name="z"   value="0.001"/>
+    <arg name="yaw" value="-1.1" />
+  </include>
+
+
+  <!-- a woman with the consultant -->
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/urdf/woman_black_miniskirt.urdf" />
+    <arg name="model_name" value="woman_black_miniskirt"/>
+    <arg name="x"   value="-0.74"/>
+    <arg name="y"   value="1.10"/>
+    <arg name="z"   value="0.001"/>
+    <arg name="yaw" value="-0.35" />
+  </include>
+
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/urdf/man_hands_in_pockets.urdf" />
+    <arg name="model_name" value="man_hands_in_pockets"/>
+    <arg name="x"   value="-0.51"/>
+    <arg name="y"   value="1.66"/>
+    <arg name="z"   value="0.001"/>
+    <arg name="yaw" value="-2.55" />
+  </include>
+
+  <!-- old gazebo "female standing"
+  <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
+    <arg name="xacro_file" value="$(find tiago_bartender_world)/urdf/woman_pink_blouse.urdf" />
+    <arg name="model_name" value="woman_pink_blouse"/>
+    <arg name="x"   value="-1.1"/>
+    <arg name="y"   value="2.3"/>
+    <arg name="z"   value="0.001"/>
+    <arg name="yaw" value="-0.5" />
+  </include>
+  -->
+
+  <!-- publish world transform to tf -->
+  <node pkg="tf" type="static_transform_publisher" 
+        name="static_map_tf_publisher" args="1.75 0 0 0 0 0 world map 100" />
+
+
+  <!-- we want static transforms published to /tf -->
+  <node pkg="robot_state_publisher" type="state_publisher" respawn="false"
+        name="static_bar_state_publisher">
+     <param name="publish_frequency" type="double" value="50.0" />
+     <param name="tf_prefix" type="string" value="" />
+
+     <remap from="robot_description" to="bar_description" />
+     <!-- <remap from="joint_states" to="bar_counter/joint_states" /> -->
+  </node>
+
+
+  <!--<node name="rviz" pkg="rviz" type="rviz" respawn="false" output="screen"
+        args="-d $(find tiago_bartender_world)/config/bar_demo.rviz" />-->
+
+</launch>
