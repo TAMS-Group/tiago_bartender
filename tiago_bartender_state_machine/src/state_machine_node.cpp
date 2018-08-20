@@ -5,6 +5,7 @@
 #include <tiago_bartender_navigation/FindClosestTargetAction.h>
 #include <tiago_bartender_mtc/PickBottleAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include <std_srvs/SetBool.h>
 #include <std_srvs/Empty.h>
 #include <geometry_msgs/PointStamped.h>
 #include <tiago_bartender_behavior/MenuOrderAction.h>
@@ -75,8 +76,9 @@ private:
     ros::NodeHandle node;
 
     // start idle behavior
-    ros::ServiceClient client = node.serviceClient<std_srvs::Empty>("switch_simple_idle");
-    std_srvs::Empty srv;
+    ros::ServiceClient client = node.serviceClient<std_srvs::SetBool>("switch_simple_idle");
+    std_srvs::SetBool srv;
+    srv.request.data = true;
     if (!client.call(srv))
     {
       ROS_ERROR("Failed to call service switch_simple_idle");
@@ -101,6 +103,7 @@ private:
     }
 
     // stop idle behavior
+    srv.request.data = false;
     if (!client.call(srv))
     {
       ROS_ERROR("Failed to call service switch_simple_idle");
@@ -161,6 +164,7 @@ private:
     {
       ROS_ERROR("Failed to call look_at_service");
     }
+    ros::Duration(2.0).sleep();
 
     // take order action
     tiago_bartender_menu::TakeOrderGoal goal;
@@ -170,16 +174,17 @@ private:
       ROS_INFO("Waiting for take order action result.");
 
     auto result = to_client_.getResult();
+    ROS_INFO_STREAM("Result of order action, status: " << result->status << " selection: " << result->selection);
 
     // Point head to look at the customer
     srv.request.direction = "";
     srv.request.target_point.header = person_position.header;
     srv.request.target_point.point = person_position.point;
-
     if (!look_at_client_.call(srv))
     {
       ROS_ERROR("Failed to call look_at_service");
     }
+    ros::Duration(2.0).sleep();
 
     // process result and choose next state accordingly
     if((result->status == "timeout" || result->status == "no_menu_card_detected") && iteration >= 3)
@@ -194,7 +199,7 @@ private:
     }
     else if(result->status == "no_menu_card_detected")
     {
-      state = [person_position, iteration](StateMachine* m) { m->state_ask_order(person_position, iteration); };
+      state = [person_position, iteration](StateMachine* m) { m->state_menu_not_found(person_position, iteration); };
       return;
     }
 
