@@ -129,6 +129,12 @@ public:
     bar_scale[1] = 0.00075;
     bar_scale[2] = 0.00075;
 
+    Eigen::Vector3d table_scale;
+    table_scale[0] = 0.001;
+    table_scale[1] = 0.001;
+    table_scale[2] = 0.001;
+
+
     object_color.color.r = 222.0/255.0;
     object_color.color.g = 184.0/255.0;
     object_color.color.b = 135.0/255.0;
@@ -139,9 +145,15 @@ public:
       {
         m = shapes::createMeshFromResource("package://tiago_bartender_world/meshes/bartresen_binary.stl", bar_scale);
       }
-      else if(pose.first == "cupboard")
+      else if(pose.first == "table1" || pose.first == "table2")
       {
-        m = shapes::createMeshFromResource("package://tiago_bartender_world/meshes/cupboard_binary.stl", bar_scale);
+        m = shapes::createMeshFromResource("package://tiago_bartender_world/meshes/table_plate_160x80x2.dae", table_scale);
+        pose.second.position.z += 0.74;
+      }
+      else if(pose.first == "table3")
+      {
+        m = shapes::createMeshFromResource("package://tiago_bartender_world/meshes/table_plate_140x70x2.dae", table_scale);
+        pose.second.position.z += 0.74;
       }
       else
       {
