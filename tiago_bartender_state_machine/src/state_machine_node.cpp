@@ -3,7 +3,7 @@
 #include <std_msgs/String.h>
 #include <tiago_bartender_navigation/MoveToTargetAction.h>
 #include <tiago_bartender_navigation/FindClosestTargetAction.h>
-#include <tiago_bartender_mtc/PickBottleAction.h>
+//#include <tiago_bartender_mtc/PickBottleAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <std_srvs/Empty.h>
 #include <geometry_msgs/PointStamped.h>
@@ -236,7 +236,8 @@ private:
     ROS_INFO("grasping");
     publish_marker("state_grasp_bottle");
 
-    /*actionlib::SimpleActionClient<tiago_bartender_mtc::PickBottleAction> client("tiago_bottle_pick", true);
+    /*
+    actionlib::SimpleActionClient<tiago_bartender_mtc::PickBottleAction> client("tiago_bottle_pick", true);
     client.waitForServer();
     tiago_bartender_mtc::PickBottleGoal goal;
     goal.bottle_id = bottle_name;
