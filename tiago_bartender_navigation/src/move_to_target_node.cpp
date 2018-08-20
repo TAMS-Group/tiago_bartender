@@ -81,8 +81,8 @@ public:
     if(goal->look_at_target)
     {
       tiago_bartender_behavior::LookAt srv;
-      srv.request.target_point.header = goal->target_pose.header;
-      srv.request.target_point.point = goal->target_pose.pose.position;
+      srv.request.target_point.header = target_pose.header;
+      srv.request.target_point.point = target_pose.pose.position;
       if (!look_at_client_.call(srv))
       {
         ROS_ERROR("Failed to call look_at_service");
@@ -133,8 +133,8 @@ public:
     if(goal->look_at_target)
     {
       tiago_bartender_behavior::LookAt srv;
-      srv.request.target_point.header = goal->target_pose.header;
-      srv.request.target_point.point = goal->target_pose.pose.position;
+      srv.request.target_point.header = target_pose.header;
+      srv.request.target_point.point = target_pose.pose.position;
       if (!look_at_client_.call(srv))
       {
         ROS_ERROR("Failed to call look_at_service");
@@ -248,7 +248,6 @@ public:
       else
         as_fct_.setAborted(fct_res_);
     }
-
   }
 
   geometry_msgs::PoseStamped get_pose_from_id(std::string target_id)
