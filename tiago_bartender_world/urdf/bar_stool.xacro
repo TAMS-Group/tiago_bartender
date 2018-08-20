@@ -19,10 +19,10 @@
        <xacro:bar_stool name="stool_1" />
    -->
 
-  <xacro:macro name="scale" value="0.00075"/>
 
   <xacro:macro name="bar_stool" params="name" >
 
+    <xacro:property name="scale" value="0.00075"/>
     <!-- main body with mesh collision and visual model -->
 
     <link name="${name}">

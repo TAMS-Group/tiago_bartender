@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<robot name="man_suit">
+  <!-- A man in a black suit. -->
+
+  <link name="man_suit_footprint">
+    <inertial>
+      <mass value="75" />
+      <origin xyz="0 0 0.9" />
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0.9" rpy="0 0 -1.57" />
+      <geometry>
+        <cylinder radius="0.25" length="1.8" />
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0.1 0" rpy="1.571 0 1.2" />
+      <geometry>
+        <mesh filename="package://tiago_bartender_world/meshes/man_in_suit.dae" scale="0.00105 0.00105 0.00105" />
+      </geometry>
+    </visual>
+  </link>
+
+</robot>
+

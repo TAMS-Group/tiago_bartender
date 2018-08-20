@@ -9,3 +9,4 @@ string status
 string current_selection
 float32 selection_counter
 uint32 feature_matches
+uint32 detection_failures
