@@ -23,15 +23,15 @@ public:
     named_target_map_["left"] = named_target;
     named_target.point.y = -1.0;
     named_target_map_["right"] = named_target;
-    named_target.point.x = 0.2;
+    named_target.point.x = 0.9;
     named_target.point.y = 0.0;
-    named_target.point.z = -1.0;
+    named_target.point.z = -0.3;
     named_target_map_["down"] = named_target;
 
     current_goal_.pointing_frame = "xtion_optical_frame";
     current_goal_.pointing_axis.z = 1.0;
     current_goal_.min_duration = ros::Duration(0.5);
-    current_goal_.max_velocity = 1.0;
+    current_goal_.max_velocity = 5.0;
     current_goal_.target = named_target_map_["forward"];
 
     look_at_server = nh_.advertiseService("head_controller/look_at_service", &LookAt::look_at_cb, this);
