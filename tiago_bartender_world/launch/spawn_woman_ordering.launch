@@ -8,7 +8,7 @@
   <include file="$(find tiago_bartender_world)/launch/spawn_xacro.launch">
     <arg name="xacro_file" value="$(find tiago_bartender_world)/urdf/woman_pointing.urdf"/>
     <arg name="model_name" value="woman_ordering"/>
-    <arg name="x" value="-0.690"/>
+    <arg name="x" value="-0.640"/>
     <arg name="y" value=" 0.459"/>
     <arg name="z" value=" 0.001"/>
     <arg name="yaw" value="0.559"/>
@@ -19,7 +19,7 @@
     <arg name="model_name" value="tiago_bar_menu_card"/>
     <arg name="x" value="-0.1090"/>
     <arg name="y" value=" 0.197"/>
-    <arg name="z" value=" 0.905"/>
+    <arg name="z" value=" 0.90"/>
     <arg name="yaw" value="-1.30"/>
   </include>
 </launch>
