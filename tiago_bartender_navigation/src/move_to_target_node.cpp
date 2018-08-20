@@ -278,6 +278,7 @@ public:
   {
     geometry_msgs::PoseStamped matched_pose;
     std::map<std::string, moveit_msgs::CollisionObject> objects = psi_.getObjects();
+    tf_listener_.transformPose(default_frame_, pose, pose);
 
     double min_distance = std::numeric_limits<double>::max();
     for(auto object : objects)
@@ -298,7 +299,7 @@ public:
       {
         target_pose.pose = co.mesh_poses.at(0);
       }
-      tf_listener_.transformPose(pose.header.frame_id, target_pose, target_pose);
+      tf_listener_.transformPose(default_frame_, target_pose, target_pose);
 
       double distance = std::abs(target_pose.pose.position.x - pose.pose.position.x) + std::abs(target_pose.pose.position.y - pose.pose.position.y);
       if(distance < min_distance)

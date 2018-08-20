@@ -264,6 +264,7 @@ private:
     geometry_msgs::PoseStamped person_pose;
     person_pose.header = last_person_position_.header;
     person_pose.pose.position = last_person_position_.point;
+    person_pose.pose.orientation.w = 1.0;
     std::string target_id_result;
     bool success = find_closest_target("glass", person_pose, true, target_id_result);
     if(success)
