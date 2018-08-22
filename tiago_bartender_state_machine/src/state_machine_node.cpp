@@ -24,7 +24,8 @@ public:
                    fct_client_("find_closest_target", true),
                    fjt_client_("torso_controller/follow_joint_trajectory", true),
                    bs_client_("bartender_speech_action", true),
-                   to_client_("menu/take_order", true)
+                   to_client_("menu/take_order", true),
+                   mb_client_("move_base", true)
   {
     // getting and parsing parameters
     ros::NodeHandle pn("~");
@@ -72,7 +73,7 @@ public:
     // without this sleep the first marker is not published
     ros::Duration(1.0).sleep();
 
-    while(!mtt_client_.waitForServer(ros::Duration(1.0)) || !fct_client_.waitForServer(ros::Duration(1.0)) || !fjt_client_.waitForServer(ros::Duration(1.0)) || !bs_client_.waitForServer(ros::Duration(1.0)) || !to_client_.waitForServer(ros::Duration(1.0)))
+    while(!mtt_client_.waitForServer(ros::Duration(1.0)) || !fct_client_.waitForServer(ros::Duration(1.0)) || !fjt_client_.waitForServer(ros::Duration(1.0)) || !bs_client_.waitForServer(ros::Duration(1.0)) || !to_client_.waitForServer(ros::Duration(1.0)) || !mb_client_.waitForServer(ros::Duration(1.0)))
     {
       ROS_ERROR_STREAM("tiago bartender state machine waits for all action servers to start.");
     }
@@ -251,7 +252,10 @@ private:
       state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
     }
     else
-      state = [bottle_name](StateMachine* m) { m->state_move_to_bottle(bottle_name); };
+    {
+      move_to_home();
+      state = &StateMachine::state_move_to_bottle;
+    }
   }
 
   void state_update_scene(const std::string& bottle_name)
@@ -439,6 +443,17 @@ private:
     if(bs_client_.getState() != actionlib::SimpleClientGoalState::SUCCEEDED)
       ROS_ERROR_STREAM("bartender speech action failed.");
   }
+
+  // move to a position in the middle of the bar
+  void move_to_home()
+  {
+    ROS_INFO_STREAM("Moving to home pose.");
+    move_base_msgs::MoveBaseGoal target;
+    target.target_pose.pose.position.x = -0.5;
+    target.target_pose.pose.orientation.w = 1.0;
+    mb_client_.sendGoal(target);
+    mb_client_.waitForResult();
+  }
   
   std::function<void(StateMachine*)> state = &StateMachine::state_init;
 
@@ -447,6 +462,7 @@ private:
   actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> fjt_client_;
   actionlib::SimpleActionClient<tiago_bartender_speech::BartenderSpeechAction> bs_client_;
   actionlib::SimpleActionClient<tiago_bartender_menu::TakeOrderAction> to_client_;
+  actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> mb_client_;
 
   ros::ServiceClient look_at_client_;
 

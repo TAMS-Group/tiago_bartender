@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   tiago_bartender_navigation
   tiago_bartender_behavior
+  move_base_msgs
 )
 
 catkin_package()
