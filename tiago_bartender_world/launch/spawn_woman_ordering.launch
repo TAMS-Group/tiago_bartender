@@ -10,7 +10,7 @@
     <arg name="model_name" value="woman_ordering"/>
     <arg name="x" value="-0.640"/>
     <arg name="y" value=" 0.459"/>
-    <arg name="z" value=" 0.001"/>
+    <arg name="z" value=" 0.05"/>
     <arg name="yaw" value="0.559"/>
   </include>
 
@@ -19,7 +19,7 @@
     <arg name="model_name" value="tiago_bar_menu_card"/>
     <arg name="x" value="-0.1090"/>
     <arg name="y" value=" 0.197"/>
-    <arg name="z" value=" 0.90"/>
+    <arg name="z" value=" 0.905"/>
     <arg name="yaw" value="-1.30"/>
   </include>
 </launch>
