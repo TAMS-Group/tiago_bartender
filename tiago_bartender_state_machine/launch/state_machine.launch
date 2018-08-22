@@ -1,0 +1,5 @@
+<launch>
+  <node name="state_machine_node" pkg="tiago_bartender_state_machine" type="state_machine_node" output="screen">
+    <rosparam command="load" file="$(find tiago_bartender_state_machine)/config/recipes.yaml" />
+  </node>
+</launch>

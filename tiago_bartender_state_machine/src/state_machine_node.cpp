@@ -14,6 +14,8 @@
 #include <tiago_bartender_speech/BartenderSpeechAction.h>
 #include <tiago_bartender_menu/TakeOrderAction.h>
 #include <tiago_bartender_behavior/LookAt.h>
+#include <queue>
+#include <move_base_msgs/MoveBaseAction.h>
 
 class StateMachine
 {
@@ -24,6 +26,26 @@ public:
                    bs_client_("bartender_speech_action", true),
                    to_client_("menu/take_order", true)
   {
+    // getting and parsing parameters
+    ros::NodeHandle pn("~");
+    XmlRpc::XmlRpcValue recipes;
+    pn.getParam("recipes", recipes);
+    ROS_ASSERT(recipes.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+
+    for (XmlRpc::XmlRpcValue::iterator i=recipes.begin(); i!=recipes.end(); ++i)
+    {
+      ROS_ASSERT(i->second.getType()==XmlRpc::XmlRpcValue::TypeArray);
+      recipes_[static_cast<std::string>(i->first)];
+      for(int j=0; j<i->second.size(); ++j)
+      {
+        XmlRpc::XmlRpcValue raw_ingredient = i->second[j];
+        ROS_ASSERT(raw_ingredient.getType()==XmlRpc::XmlRpcValue::TypeStruct);
+        std::pair<std::string, double> ingredient(static_cast<std::string>(raw_ingredient.begin()->first), static_cast<double>(raw_ingredient.begin()->second));
+
+        recipes_[static_cast<std::string>(i->first)].push(ingredient);
+      }
+    }
+
     marker_pub_ = nh_.advertise<visualization_msgs::Marker>("bartender_state_marker", 0);
     look_at_client_ = nh_.serviceClient<tiago_bartender_behavior::LookAt>("head_controller/look_at_service");
 
@@ -203,19 +225,31 @@ private:
     }
 
     // successful order
-    std::string bottle_name = result->selection;
+    auto it = recipes_.find(result->selection);
+    // check if drink has bottles mapped to it
+    if(it == recipes_.end())
+    {
+      ROS_ERROR_STREAM("Selected drink is not in state machine map");
+      state = [person_position, iteration](StateMachine* m) { m->state_ask_order(person_position, iteration); };
+    }
+    current_ingredients_ = it->second;
 
     last_person_position_ = person_position;
 
-    state = [bottle_name](StateMachine* m) { m->state_move_to_bottle(bottle_name); };
+    state = &StateMachine::state_move_to_bottle;
   }
 
-  void state_move_to_bottle(const std::string& bottle_name)
+  void state_move_to_bottle()
   {
     publish_marker("state_move_to_bottle");
+    std::string bottle_name = current_ingredients_.front().first;
+    voice_command(bottle_name);
     bool success = move_to_target(bottle_name, true);
     if(success)
+    {
+      current_ingredients_.pop();
       state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
+    }
     else
       state = [bottle_name](StateMachine* m) { m->state_move_to_bottle(bottle_name); };
   }
@@ -278,6 +312,8 @@ private:
     ROS_INFO("pouring");
     publish_marker("state_pour");
     ros::Duration(1).sleep();
+    if(current_ingredients_.empty())
+      voice_command("enjoy");
     state = &StateMachine::state_move_back_to_shelf;
   }
 
@@ -297,7 +333,10 @@ private:
     ROS_INFO("putting bottle back");
     publish_marker("state_put_back_bottle");
     ros::Duration(1).sleep();
-    state = &StateMachine::state_init;
+    if(current_ingredients_.empty())
+      state = &StateMachine::state_init;
+    else
+      state = &StateMachine::state_move_to_bottle;
   }
  
   bool move_to_target(const std::string& target_name, bool look_at_target)
@@ -417,6 +456,8 @@ private:
   ros::Publisher marker_pub_;
   visualization_msgs::Marker marker_;
   ros::NodeHandle nh_;
+  std::map<std::string, std::queue<std::pair<std::string, double>>> recipes_;
+  std::queue<std::pair<std::string, double>> current_ingredients_;
 };
 
 int main(int argc, char **argv)
