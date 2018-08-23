@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <include file="$(find tiago_bartender_world)/launch/spawn_woman_ordering.launch"/>
+  <include file="$(find tiago_bartender_world)/launch/spawn_bottles.launch"/>
+</launch>
