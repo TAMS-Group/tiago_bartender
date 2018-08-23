@@ -18,65 +18,11 @@
         </image>
     </library_images>
     <library_materials>
-        <material id="material0" name="material0">
-            <instance_effect url="#material0-fx"/>
-        </material>
         <material id="material1" name="material1">
             <instance_effect url="#material1-fx"/>
         </material>
     </library_materials>
     <library_effects>
-        <effect id="material0-fx">
-            <profile_COMMON>
-                <newparam sid="texture0-surface">
-                    <surface type="2D">
-                        <init_from>texture0</init_from>
-                        <format>R8G8B8</format>
-                    </surface>
-                </newparam>
-                <newparam sid="texture0-sampler">
-                    <sampler2D>
-                        <source>texture0-surface</source>
-                        <minfilter>LINEAR</minfilter>
-                        <magfilter>LINEAR</magfilter>
-                    </sampler2D>
-                </newparam>
-                <technique sid="common">
-                    <blinn>
-                        <emission>
-                            <color>0 0 0 1</color>
-                        </emission>
-                        <ambient>
-                            <color>1 1 1 1</color>
-                        </ambient>
-                        <diffuse>
-                            <texture texture="texture0" texcoord="UVSET0"/>
-                        </diffuse>
-                        <specular>
-                            <color>0 0 0 1</color>
-                        </specular>
-                        <shininess>
-                            <float>0.3</float>
-                        </shininess>
-                        <reflective>
-                            <color>0 0 0 1</color>
-                        </reflective>
-                        <reflectivity>
-                            <float>0.5</float>
-                        </reflectivity>
-                        <transparent>
-                            <color>0 0 0 1</color>
-                        </transparent>
-                        <transparency>
-                            <float>0</float>
-                        </transparency>
-                        <index_of_refraction>
-                            <float>0</float>
-                        </index_of_refraction>
-                    </blinn>
-                </technique>
-            </profile_COMMON>
-        </effect>
         <effect id="material1-fx">
             <profile_COMMON>
                 <newparam sid="texture1-surface">
@@ -164,12 +110,6 @@
                 <vertices id="shape0-lib-vertices">
                     <input semantic="POSITION" source="#shape0-lib-positions"/>
                 </vertices>
-                <triangles count="0" material="material0">
-                    <input offset="0" semantic="VERTEX" source="#shape0-lib-vertices"/>
-                    <input offset="1" semantic="NORMAL" source="#shape0-lib-normals"/>
-                    <input offset="2" semantic="TEXCOORD" source="#shape0-lib-map"/>
-                    <p/>
-                </triangles>
                 <triangles count="508" material="material1">
                     <input offset="0" semantic="VERTEX" source="#shape0-lib-vertices"/>
                     <input offset="1" semantic="NORMAL" source="#shape0-lib-normals"/>
@@ -185,9 +125,6 @@
                 <instance_geometry url="#shape0-lib">
                     <bind_material>
                         <technique_common>
-                            <instance_material symbol="material0" target="#material0">
-                                <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD"/>
-                            </instance_material>
                             <instance_material symbol="material1" target="#material1">
                                 <bind_vertex_input semantic="UVSET0" input_semantic="TEXCOORD"/>
                             </instance_material>
