@@ -18,6 +18,9 @@
   <xacro:include filename="$(find tiago_bartender_world)/urdf/materials.xacro" />
   <xacro:include filename="$(find tiago_bartender_world)/urdf/bar_counter.xacro" />
   <xacro:include filename="$(find tiago_bartender_world)/urdf/bar_stool.xacro" />
+
+
+  <xacro:include filename="$(find tiago_bartender_world)/urdf/bar_table_leg_2x2x73.xacro" />
   <xacro:include filename="$(find tiago_bartender_world)/urdf/bar_table_160x80.xacro" />
   <xacro:include filename="$(find tiago_bartender_world)/urdf/bar_table_140x70.xacro" /> 
   <xacro:include filename="$(find tiago_bartender_world)/urdf/bar_corner.xacro" />

@@ -51,55 +51,30 @@
     <kd>1.0</kd>
   </gazebo>
 
-  <xacro:macro name="table_leg" params="name id *origin">
-    <link name="${name}_${id}">
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <geometry>
-          <box size="0.02 0.02 0.73" rpy="0 0 0"/>
-        </geometry>
-      </collision>
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
-        <material name="black" />
-        <geometry>
-          <box size="0.02 0.02 0.73" rpy="0 0 0"/>
-        </geometry>
-      </visual>
-    </link>
-    <joint name="${name}_${id}_joint" type="fixed">
-      <insert_block name="origin"/>
-      <parent link="${name}" />
-      <child  link="${name}_${id}" />
-    </joint>
-    <gazebo reference="${name}_${id}">
-      <material>Gazebo/Black</material>
-      <static>true</static>
-      <turnGravityOff>false</turnGravityOff>
-      <selfCollide>false</selfCollide>
-    </gazebo>
-  </xacro:macro>
-  
 
-  <xacro:table_leg name="${name}" id="leg1">
+  <xacro:bar_table_leg_2x2x73 name="${name}" id="leg1">
     <origin xyz="${1.4/2-0.02/2} ${0.7/2-0.02/2} ${0.73/2}" rpy="0 0 0" />
-  </xacro:table_leg>
+  </xacro:bar_table_leg_2x2x73>
 
-  <xacro:table_leg name="${name}" id="leg2">
+  <xacro:bar_table_leg_2x2x73 name="${name}" id="leg2">
     <origin xyz="${-1.4/2+0.02/2} ${0.7/2-0.02/2} ${0.73/2}" rpy="0 0 0" />
-  </xacro:table_leg>
+  </xacro:bar_table_leg_2x2x73>
 
-  <xacro:table_leg name="${name}" id="leg3">
+  <xacro:bar_table_leg_2x2x73 name="${name}" id="leg3">
     <origin xyz="${1.4/2-0.02/2} ${-0.7/2+0.02/2} ${0.73/2}" rpy="0 0 0" />
-  </xacro:table_leg>
+  </xacro:bar_table_leg_2x2x73>
 
-  <xacro:table_leg name="${name}" id="leg4">
+  <xacro:bar_table_leg_2x2x73 name="${name}" id="leg4">
     <origin xyz="${-1.4/2+0.02/2} ${-0.7/2+0.02/2} ${0.73/2}" rpy="0 0 0" />
-  </xacro:table_leg>
+  </xacro:bar_table_leg_2x2x73>
 
 </xacro:macro>
   
 
-<!-- <xacro:bar_table_140x70 name="hugo"/> -->
+<!--
+<xacro:include filename="$(find tiago_bartender_world)/urdf/bar_table_leg_2x2x73.xacro" />
+<xacro:bar_table_140x70 name="hugo"/>
+-->
+
 
 </robot>
