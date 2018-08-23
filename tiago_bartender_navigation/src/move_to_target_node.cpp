@@ -81,8 +81,8 @@ public:
     if(goal->look_at_target)
     {
       tiago_bartender_behavior::LookAt srv;
-      srv.request.target_point.header = goal->target_pose.header;
-      srv.request.target_point.point = goal->target_pose.pose.position;
+      srv.request.target_point.header = target_pose.header;
+      srv.request.target_point.point = target_pose.pose.position;
       if (!look_at_client_.call(srv))
       {
         ROS_ERROR("Failed to call look_at_service");
@@ -133,8 +133,8 @@ public:
     if(goal->look_at_target)
     {
       tiago_bartender_behavior::LookAt srv;
-      srv.request.target_point.header = goal->target_pose.header;
-      srv.request.target_point.point = goal->target_pose.pose.position;
+      srv.request.target_point.header = target_pose.header;
+      srv.request.target_point.point = target_pose.pose.position;
       if (!look_at_client_.call(srv))
       {
         ROS_ERROR("Failed to call look_at_service");
@@ -248,7 +248,6 @@ public:
       else
         as_fct_.setAborted(fct_res_);
     }
-
   }
 
   geometry_msgs::PoseStamped get_pose_from_id(std::string target_id)
@@ -279,6 +278,7 @@ public:
   {
     geometry_msgs::PoseStamped matched_pose;
     std::map<std::string, moveit_msgs::CollisionObject> objects = psi_.getObjects();
+    tf_listener_.transformPose(default_frame_, pose, pose);
 
     double min_distance = std::numeric_limits<double>::max();
     for(auto object : objects)
@@ -299,7 +299,7 @@ public:
       {
         target_pose.pose = co.mesh_poses.at(0);
       }
-      tf_listener_.transformPose(pose.header.frame_id, target_pose, target_pose);
+      tf_listener_.transformPose(default_frame_, target_pose, target_pose);
 
       double distance = std::abs(target_pose.pose.position.x - pose.pose.position.x) + std::abs(target_pose.pose.position.y - pose.pose.position.y);
       if(distance < min_distance)

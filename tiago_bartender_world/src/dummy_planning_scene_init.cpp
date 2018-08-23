@@ -35,7 +35,9 @@ public:
       {"glass_2::yellow_glass", "glass_2"},
       {"glass_3::yellow_glass", "glass_3"},
       {"bar_model::counter", "counter"},
-      {"bar_model::cupboard", "cupboard"}};
+      {"bar_model::table1", "table1"},
+      {"bar_model::table2", "table2"},
+      {"bar_model::table3", "table3"}};
   }
 
   void update_scene()
@@ -129,9 +131,21 @@ public:
     bar_scale[1] = 0.00075;
     bar_scale[2] = 0.00075;
 
+    Eigen::Vector3d table_scale;
+    table_scale[0] = 0.001;
+    table_scale[1] = 0.001;
+    table_scale[2] = 0.001;
+
+
     object_color.color.r = 222.0/255.0;
     object_color.color.g = 184.0/255.0;
     object_color.color.b = 135.0/255.0;
+
+    // Use solid primitives for the legs of the table
+    shape_msgs::SolidPrimitive prim_msg;
+    prim_msg.type = shape_msgs::SolidPrimitive::BOX;
+    prim_msg.dimensions = {0.02, 0.02, 0.73};
+    geometry_msgs::Pose prim_pose;
 
     for(auto pose : bar_poses_)
     {
@@ -139,9 +153,70 @@ public:
       {
         m = shapes::createMeshFromResource("package://tiago_bartender_world/meshes/bartresen_binary.stl", bar_scale);
       }
-      else if(pose.first == "cupboard")
+      else if(pose.first == "table1" || pose.first == "table2")
       {
-        m = shapes::createMeshFromResource("package://tiago_bartender_world/meshes/cupboard_binary.stl", bar_scale);
+        m = shapes::createMeshFromResource("package://tiago_bartender_world/meshes/table_plate_160x80x2.dae", table_scale);
+
+        collision_object.primitives = {prim_msg, prim_msg, prim_msg, prim_msg};
+
+        prim_pose = pose.second;
+        prim_pose.position.y += 1.6/2.0-0.02/2.0;
+        prim_pose.position.x += 0.8/2.0-0.02/2.0;
+        prim_pose.position.z += 0.73/2.0;
+        collision_object.primitive_poses.push_back(prim_pose);
+
+        prim_pose = pose.second;
+        prim_pose.position.y += -1.6/2.0+0.02/2.0;
+        prim_pose.position.x += 0.8/2.0-0.02/2.0;
+        prim_pose.position.z += 0.73/2.0;
+        collision_object.primitive_poses.push_back(prim_pose);
+
+        prim_pose = pose.second;
+        prim_pose.position.y += 1.6/2.0-0.02/2.0;
+        prim_pose.position.x += -0.8/2.0+0.02/2.0;
+        prim_pose.position.z += 0.73/2.0;
+        collision_object.primitive_poses.push_back(prim_pose);
+
+        prim_pose = pose.second;
+        prim_pose.position.y += -1.6/2.0+0.02/2.0;
+        prim_pose.position.x += -0.8/2.0+0.02/2.0;
+        prim_pose.position.z += 0.73/2.0;
+        collision_object.primitive_poses.push_back(prim_pose);
+
+        pose.second.position.z += 0.74;
+
+      }
+      else if(pose.first == "table3")
+      {
+        m = shapes::createMeshFromResource("package://tiago_bartender_world/meshes/table_plate_140x70x2.dae", table_scale);
+
+        collision_object.primitives = {prim_msg, prim_msg, prim_msg, prim_msg};
+
+        prim_pose = pose.second;
+        prim_pose.position.x += 1.4/2.0-0.02/2.0;
+        prim_pose.position.y += 0.7/2.0-0.02/2.0;
+        prim_pose.position.z += 0.73/2.0;
+        collision_object.primitive_poses.push_back(prim_pose);
+
+        prim_pose = pose.second;
+        prim_pose.position.x += -1.4/2.0+0.02/2.0;
+        prim_pose.position.y += 0.7/2.0-0.02/2.0;
+        prim_pose.position.z += 0.73/2.0;
+        collision_object.primitive_poses.push_back(prim_pose);
+
+        prim_pose = pose.second;
+        prim_pose.position.x += 1.4/2.0-0.02/2.0;
+        prim_pose.position.y += -0.7/2.0+0.02/2.0;
+        prim_pose.position.z += 0.73/2.0;
+        collision_object.primitive_poses.push_back(prim_pose);
+
+        prim_pose = pose.second;
+        prim_pose.position.x += -1.4/2.0+0.02/2.0;
+        prim_pose.position.y += -0.7/2.0+0.02/2.0;
+        prim_pose.position.z += 0.73/2.0;
+        collision_object.primitive_poses.push_back(prim_pose);
+
+        pose.second.position.z += 0.74;
       }
       else
       {
@@ -155,6 +230,8 @@ public:
       collision_object.mesh_poses.push_back(pose.second);
       collision_objects.push_back(collision_object);
       collision_object.mesh_poses.clear();
+      collision_object.primitive_poses.clear();
+      collision_object.primitives.clear();
 
       object_color.id = pose.first;
       object_colors.push_back(object_color);

@@ -14,11 +14,6 @@ find_package(catkin REQUIRED COMPONENTS
   move_base_msgs
 )
 
-add_action_files(
-  DIRECTORY action
-  FILES MenuOrder.action
-)
-
 add_service_files(
   FILES
   LookAt.srv

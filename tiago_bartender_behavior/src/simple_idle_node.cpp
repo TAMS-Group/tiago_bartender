@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
 #include <move_base_msgs/MoveBaseAction.h>
-#include <std_srvs/Empty.h>
+#include <std_srvs/SetBool.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <tiago_bartender_behavior/LookAt.h>
 
@@ -71,9 +71,10 @@ public:
   }
 
 private:
-  bool switch_idle(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
+  bool switch_idle(std_srvs::SetBool::Request& req, std_srvs::SetBool::Response& res)
   {
-    enabled_ = !enabled_;
+    enabled_ = req.data;
+    res.success = true;
     return true;
   }
 

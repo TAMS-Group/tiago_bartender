@@ -5,15 +5,17 @@
 #include <tiago_bartender_navigation/FindClosestTargetAction.h>
 //#include <tiago_bartender_mtc/PickBottleAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include <std_srvs/SetBool.h>
 #include <std_srvs/Empty.h>
 #include <geometry_msgs/PointStamped.h>
-#include <tiago_bartender_behavior/MenuOrderAction.h>
 #include <visualization_msgs/Marker.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <tiago_bartender_speech/BartenderSpeechAction.h>
 #include <tiago_bartender_menu/TakeOrderAction.h>
 #include <tiago_bartender_behavior/LookAt.h>
+#include <queue>
+#include <move_base_msgs/MoveBaseAction.h>
 
 class StateMachine
 {
@@ -22,8 +24,29 @@ public:
                    fct_client_("find_closest_target", true),
                    fjt_client_("torso_controller/follow_joint_trajectory", true),
                    bs_client_("bartender_speech_action", true),
-                   to_client_("menu/take_order", true)
+                   to_client_("menu/take_order", true),
+                   mb_client_("move_base", true)
   {
+    // getting and parsing parameters
+    ros::NodeHandle pn("~");
+    XmlRpc::XmlRpcValue recipes;
+    pn.getParam("recipes", recipes);
+    ROS_ASSERT(recipes.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+
+    for (XmlRpc::XmlRpcValue::iterator i=recipes.begin(); i!=recipes.end(); ++i)
+    {
+      ROS_ASSERT(i->second.getType()==XmlRpc::XmlRpcValue::TypeArray);
+      recipes_[static_cast<std::string>(i->first)];
+      for(int j=0; j<i->second.size(); ++j)
+      {
+        XmlRpc::XmlRpcValue raw_ingredient = i->second[j];
+        ROS_ASSERT(raw_ingredient.getType()==XmlRpc::XmlRpcValue::TypeStruct);
+        std::pair<std::string, double> ingredient(static_cast<std::string>(raw_ingredient.begin()->first), static_cast<double>(raw_ingredient.begin()->second));
+
+        recipes_[static_cast<std::string>(i->first)].push(ingredient);
+      }
+    }
+
     marker_pub_ = nh_.advertise<visualization_msgs::Marker>("bartender_state_marker", 0);
     look_at_client_ = nh_.serviceClient<tiago_bartender_behavior::LookAt>("head_controller/look_at_service");
 
@@ -50,7 +73,7 @@ public:
     // without this sleep the first marker is not published
     ros::Duration(1.0).sleep();
 
-    while(!mtt_client_.waitForServer(ros::Duration(1.0)) || !fct_client_.waitForServer(ros::Duration(1.0)) || !fjt_client_.waitForServer(ros::Duration(1.0)) || !bs_client_.waitForServer(ros::Duration(1.0)) || !to_client_.waitForServer(ros::Duration(1.0)))
+    while(!mtt_client_.waitForServer(ros::Duration(1.0)) || !fct_client_.waitForServer(ros::Duration(1.0)) || !fjt_client_.waitForServer(ros::Duration(1.0)) || !bs_client_.waitForServer(ros::Duration(1.0)) || !to_client_.waitForServer(ros::Duration(1.0)) || !mb_client_.waitForServer(ros::Duration(1.0)))
     {
       ROS_ERROR_STREAM("tiago bartender state machine waits for all action servers to start.");
     }
@@ -75,8 +98,9 @@ private:
     ros::NodeHandle node;
 
     // start idle behavior
-    ros::ServiceClient client = node.serviceClient<std_srvs::Empty>("switch_simple_idle");
-    std_srvs::Empty srv;
+    ros::ServiceClient client = node.serviceClient<std_srvs::SetBool>("switch_simple_idle");
+    std_srvs::SetBool srv;
+    srv.request.data = true;
     if (!client.call(srv))
     {
       ROS_ERROR("Failed to call service switch_simple_idle");
@@ -101,6 +125,7 @@ private:
     }
 
     // stop idle behavior
+    srv.request.data = false;
     if (!client.call(srv))
     {
       ROS_ERROR("Failed to call service switch_simple_idle");
@@ -161,6 +186,7 @@ private:
     {
       ROS_ERROR("Failed to call look_at_service");
     }
+    ros::Duration(2.0).sleep();
 
     // take order action
     tiago_bartender_menu::TakeOrderGoal goal;
@@ -170,16 +196,17 @@ private:
       ROS_INFO("Waiting for take order action result.");
 
     auto result = to_client_.getResult();
+    ROS_INFO_STREAM("Result of order action, status: " << result->status << " selection: " << result->selection);
 
     // Point head to look at the customer
     srv.request.direction = "";
     srv.request.target_point.header = person_position.header;
     srv.request.target_point.point = person_position.point;
-
     if (!look_at_client_.call(srv))
     {
       ROS_ERROR("Failed to call look_at_service");
     }
+    ros::Duration(2.0).sleep();
 
     // process result and choose next state accordingly
     if((result->status == "timeout" || result->status == "no_menu_card_detected") && iteration >= 3)
@@ -194,26 +221,41 @@ private:
     }
     else if(result->status == "no_menu_card_detected")
     {
-      state = [person_position, iteration](StateMachine* m) { m->state_ask_order(person_position, iteration); };
+      state = [person_position, iteration](StateMachine* m) { m->state_menu_not_found(person_position, iteration); };
       return;
     }
 
     // successful order
-    std::string bottle_name = result->selection;
+    auto it = recipes_.find(result->selection);
+    // check if drink has bottles mapped to it
+    if(it == recipes_.end())
+    {
+      ROS_ERROR_STREAM("Selected drink is not in state machine map");
+      state = [person_position, iteration](StateMachine* m) { m->state_ask_order(person_position, iteration); };
+    }
+    current_ingredients_ = it->second;
 
     last_person_position_ = person_position;
 
-    state = [bottle_name](StateMachine* m) { m->state_move_to_bottle(bottle_name); };
+    state = &StateMachine::state_move_to_bottle;
   }
 
-  void state_move_to_bottle(const std::string& bottle_name)
+  void state_move_to_bottle()
   {
     publish_marker("state_move_to_bottle");
+    std::string bottle_name = current_ingredients_.front().first;
+    voice_command(bottle_name);
     bool success = move_to_target(bottle_name, true);
     if(success)
+    {
+      current_ingredients_.pop();
       state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
+    }
     else
-      state = [bottle_name](StateMachine* m) { m->state_move_to_bottle(bottle_name); };
+    {
+      move_to_home();
+      state = &StateMachine::state_move_to_bottle;
+    }
   }
 
   void state_update_scene(const std::string& bottle_name)
@@ -260,6 +302,7 @@ private:
     geometry_msgs::PoseStamped person_pose;
     person_pose.header = last_person_position_.header;
     person_pose.pose.position = last_person_position_.point;
+    person_pose.pose.orientation.w = 1.0;
     std::string target_id_result;
     bool success = find_closest_target("glass", person_pose, true, target_id_result);
     if(success)
@@ -273,6 +316,8 @@ private:
     ROS_INFO("pouring");
     publish_marker("state_pour");
     ros::Duration(1).sleep();
+    if(current_ingredients_.empty())
+      voice_command("enjoy");
     state = &StateMachine::state_move_back_to_shelf;
   }
 
@@ -292,7 +337,10 @@ private:
     ROS_INFO("putting bottle back");
     publish_marker("state_put_back_bottle");
     ros::Duration(1).sleep();
-    state = &StateMachine::state_init;
+    if(current_ingredients_.empty())
+      state = &StateMachine::state_init;
+    else
+      state = &StateMachine::state_move_to_bottle;
   }
  
   bool move_to_target(const std::string& target_name, bool look_at_target)
@@ -395,6 +443,17 @@ private:
     if(bs_client_.getState() != actionlib::SimpleClientGoalState::SUCCEEDED)
       ROS_ERROR_STREAM("bartender speech action failed.");
   }
+
+  // move to a position in the middle of the bar
+  void move_to_home()
+  {
+    ROS_INFO_STREAM("Moving to home pose.");
+    move_base_msgs::MoveBaseGoal target;
+    target.target_pose.pose.position.x = -0.5;
+    target.target_pose.pose.orientation.w = 1.0;
+    mb_client_.sendGoal(target);
+    mb_client_.waitForResult();
+  }
   
   std::function<void(StateMachine*)> state = &StateMachine::state_init;
 
@@ -403,6 +462,7 @@ private:
   actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> fjt_client_;
   actionlib::SimpleActionClient<tiago_bartender_speech::BartenderSpeechAction> bs_client_;
   actionlib::SimpleActionClient<tiago_bartender_menu::TakeOrderAction> to_client_;
+  actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> mb_client_;
 
   ros::ServiceClient look_at_client_;
 
@@ -412,6 +472,8 @@ private:
   ros::Publisher marker_pub_;
   visualization_msgs::Marker marker_;
   ros::NodeHandle nh_;
+  std::map<std::string, std::queue<std::pair<std::string, double>>> recipes_;
+  std::queue<std::pair<std::string, double>> current_ingredients_;
 };
 
 int main(int argc, char **argv)

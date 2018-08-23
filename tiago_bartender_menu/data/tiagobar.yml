@@ -2,10 +2,10 @@
 template: tiagobar-03.png
 areas: tiagobar-4.png
 labels:
-    FF0000: bottle_1
-    00FF00: bottle_2
-    0000FF: bottle_3
-    FFFF00: bottle_4
-    FF00FF: bottle_5
+    FF0000: coke
+    00FF00: cuba_libre
+    0000FF: sunrise
+    FFFF00: orange_juice
+    FF00FF: tequila_sunrise
 min_feature_matches: 15
 max_detection_failures: 4

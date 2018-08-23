@@ -4,8 +4,8 @@ rostopic pub person_detection geometry_msgs/PointStamped "header:
   stamp:
     secs: 0
     nsecs: 0
-  frame_id: 'map'
+  frame_id: 'world'
 point:
-  x: -3.0
-  y: 0.0
-  z: 1.5"
+  x: -0.689974
+  y: 0.358968
+  z: 1.7"

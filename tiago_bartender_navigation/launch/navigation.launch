@@ -2,7 +2,7 @@
 <launch>
   <arg name="namespace" default="/"/>
 
-  <arg name="map_name"  default="bar"/>
+  <arg name="map_name"  default="bar_tables"/>
   <!-- <arg name="map_name"  default="small_office"/> -->
 
   <arg name="planner"        default="base"/>
