@@ -1,5 +1,9 @@
 <launch>
   <node name="state_machine_node" pkg="tiago_bartender_state_machine" type="state_machine_node" output="screen">
     <rosparam command="load" file="$(find tiago_bartender_state_machine)/config/recipes.yaml" />
+    <param name="idle_zone_min_x" type="double" value='-0.8'/>
+    <param name="idle_zone_min_y" type="double" value='-1.5'/>
+    <param name="idle_zone_max_x" type="double" value='0.0'/>
+    <param name="idle_zone_max_y" type="double" value='1.0'/>
   </node>
 </launch>

@@ -16,6 +16,8 @@
 #include <tiago_bartender_behavior/LookAt.h>
 #include <queue>
 #include <move_base_msgs/MoveBaseAction.h>
+#include <random>
+#include <chrono>
 
 class StateMachine
 {
@@ -25,7 +27,9 @@ public:
                    fjt_client_("torso_controller/follow_joint_trajectory", true),
                    bs_client_("bartender_speech_action", true),
                    to_client_("menu/take_order", true),
-                   mb_client_("move_base", true)
+                   mb_client_("move_base", true),
+                   unif_(0, 1),
+                   person_detected_(false)
   {
     // getting and parsing parameters
     ros::NodeHandle pn("~");
@@ -47,10 +51,27 @@ public:
       }
     }
 
+    double idle_zone_min_x;
+    double idle_zone_max_x;
+    double idle_zone_min_y;
+    double idle_zone_max_y;
+    pn.getParam("idle_zone_min_x", idle_zone_min_x);
+    pn.getParam("idle_zone_max_x", idle_zone_max_x);
+    pn.getParam("idle_zone_min_y", idle_zone_min_y);
+    pn.getParam("idle_zone_max_y", idle_zone_max_y);
+
+    unif_idle_x_ = std::uniform_real_distribution<double> (idle_zone_min_x, idle_zone_max_x);
+    unif_idle_y_ = std::uniform_real_distribution<double> (idle_zone_min_y, idle_zone_max_y);
+
     marker_pub_ = nh_.advertise<visualization_msgs::Marker>("bartender_state_marker", 0);
     look_at_client_ = nh_.serviceClient<tiago_bartender_behavior::LookAt>("head_controller/look_at_service");
+    person_detection_sub_ = nh_.subscribe("person_detection", 1000, &StateMachine::person_detection_cb, this);
 
-    // prepare the marker for use later on
+    // prepare random number generator for random idle states
+    uint64_t timeSeed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    std::seed_seq ss{uint32_t(timeSeed & 0xffffffff), uint32_t(timeSeed>>32)};
+    rng_.seed(ss);
+
     marker_.header.frame_id = "base_footprint";
     marker_.id = 0;
     marker_.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
@@ -91,102 +112,118 @@ public:
 private:
   void state_init()
   {
-    ROS_INFO("idling");
-    extend_torso();
-
+    ROS_INFO_STREAM("idling");
     publish_marker("state_init");
-    ros::NodeHandle node;
+    extend_torso();
+    look_at_target("forward");
+    state = &StateMachine::state_idle_manager;
+  }
 
-    // start idle behavior
-    ros::ServiceClient client = node.serviceClient<std_srvs::SetBool>("switch_simple_idle");
-    std_srvs::SetBool srv;
-    srv.request.data = true;
-    if (!client.call(srv))
+  void state_idle_manager()
+  {
+    ROS_INFO_STREAM("state_idle_manager");
+    publish_marker("state_idle_manager");
+    if(get_rand() <= 0.2)
     {
-      ROS_ERROR("Failed to call service switch_simple_idle");
-      state = &StateMachine::state_init;
+      state = &StateMachine::state_idle_joke;
       return;
     }
+    if(!parked_bottle_poses_.empty() && get_rand() <= 0.3)
+    {
+      state = &StateMachine::state_idle_return_parked_bottle;
+      return;
+    }
+    state = &StateMachine::state_idle_random_pose;
+  }
 
-    // Wait for a person to be detected
-    bool received = false;
-    geometry_msgs::PointStamped person_position;
-    auto selection = node.subscribe<geometry_msgs::PointStamped>("/person_detection", 1, boost::function<void(geometry_msgs::PointStamped)>(
-      [&](geometry_msgs::PointStamped p) {
-        ROS_INFO("person pose");
-        received = true;
-        person_position = p;
+  void state_idle_return_parked_bottle()
+  {
+    ROS_INFO_STREAM("state_idle_return_parked_bottle");
+    publish_marker("state_idle_return_parked_bottle");
+    if(person_detected_)
+    {
+      state = &StateMachine::state_move_to_person;
+      return;
+    }
+    state = &StateMachine::state_idle_manager;
+  }
+
+  void state_idle_random_pose()
+  {
+    ROS_INFO_STREAM("state_idle_random_pose");
+    publish_marker("state_idle_random_pose");
+    move_base_msgs::MoveBaseGoal target;
+    target.target_pose.header.frame_id = "map";
+    target.target_pose.pose.position.x = unif_idle_x_(rng_);
+    target.target_pose.pose.position.y = unif_idle_y_(rng_);
+    target.target_pose.pose.orientation.z = 1.0;
+    movebase(target);
+    ros::Time begin = ros::Time::now();
+    while(ros::Time::now() - begin < ros::Duration(30.0))
+    {
+      if(person_detected_)
+      {
+        state = &StateMachine::state_move_to_person;
+        return;
       }
-    ));
-    while(true)
-    {
-      ros::Duration(0.1).sleep();
-      if(received) break;
     }
+    state = &StateMachine::state_idle_manager;
+  }
 
-    // stop idle behavior
-    srv.request.data = false;
-    if (!client.call(srv))
+  void state_idle_joke()
+  {
+    ROS_INFO_STREAM("state_idle_joke");
+    publish_marker("state_idle_joke");
+    voice_command("joke");
+
+    if(person_detected_)
     {
-      ROS_ERROR("Failed to call service switch_simple_idle");
-      state = &StateMachine::state_init;
+      state = &StateMachine::state_move_to_person;
       return;
     }
-    sleep(0.1);
-
-    state = [person_position](StateMachine* m) { m->state_move_to_person(person_position); };
+    state = &StateMachine::state_idle_manager;
   }
 
-  void state_move_to_person(const geometry_msgs::PointStamped person_position)
+  void state_move_to_person()
   {
-    ROS_INFO("Moving to person");
-    publish_marker("state_take_move_to_person");
-    tiago_bartender_navigation::MoveToTargetGoal mtt_goal;
-    geometry_msgs::PoseStamped target_pose;
-    target_pose.header = person_position.header;
-    target_pose.pose.position = person_position.point;
-
-    move_to_pose(target_pose, true);
-    state = [person_position](StateMachine* m) { m->state_ask_order(person_position, 0); };
+    ROS_INFO_STREAM("staet_move_to_person");
+    publish_marker("state_move_to_person");
+    move_to_person();
+    current_customer_position_ = last_person_position_;
+    state = [](StateMachine* m) { m->state_ask_order(0); };
   }
 
-  void state_ask_order(const geometry_msgs::PointStamped person_position, size_t iteration)
+  void state_ask_order(size_t iteration)
   {
-    ROS_INFO("Ask for order");
+    ROS_INFO_STREAM("state_ask_order");
     publish_marker("state_ask_order");
     voice_command("ask_order");
-    state = [person_position, iteration](StateMachine* m) { m->state_take_order(person_position, iteration); };
+    state = [iteration](StateMachine* m) { m->state_take_order(iteration); };
   }
 
-  void state_menu_not_found(const geometry_msgs::PointStamped person_position, size_t iteration)
+  void state_menu_not_found(size_t iteration)
   {
-    ROS_INFO("Ask customer to get the menu in the correct position.");
+    ROS_INFO_STREAM("state_menu_not_found");
     publish_marker("state_menu_not_found");
     voice_command("menu_not_found");
-    state = [person_position, iteration](StateMachine* m) { m->state_take_order(person_position, iteration); };
+    state = [iteration](StateMachine* m) { m->state_take_order(iteration); };
   }
   
   void state_abort_order()
   {
-    ROS_INFO_STREAM("Abort ordering process.");
+    ROS_INFO_STREAM("state_abort_order");
     publish_marker("state_abort_order");
     voice_command("abort_order");
-    state = &StateMachine::state_init;
+    state = &StateMachine::state_idle_manager;
   }
 
-  void state_take_order(const geometry_msgs::PointStamped person_position, size_t iteration)
+  void state_take_order(size_t iteration)
   {
-    ROS_INFO("Taking order");
-    ++iteration;
+    ROS_INFO_STREAM("state_take_order");
     publish_marker("state_take_order");
+    ++iteration;
     // Point head down to look at menu
-    tiago_bartender_behavior::LookAt srv;
-    srv.request.direction = "down";
-    if (!look_at_client_.call(srv))
-    {
-      ROS_ERROR("Failed to call look_at_service");
-    }
-    ros::Duration(2.0).sleep();
+    look_at_target("down");
 
     // take order action
     tiago_bartender_menu::TakeOrderGoal goal;
@@ -199,14 +236,7 @@ private:
     ROS_INFO_STREAM("Result of order action, status: " << result->status << " selection: " << result->selection);
 
     // Point head to look at the customer
-    srv.request.direction = "";
-    srv.request.target_point.header = person_position.header;
-    srv.request.target_point.point = person_position.point;
-    if (!look_at_client_.call(srv))
-    {
-      ROS_ERROR("Failed to call look_at_service");
-    }
-    ros::Duration(2.0).sleep();
+    look_at_target("", last_person_position_);
 
     // process result and choose next state accordingly
     if((result->status == "timeout" || result->status == "no_menu_card_detected") && iteration >= 3)
@@ -216,12 +246,12 @@ private:
     }
     else if(result->status == "timeout")
     {
-      state = [person_position, iteration](StateMachine* m) { m->state_ask_order(person_position, iteration); };
+      state = [iteration](StateMachine* m) { m->state_ask_order(iteration); };
       return;
     }
     else if(result->status == "no_menu_card_detected")
     {
-      state = [person_position, iteration](StateMachine* m) { m->state_menu_not_found(person_position, iteration); };
+      state = [iteration](StateMachine* m) { m->state_menu_not_found(iteration); };
       return;
     }
 
@@ -231,23 +261,29 @@ private:
     if(it == recipes_.end())
     {
       ROS_ERROR_STREAM("Selected drink is not in state machine map");
-      state = [person_position, iteration](StateMachine* m) { m->state_ask_order(person_position, iteration); };
+      state = [iteration](StateMachine* m) { m->state_ask_order(iteration); };
     }
     current_ingredients_ = it->second;
-
-    last_person_position_ = person_position;
 
     state = &StateMachine::state_move_to_bottle;
   }
 
   void state_move_to_bottle()
   {
+    ROS_INFO_STREAM("state_move_to_bottle");
     publish_marker("state_move_to_bottle");
+    look_at_target("forward");
     std::string bottle_name = current_ingredients_.front().first;
     voice_command(bottle_name);
-    bool success = move_to_target(bottle_name, true);
+    bool success = move_to_target(bottle_name, false, last_bottle_pose_);
     if(success)
     {
+      // look at bottle
+      geometry_msgs::PointStamped target;
+      target.header = last_bottle_pose_.header;
+      target.point = last_bottle_pose_.pose.position;
+      look_at_target("", target);
+
       current_ingredients_.pop();
       state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
     }
@@ -260,6 +296,8 @@ private:
 
   void state_update_scene(const std::string& bottle_name)
   {
+    ROS_INFO_STREAM("state_update_scene");
+    publish_marker("state_update_scene");
     // todo: replace this place holder with actual update method
     ros::NodeHandle node;
     ros::ServiceClient client = node.serviceClient<std_srvs::Empty>("dummy_planning_scene/update_planning_scene");
@@ -275,7 +313,7 @@ private:
  
   void state_grasp_bottle(const std::string& bottle_name)
   {
-    ROS_INFO("grasping");
+    ROS_INFO_STREAM("state_grasp_bottle");
     publish_marker("state_grasp_bottle");
 
     /*
@@ -297,53 +335,87 @@ private:
   
   void state_move_to_glass()
   {
-    ROS_INFO("moving to glass");
+    ROS_INFO_STREAM("state_move_to_glass");
     publish_marker("state_move_to_glass");
+    look_at_target("forward");
     geometry_msgs::PoseStamped person_pose;
-    person_pose.header = last_person_position_.header;
-    person_pose.pose.position = last_person_position_.point;
+    person_pose.header = current_customer_position_.header;
+    person_pose.pose.position = current_customer_position_.point;
     person_pose.pose.orientation.w = 1.0;
     std::string target_id_result;
-    bool success = find_closest_target("glass", person_pose, true, target_id_result);
+    geometry_msgs::PoseStamped target_pose_result;
+    bool success = find_closest_target("glass", person_pose, false, target_id_result, target_pose_result);
     if(success)
+    {
+      // look at glass
+      geometry_msgs::PointStamped target;
+      target.header = target_pose_result.header;
+      target.point = target_pose_result.pose.position;
+      look_at_target("", target);
+
       state = [target_id_result](StateMachine* m) { m->state_pour(target_id_result); };
+    }
     else
       state = &StateMachine::state_move_to_glass;
   }
 
   void state_pour(const std::string& glass_id)
   {
-    ROS_INFO("pouring");
+    ROS_INFO_STREAM("state_pour");
     publish_marker("state_pour");
     ros::Duration(1).sleep();
     if(current_ingredients_.empty())
-      voice_command("enjoy");
+    {
+      state = &StateMachine::state_drink_finished;
+    }
+    else
+      state = &StateMachine::state_move_back_to_shelf;
+  }
+
+  void state_drink_finished()
+  {
+    ROS_INFO_STREAM("state_drink_finished");
+    publish_marker("state_drink_finished");
+    look_at_target("", last_person_position_);
+
+    voice_command("enjoy");
+
     state = &StateMachine::state_move_back_to_shelf;
   }
 
   void state_move_back_to_shelf()
   {
-    ROS_INFO("moving back to shelf");
+    ROS_INFO_STREAM("state_move_back_to_shelf");
     publish_marker("state_move_back_to_shelf");
-    bool success = move_to_pose(last_object_target_pose_, true);
+    look_at_target("forward");
+    bool success = move_to_pose(last_bottle_pose_, false);
     if(success)
+    {
+      // look at bottle
+      geometry_msgs::PointStamped target;
+      target.header = last_bottle_pose_.header;
+      target.point = last_bottle_pose_.pose.position;
+      look_at_target("", target);
+
       state = &StateMachine::state_put_back_bottle;
+    }
     else
       state = &StateMachine::state_move_back_to_shelf;
   }
 
   void state_put_back_bottle()
   {
-    ROS_INFO("putting bottle back");
+    ROS_INFO_STREAM("state_put_back_bottle");
     publish_marker("state_put_back_bottle");
     ros::Duration(1).sleep();
+    look_at_target("forward");
     if(current_ingredients_.empty())
-      state = &StateMachine::state_init;
+      state = &StateMachine::state_idle_manager;
     else
       state = &StateMachine::state_move_to_bottle;
   }
  
-  bool move_to_target(const std::string& target_name, bool look_at_target)
+  bool move_to_target(const std::string& target_name, bool look_at_target, geometry_msgs::PoseStamped& target_pose)
   {
     ROS_INFO("moving to target %s", target_name.c_str());
     tiago_bartender_navigation::MoveToTargetGoal goal;
@@ -355,7 +427,7 @@ private:
     if(mtt_client_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     {
       ROS_INFO("Successfully moved to target.");
-      last_object_target_pose_ = mtt_client_.getResult()->target_pose_result;
+      target_pose = mtt_client_.getResult()->target_pose_result;
       return true;
     }
     else
@@ -365,7 +437,7 @@ private:
     }
   }
 
-  bool find_closest_target(const std::string& type_name, const geometry_msgs::PoseStamped& pose, const bool look_at_target, std::string& target_id_result)
+  bool find_closest_target(const std::string& type_name, const geometry_msgs::PoseStamped& pose, const bool look_at_target, std::string& target_id_result, geometry_msgs::PoseStamped& target_pose)
   {
     ROS_INFO("Finding closest target of type %s", type_name.c_str());
     tiago_bartender_navigation::FindClosestTargetGoal goal;
@@ -378,7 +450,9 @@ private:
     if(fct_client_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     {
       ROS_INFO("Successfully found and moved to target.");
-      target_id_result = fct_client_.getResult()->target_id;
+      auto result = fct_client_.getResult();
+      target_id_result = result->target_id;
+      target_pose = result->target_pose_result;
       return true;
     }
     else
@@ -390,13 +464,44 @@ private:
 
   bool move_to_pose(const geometry_msgs::PoseStamped pose, bool look_at_target)
   {
-    ROS_INFO("moving to pose.");
     tiago_bartender_navigation::MoveToTargetGoal goal;
     goal.target_pose = pose;
     goal.look_at_target = look_at_target;
     mtt_client_.sendGoal(goal);
     while(!mtt_client_.waitForResult(ros::Duration(5.0)))
       ROS_INFO("Waiting for move_to_target result.");
+    if(mtt_client_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+    {
+      ROS_INFO("Successfully moved to target.");
+      return true;
+    }
+    else
+    {
+      ROS_ERROR("Moving to target aborted.");
+      return false;
+    }
+  }
+
+  bool move_to_person()
+  {
+    tiago_bartender_navigation::MoveToTargetGoal goal;
+    goal.target_pose.header = last_person_position_.header;
+    goal.target_pose.pose.position = last_person_position_.point;
+    goal.look_at_target = true;
+    mtt_client_.sendGoal(goal);
+    person_detected_ = false;
+
+    while(!mtt_client_.waitForResult(ros::Duration(0.5)))
+    {
+      // update pose if person detected
+      if(person_detected_)
+      {
+        goal.target_pose.header = last_person_position_.header;
+        goal.target_pose.pose.position = last_person_position_.point;
+        mtt_client_.sendGoal(goal);
+        person_detected_ = false;
+      }
+    }
     if(mtt_client_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     {
       ROS_INFO("Successfully moved to target.");
@@ -449,10 +554,40 @@ private:
   {
     ROS_INFO_STREAM("Moving to home pose.");
     move_base_msgs::MoveBaseGoal target;
+    target.target_pose.header.frame_id = "map";
     target.target_pose.pose.position.x = -0.5;
     target.target_pose.pose.orientation.w = 1.0;
+    movebase(target);
+  }
+
+  void movebase(move_base_msgs::MoveBaseGoal target)
+  {
     mb_client_.sendGoal(target);
     mb_client_.waitForResult();
+  }
+
+  void look_at_target(std::string direction, geometry_msgs::PointStamped target_point = geometry_msgs::PointStamped())
+  {
+    // Point head to look at the customer
+    tiago_bartender_behavior::LookAt srv;
+    srv.request.direction = direction;
+    srv.request.target_point = target_point;
+    if (!look_at_client_.call(srv))
+    {
+      ROS_ERROR("Failed to call look_at_service");
+    }
+    ros::Duration(1.5).sleep();
+  }
+
+  double get_rand()
+  {
+    return unif_(rng_);
+  }
+
+  void person_detection_cb(const geometry_msgs::PointStamped::ConstPtr& msg)
+  {
+    last_person_position_ = *msg;
+    person_detected_ = true;
   }
   
   std::function<void(StateMachine*)> state = &StateMachine::state_init;
@@ -466,14 +601,28 @@ private:
 
   ros::ServiceClient look_at_client_;
 
+  // last position a person was detected in. gets updated by the person detection
   geometry_msgs::PointStamped last_person_position_;
+  // static position of the customer. does not get updated anymore by the person detection
+  geometry_msgs::PointStamped current_customer_position_;
   // pose of the object the robot moved to most recently
-  geometry_msgs::PoseStamped last_object_target_pose_;
+  geometry_msgs::PoseStamped last_bottle_pose_;
   ros::Publisher marker_pub_;
+  ros::Subscriber person_detection_sub_;
   visualization_msgs::Marker marker_;
   ros::NodeHandle nh_;
   std::map<std::string, std::queue<std::pair<std::string, double>>> recipes_;
   std::queue<std::pair<std::string, double>> current_ingredients_;
+  std::queue<geometry_msgs::PoseStamped> parked_bottle_poses_;
+
+
+  // random number generation
+  std::uniform_real_distribution<double> unif_;
+  std::uniform_real_distribution<double> unif_idle_x_;
+  std::uniform_real_distribution<double> unif_idle_y_;
+  std::mt19937_64 rng_;
+
+  bool person_detected_;
 };
 
 int main(int argc, char **argv)
