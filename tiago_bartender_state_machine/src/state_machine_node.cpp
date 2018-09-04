@@ -158,8 +158,9 @@ private:
     target.target_pose.pose.position.y = unif_idle_y_(rng_);
     target.target_pose.pose.orientation.z = 1.0;
     movebase(target);
+    look_at_target("look_around");
     ros::Time begin = ros::Time::now();
-    while(ros::Time::now() - begin < ros::Duration(30.0))
+    while(ros::Time::now() - begin < ros::Duration(60.0))
     {
       if(person_detected_)
       {

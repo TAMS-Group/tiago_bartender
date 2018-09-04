@@ -3,6 +3,8 @@
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/client/simple_action_client.h>
 #include <tiago_bartender_behavior/LookAt.h>
+#include <random>
+#include <chrono>
 
 class LookAt
 {
@@ -10,14 +12,16 @@ protected:
   ros::NodeHandle nh_;
 
 public:
-  LookAt() : ac_("/head_controller/point_head_action", true)
+  LookAt() : ac_("/head_controller/point_head_action", true),
+             unif_(-1.0, 1.0)
   {
     geometry_msgs::PointStamped named_target;
     named_target.header.frame_id = "torso_lift_link";
     named_target.point.x = 1.0;
     named_target.point.y = 0.0;
-    named_target.point.z = 0.1;
+    named_target.point.z = 0.3;
     named_target_map_["forward"] = named_target;
+    named_target_map_["look_around"] = named_target;
     named_target.point.x = 0.0;
     named_target.point.y = 1.0;
     named_target_map_["left"] = named_target;
@@ -34,6 +38,10 @@ public:
     current_goal_.max_velocity = 5.0;
     current_goal_.target = named_target_map_["forward"];
 
+    uint64_t time_seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    std::seed_seq ss{uint32_t(time_seed & 0xffffffff), uint32_t(time_seed>>32)};
+    rng_.seed(ss);
+
     look_at_server = nh_.advertiseService("head_controller/look_at_service", &LookAt::look_at_cb, this);
   }
 
@@ -41,6 +49,14 @@ public:
   {
     while(ros::ok())
     {
+      if(current_target_name_ == "look_around")
+      {
+        if(ros::Duration(20.0) < (ros::Time::now() - look_around_start_))
+        {
+          look_around_start_ = ros::Time::now();
+          current_goal_.target.point.y = unif_(rng_);
+        }
+      }
       current_goal_.target.header.stamp = ros::Time::now();
       ac_.sendGoal(current_goal_);
       ros::Duration(0.1).sleep();
@@ -54,6 +70,7 @@ private:
     if(req.direction.empty())
     {
       current_goal_.target = req.target_point;
+      current_target_name_ = "";
       return true;
     }
     if ( named_target_map_.find(req.direction) == named_target_map_.end() )
@@ -63,14 +80,24 @@ private:
     else
     {
       current_goal_.target = named_target_map_[req.direction];
+      current_target_name_ = req.direction;
+      if(current_target_name_ == "look_around")
+      {
+        look_around_start_ = ros::Time::now();
+        current_goal_.target.point.y = unif_(rng_);
+      }
     }
     return true;
   }
 
   actionlib::SimpleActionClient<control_msgs::PointHeadAction> ac_;
   control_msgs::PointHeadGoal current_goal_;
+  std::string current_target_name_;
   std::map<std::string, geometry_msgs::PointStamped> named_target_map_;
   ros::ServiceServer look_at_server;
+  std::uniform_real_distribution<double> unif_;
+  std::mt19937_64 rng_;
+  ros::Time look_around_start_;
 };
 
 int main(int argc, char** argv)
