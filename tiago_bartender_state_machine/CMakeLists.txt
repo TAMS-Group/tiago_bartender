@@ -10,6 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
   tiago_bartender_navigation
   tiago_bartender_behavior
   move_base_msgs
+  moveit_ros_planning_interface
+  tf
 )
 
 catkin_package()
