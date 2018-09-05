@@ -312,6 +312,15 @@ private:
       state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
       return;
     }
+
+    // todo: check if the correct bottle was observed by the recognition
+    if(false)
+    {
+      voice_command("bottle_not_found");
+      state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
+      return;
+    }
+
     state = [bottle_name](StateMachine* m) { m->state_grasp_bottle(bottle_name); };
   }
  
@@ -614,15 +623,18 @@ private:
       ROS_INFO("Successfully extended torso.");
   }
 
-  void voice_command(std::string audio_id)
+  void voice_command(std::string audio_id, bool wait_for_result = true)
   {
     tiago_bartender_speech::BartenderSpeechGoal speech_goal;
     speech_goal.id = audio_id;
     bs_client_.sendGoal(speech_goal);
-    while(!bs_client_.waitForResult(ros::Duration(5.0)))
-      ROS_INFO("Waiting for bartender speech action result.");
-    if(bs_client_.getState() != actionlib::SimpleClientGoalState::SUCCEEDED)
-      ROS_ERROR_STREAM("bartender speech action failed.");
+    if(wait_for_result)
+    {
+      while(!bs_client_.waitForResult(ros::Duration(5.0)))
+        ROS_INFO("Waiting for bartender speech action result.");
+      if(bs_client_.getState() != actionlib::SimpleClientGoalState::SUCCEEDED)
+        ROS_ERROR_STREAM("bartender speech action failed.");
+    }
   }
 
   // move to a position in the middle of the bar
@@ -665,7 +677,7 @@ private:
     last_person_position_ = *msg;
     person_detected_ = true;
   }
-  
+
   std::function<void(StateMachine*)> state = &StateMachine::state_init;
 
   actionlib::SimpleActionClient<tiago_bartender_navigation::MoveToTargetAction> mtt_client_;
