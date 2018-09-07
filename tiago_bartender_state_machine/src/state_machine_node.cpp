@@ -279,8 +279,8 @@ private:
 
   void state_next_bottle()
   {
-    ROS_INFO_STREAM("state_move_to_bottle");
-    publish_marker("state_move_to_bottle");
+    ROS_INFO_STREAM("state_next_bottle");
+    publish_marker("state_next_bottle");
     std::string bottle_name = current_ingredients_.front().first;
     current_ingredients_.pop();
     state = [bottle_name](StateMachine* m) { m->state_move_to_bottle(bottle_name); };
