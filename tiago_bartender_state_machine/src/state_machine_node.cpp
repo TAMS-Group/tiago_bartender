@@ -160,6 +160,7 @@ private:
   {
     ROS_INFO_STREAM("state_idle_random_pose");
     publish_marker("state_idle_random_pose");
+    look_at_target("forward");
     move_base_msgs::MoveBaseGoal target;
     target.target_pose.header.frame_id = "map";
     target.target_pose.pose.position.x = unif_idle_x_(rng_);
