@@ -13,7 +13,7 @@ protected:
 
 public:
   LookAt() : ac_("/head_controller/point_head_action", true),
-             unif_(-1.0, 1.0)
+             unif_(-1.25, 1.25)
   {
     geometry_msgs::PointStamped named_target;
     named_target.header.frame_id = "torso_lift_link";
@@ -21,7 +21,6 @@ public:
     named_target.point.y = 0.0;
     named_target.point.z = 0.3;
     named_target_map_["forward"] = named_target;
-    named_target_map_["look_around"] = named_target;
     named_target.point.x = 0.0;
     named_target.point.y = 1.0;
     named_target_map_["left"] = named_target;
@@ -31,6 +30,12 @@ public:
     named_target.point.y = 0.0;
     named_target.point.z = -0.3;
     named_target_map_["down"] = named_target;
+
+    named_target.header.frame_id = "world";
+    named_target.point.x = -1.0;
+    named_target.point.y = 0.0;
+    named_target.point.z = 1.8;
+    named_target_map_["look_around"] = named_target;
 
     current_goal_.pointing_frame = "xtion_optical_frame";
     current_goal_.pointing_axis.z = 1.0;
