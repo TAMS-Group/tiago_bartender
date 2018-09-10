@@ -36,19 +36,6 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(simple_idle_node src/simple_idle_node.cpp)
-
-target_link_libraries(
-  simple_idle_node
-  ${catkin_LIBRARIES}
-)
-
-add_dependencies(
-  simple_idle_node
-  ${catkin_EXPORTED_TARGETS}
-)
-
-
 add_executable(look_at_node src/look_at_node.cpp)
 
 target_link_libraries(
