@@ -35,39 +35,56 @@ public:
                                          action_name_(action_name),
                                          ac_("sound_play", true)
   {
-    file_base_path_ = ros::package::getPath("tiago_bartender_speech");
-    file_base_path_ = file_base_path_ + "/audio_files/";
+    ros::NodeHandle pn("~");
+    pn.param("audio_files_base_path", file_base_path_, std::string(""));
     vis_pub_ = nh_.advertise<visualization_msgs::Marker>("sound_marker",0);
 
     // filling the audio_file_map
-    audio_file_map_["ask_order"].push_back("ask_order.wav");
+    //audio_file_map_["ask_order"].push_back("ask_order.wav");
+    XmlRpc::XmlRpcValue audio_map;
+    pn.getParam("audio_map", audio_map);
+    ROS_ASSERT(audio_map.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+    for(XmlRpc::XmlRpcValue::iterator i = audio_map.begin(); i != audio_map.end(); i++)
+    {
+      ROS_ASSERT(i->second.getType()==XmlRpc::XmlRpcValue::TypeArray);
+      std::string audio_id = static_cast<std::string>(i->first);
+      audio_file_map_[audio_id];
+      for(size_t j=0; j<i->second.size(); ++j)
+      {
+        std::string file_name = static_cast<std::string>(i->second[j]);
+        audio_file_map_[audio_id].push_back(file_name);
+      }
+    }
+
+    // prepare marker
+    marker_.header.frame_id = "base_footprint";
+    marker_.id = 0;
+    marker_.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+    marker_.action = visualization_msgs::Marker::ADD;
+    marker_.pose.position.x = 0.0;
+    marker_.pose.position.y = 0.0;
+    marker_.pose.position.z = 1.75;
+    marker_.pose.orientation.x = 0.0;
+    marker_.pose.orientation.y = 0.0;
+    marker_.pose.orientation.z = 0.0;
+    marker_.pose.orientation.w = 1.0;
+    marker_.scale.x = 0.25;
+    marker_.scale.y = 0.25;
+    marker_.scale.z = 0.25;
+    marker_.color.a = 1.0;
+    marker_.color.r = 1.0;
+    marker_.color.g = 1.0;
+    marker_.color.b = 1.0;
+
     ac_.waitForServer();
     as_.start();
   }
 private:
   void executeCB(const tiago_bartender_speech::BartenderSpeechGoalConstPtr& goal)
   {
-    visualization_msgs::Marker marker;
-    marker.header.frame_id = "base_footprint";
-    marker.id = 0;
-    marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-    marker.action = visualization_msgs::Marker::ADD;
-    marker.pose.position.x = 0.0;
-    marker.pose.position.y = 0.0;
-    marker.pose.position.z = 1.75;
-    marker.pose.orientation.x = 0.0;
-    marker.pose.orientation.y = 0.0;
-    marker.pose.orientation.z = 0.0;
-    marker.pose.orientation.w = 1.0;
-    marker.scale.x = 0.25;
-    marker.scale.y = 0.25;
-    marker.scale.z = 0.25;
-    marker.color.a = 1.0;
-    marker.color.r = 1.0;
-    marker.color.g = 1.0;
-    marker.color.b = 1.0;
-    marker.text = goal->id;
-    vis_pub_.publish(marker);
+    marker_.action = visualization_msgs::Marker::ADD;
+    marker_.text = goal->id;
+    vis_pub_.publish(marker_);
 
     std::vector<std::string> files = audio_file_map_[goal->id];
     if(files.empty())
@@ -85,8 +102,8 @@ private:
     ac_.waitForResult();
     as_.setSucceeded();
 
-    marker.action = visualization_msgs::Marker::DELETE;
-    vis_pub_.publish(marker);
+    marker_.action = visualization_msgs::Marker::DELETE;
+    vis_pub_.publish(marker_);
   }
 
   ros::Publisher vis_pub_;
@@ -97,6 +114,9 @@ private:
 
   sound_play::SoundClient sound_client_;
   actionlib::SimpleActionClient<sound_play::SoundRequestAction> ac_;
+
+
+  visualization_msgs::Marker marker_;
 };
 
 int main(int argc, char** argv)

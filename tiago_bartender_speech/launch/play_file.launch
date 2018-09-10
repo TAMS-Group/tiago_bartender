@@ -1,0 +1,6 @@
+<launch>
+  <node name="play_file_node" type="play_file_node" pkg="tiago_bartender_speech">
+    <rosparam command="load" file="$(find tiago_bartender_speech)/config/audio_map.yaml" />
+    <param name="audio_files_base_path" value="$(find tiago_bartender_speech)/audio_files/"/>
+  </node>
+</launch>

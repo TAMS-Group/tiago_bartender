@@ -1,0 +1,26 @@
+audio_map:
+  joke:
+    - joke_1.wav
+    - joke_2.wav
+  ask_order:
+    - ask_order.wav
+  menu_not_found:
+    - menu_not_found.wav
+  arbort_order:
+    - arbort_order.wav
+  tequila:
+    - tequila.wav
+  orange_juice:
+    - orange_juice.wav
+  grenadine:
+    - grenadine.wav
+  rum:
+    - rum.wav
+  coke:
+    - coke.wav
+  lime:
+    - lime.wav
+  bottle_not_found:
+    - bottle_not_found.wav
+  enjoy:
+    - enjoy.wav
