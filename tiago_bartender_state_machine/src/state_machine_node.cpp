@@ -57,19 +57,26 @@ public:
       }
     }
 
-    double idle_zone_min_x;
-    double idle_zone_max_x;
-    double idle_zone_min_y;
-    double idle_zone_max_y;
-    pn.getParam("idle_zone_min_x", idle_zone_min_x);
-    pn.getParam("idle_zone_max_x", idle_zone_max_x);
-    pn.getParam("idle_zone_min_y", idle_zone_min_y);
-    pn.getParam("idle_zone_max_y", idle_zone_max_y);
+    double idle_zone_center_x;
+    double idle_zone_center_y;
+    double idle_zone_radius_x;
+    double idle_zone_radius_y;
+    pn.getParam("idle_zone_center_x", idle_zone_center_x);
+    pn.getParam("idle_zone_center_y", idle_zone_center_y);
+    pn.getParam("idle_zone_radius_x", idle_zone_radius_x);
+    pn.getParam("idle_zone_radius_y", idle_zone_radius_y);
+    unif_idle_x_ = std::uniform_real_distribution<double> (idle_zone_center_x - idle_zone_radius_x, idle_zone_center_x + idle_zone_radius_x);
+    unif_idle_y_ = std::uniform_real_distribution<double> (idle_zone_center_y - idle_zone_radius_y, idle_zone_center_y + idle_zone_radius_y);
 
     bottle_list_ = {"tequila", "orange_juice", "grenadine", "rum", "coke", "lime"};
 
-    unif_idle_x_ = std::uniform_real_distribution<double> (idle_zone_min_x, idle_zone_max_x);
-    unif_idle_y_ = std::uniform_real_distribution<double> (idle_zone_min_y, idle_zone_max_y);
+    pn.getParam("home_pose_x", home_pose_.pose.position.x);
+    pn.getParam("home_pose_y", home_pose_.pose.position.y);
+    pn.getParam("home_pose_ori_x", home_pose_.pose.orientation.x);
+    pn.getParam("home_pose_ori_y", home_pose_.pose.orientation.y);
+    pn.getParam("home_pose_ori_z", home_pose_.pose.orientation.z);
+    pn.getParam("home_pose_ori_w", home_pose_.pose.orientation.w);
+    pn.getParam("home_pose_frame", home_pose_.header.frame_id);
 
     marker_pub_ = nh_.advertise<visualization_msgs::Marker>("bartender_state_marker", 0);
     look_at_client_ = nh_.serviceClient<tiago_bartender_behavior::LookAt>("head_controller/look_at_service");
@@ -757,9 +764,7 @@ private:
   {
     ROS_INFO_STREAM("Moving to home pose.");
     move_base_msgs::MoveBaseGoal target;
-    target.target_pose.header.frame_id = "map";
-    target.target_pose.pose.position.x = -0.5;
-    target.target_pose.pose.orientation.w = 1.0;
+    target.target_pose = home_pose_;
     movebase(target);
   }
 
@@ -831,6 +836,8 @@ private:
   std::mt19937_64 rng_;
 
   bool person_detected_;
+
+  geometry_msgs::PoseStamped home_pose_;
 };
 
 int main(int argc, char **argv)

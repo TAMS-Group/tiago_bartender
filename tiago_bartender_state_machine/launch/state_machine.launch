@@ -1,9 +1,17 @@
 <launch>
   <node name="state_machine_node" pkg="tiago_bartender_state_machine" type="state_machine_node" output="screen">
     <rosparam command="load" file="$(find tiago_bartender_state_machine)/config/recipes.yaml" />
-    <param name="idle_zone_min_x" type="double" value='-0.8'/>
-    <param name="idle_zone_min_y" type="double" value='-1.5'/>
-    <param name="idle_zone_max_x" type="double" value='0.0'/>
-    <param name="idle_zone_max_y" type="double" value='1.0'/>
+    <param name="idle_zone_center_x" type="double" value='-0.4'/>
+    <param name="idle_zone_center_y" type="double" value='0.25'/>
+    <param name="idle_zone_radius_x" type="double" value='0.4'/>
+    <param name="idle_zone_radius_y" type="double" value='1.25'/>
+
+    <param name="home_pose_x" type="double" value='-0.5'/>
+    <param name="home_pose_y" type="double" value='0.0'/>
+    <param name="home_pose_ori_x" type="double" value='0.0'/>
+    <param name="home_pose_ori_y" type="double" value='0.0'/>
+    <param name="home_pose_ori_z" type="double" value='0.0'/>
+    <param name="home_pose_ori_w" type="double" value='1.0'/>
+    <param name="home_pose_frame" type="string" value='map'/>
   </node>
 </launch>
