@@ -12,8 +12,7 @@ protected:
   ros::NodeHandle nh_;
 
 public:
-  LookAt() : ac_("/head_controller/point_head_action", true),
-             unif_(-1.25, 1.25)
+  LookAt() : ac_("/head_controller/point_head_action", true)
   {
     geometry_msgs::PointStamped named_target;
     named_target.header.frame_id = "torso_lift_link";
@@ -31,10 +30,24 @@ public:
     named_target.point.z = -0.3;
     named_target_map_["down"] = named_target;
 
+    ros::NodeHandle pn("~");
+    double la_center_x;
+    double la_center_y;
+    double la_radius_x;
+    double la_radius_y;
+    double la_z_value;
+    pn.param("look_around_center_x", la_center_x, 0.0);
+    pn.param("look_around_center_y", la_center_y, 0.0);
+    pn.param("look_around_radius_x", la_radius_x, 0.0);
+    pn.param("look_around_radius_y", la_radius_y, 0.0);
+    pn.param("look_around_z_value", la_z_value, 1.8);
+
+    unif_x_ = std::uniform_real_distribution<double>(la_center_x - la_radius_x, la_center_x + la_radius_x);
+    unif_y_ = std::uniform_real_distribution<double>(la_center_y - la_radius_y, la_center_y + la_radius_y);
     named_target.header.frame_id = "world";
-    named_target.point.x = -1.0;
-    named_target.point.y = 0.0;
-    named_target.point.z = 1.8;
+    named_target.point.x = la_center_x;
+    named_target.point.y = la_center_y;
+    named_target.point.z = la_z_value;
     named_target_map_["look_around"] = named_target;
 
     current_goal_.pointing_frame = "xtion_optical_frame";
@@ -59,7 +72,8 @@ public:
         if(ros::Duration(20.0) < (ros::Time::now() - look_around_start_))
         {
           look_around_start_ = ros::Time::now();
-          current_goal_.target.point.y = unif_(rng_);
+          current_goal_.target.point.x = unif_x_(rng_);
+          current_goal_.target.point.y = unif_y_(rng_);
         }
       }
       current_goal_.target.header.stamp = ros::Time::now();
@@ -89,7 +103,8 @@ private:
       if(current_target_name_ == "look_around")
       {
         look_around_start_ = ros::Time::now();
-        current_goal_.target.point.y = unif_(rng_);
+        current_goal_.target.point.x = unif_x_(rng_);
+        current_goal_.target.point.y = unif_y_(rng_);
       }
     }
     return true;
@@ -100,7 +115,8 @@ private:
   std::string current_target_name_;
   std::map<std::string, geometry_msgs::PointStamped> named_target_map_;
   ros::ServiceServer look_at_server;
-  std::uniform_real_distribution<double> unif_;
+  std::uniform_real_distribution<double> unif_x_;
+  std::uniform_real_distribution<double> unif_y_;
   std::mt19937_64 rng_;
   ros::Time look_around_start_;
 };
