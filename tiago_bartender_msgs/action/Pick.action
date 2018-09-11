@@ -1,0 +1,5 @@
+string object_id
+---
+ManipulationResult result
+---
+string status

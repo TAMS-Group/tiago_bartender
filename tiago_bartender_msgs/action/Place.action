@@ -1,0 +1,5 @@
+geometry_msgs/PoseStamped place_pose
+---
+ManipulationResult result
+---
+string status

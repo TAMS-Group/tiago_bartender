@@ -2,10 +2,13 @@ cmake_minimum_required(VERSION 2.8.3)
 project(tiago_bartender_msgs)
 
 set(MSG_DEPS
+	actionlib_msgs
 	geometry_msgs
+	std_msgs
 )
 
 find_package(catkin REQUIRED COMPONENTS
+	actionlib
 	message_generation
 	${MSG_DEPS}
 )
@@ -17,20 +20,21 @@ find_package(catkin REQUIRED COMPONENTS
 ##     find_package(catkin REQUIRED COMPONENTS ...)
 ##   * add every package in MSG_DEPS to generate_messages(DEPENDENCIES ...)
 
-#add_message_files(
-#	FILES
-#	Message1.msg
-#)
+add_message_files(
+	FILES
+	ManipulationResult.msg
+)
 
 add_service_files(FILES
 	LookAt.srv
 )
 
-#add_action_files(
-#	FILES
-#		Action1.action
-#		Action2.action
-#)
+add_action_files(
+	FILES
+		Pick.action
+		Pour.action
+		Place.action
+)
 
 generate_messages(
 DEPENDENCIES

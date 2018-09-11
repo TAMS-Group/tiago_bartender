@@ -1,0 +1,6 @@
+string container_id
+duration pouring_duration
+---
+ManipulationResult result
+---
+string status
