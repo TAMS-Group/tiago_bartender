@@ -7,8 +7,8 @@
     <arg name="gzpose" value="-x 1.5 -y 0.0 -z 0.0 -R 0.0 -P 0.0 -Y 0.0"/>
   </include>
   <include file="$(find tiago_bartender_bringup)/launch/tiago_bar_navigation_bringup.launch"/>
+  <include file="$(find tiago_bartender_speech)/launch/play_file.launch"/>
   <node name="tiago_bottle_pick_server" pkg="tiago_bartender_mtc" type="tiago_bottle_pick_server"/>
-  <node name="play_file_node" pkg="tiago_bartender_speech" type="play_file_node"/>
   <node name="look_at_node" pkg="tiago_bartender_behavior" type="look_at_node"/>
   <include file="$(find sound_play)/soundplay_node.launch"/>
   <include file="$(find tiago_bartender_menu)/launch/menu.launch"/>
