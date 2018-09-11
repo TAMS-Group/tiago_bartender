@@ -3,10 +3,9 @@
 #include <std_msgs/String.h>
 #include <tiago_bartender_navigation/MoveToTargetAction.h>
 #include <tiago_bartender_navigation/FindClosestTargetAction.h>
-//#include <tiago_bartender_mtc/PickBottleAction.h>
-#include <tiago_bartender_mtc/PickAction.h>
-#include <tiago_bartender_mtc/PlaceAction.h>
-#include <tiago_bartender_mtc/PourAction.h>
+#include <tiago_bartender_msgs/PickAction.h>
+#include <tiago_bartender_msgs/PlaceAction.h>
+#include <tiago_bartender_msgs/PourAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <std_srvs/SetBool.h>
 #include <std_srvs/Empty.h>
@@ -422,16 +421,16 @@ private:
     else
       state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
 
-    /*actionlib::SimpleActionClient<tiago_bartender_mtc::PlaceAction> client("tiago_bottle_place", true);
+    /*actionlib::SimpleActionClient<tiago_bartender_msgs::PlaceAction> client("tiago_bottle_place", true);
     client.waitForServer();
-    tiago_bartender_mtc::PlaceGoal goal;
+    tiago_bartender_msgs::PlaceGoal goal;
     goal.place_pose = place_pose;
     client.sendGoal(goal);
     while(!client.waitForResult(ros::Duration(5.0)))
       ROS_INFO("Waiting for bottle grasp result.");
 
     int res = client.getResult()->result.result;
-    if(res == tiago_bartender_mtc::Result::SUCCESS)
+    if(res == tiago_bartender_mgs::ManipulationResult::SUCCESS)
     {
       ROS_INFO("Successfully placed.");
       if(robot_moved)
@@ -439,13 +438,13 @@ private:
       else
         state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
     }
-    else if(res == tiago_bartender_mtc::Result::UNREACHABLE)
+    else if(res == tiago_bartender_msgs::ManipulationResult::UNREACHABLE)
     {
       ROS_ERROR_STREAM("Could not reach glass for pouring.");
       // todo: reposition robot in different pose or give different place pose
       state = [bottle_name, bottle_place_pose, robot_moved](StateMachine* m) { m->state_place_bottle(bottle_name, bottle_place_pose, robot_moved); };
     }
-    else if(res == tiago_bartender_mtc::Result::NO_PLAN_FOUND || res == tiago_bartender_mtc::Result::EXECUTION_FAILED)
+    else if(res == tiago_bartender_msgs::ManipulationResult::NO_PLAN_FOUND || res == tiago_bartender_msgs::ManipulationResult::EXECUTION_FAILED)
     {
       ROS_ERROR_STREAM("Pouring failed.");
       state = [bottle_name, bottle_place_pose, robot_moved](StateMachine* m) { m->state_place_bottle(bottle_name, bottle_place_pose, robot_moved); };
@@ -460,27 +459,27 @@ private:
     // temporary
     state = &StateMachine::state_move_to_glass;
 
-    /*actionlib::SimpleActionClient<tiago_bartender_mtc::PickAction> client("tiago_bottle_pick", true);
+    /*actionlib::SimpleActionClient<tiago_bartender_msgs::PickAction> client("tiago_bottle_pick", true);
     client.waitForServer();
-    tiago_bartender_mtc::PickGoal goal;
+    tiago_bartender_msgs::PickGoal goal;
     goal.object_id = bottle_name;
     client.sendGoal(goal);
     while(!client.waitForResult(ros::Duration(5.0)))
       ROS_INFO("Waiting for bottle grasp result.");
 
     int res = client.getResult()->result.result;
-    if(res == tiago_bartender_mtc::Result::SUCCESS)
+    if(res == tiago_bartender_msgs::ManipulationResult::SUCCESS)
     {
       ROS_INFO("Successfully grasped to bottle.");
       state = &StateMachine::state_move_to_glass;
     }
-    else if(res == tiago_bartender_mtc::Result::UNREACHABLE)
+    else if(res == tiago_bartender_msgs::ManipulationResult::UNREACHABLE)
     {
       ROS_ERROR_STREAM("Could not reach object.");
       // todo: reposition robot in different pose
       state = [bottle_name](StateMachine* m) { m->state_grasp_bottle(bottle_name); };
     }
-    else if(res == tiago_bartender_mtc::Result::NO_PLAN_FOUND || res == tiago_bartender_mtc::Result::EXECUTION_FAILED)
+    else if(res == tiago_bartender_msgs::ManipulationResult::NO_PLAN_FOUND || res == tiago_bartender_msgs::ManipulationResult::EXECUTION_FAILED)
     {
       ROS_ERROR("Grasping bottle aborted.");
       state = [bottle_name](StateMachine* m) { m->state_grasp_bottle(bottle_name); };
@@ -524,16 +523,16 @@ private:
     else
       state = &StateMachine::state_next_bottle;
 
-    /*actionlib::SimpleActionClient<tiago_bartender_mtc::PourAction> client("tiago_bottle_pour", true);
+    /*actionlib::SimpleActionClient<tiago_bartender_msgs::PourAction> client("tiago_bottle_pour", true);
     client.waitForServer();
-    tiago_bartender_mtc::PourGoal goal;
+    tiago_bartender_msgs::PourGoal goal;
     goal.container_id = glass_id;
     client.sendGoal(goal);
     while(!client.waitForResult(ros::Duration(5.0)))
       ROS_INFO("Waiting for bottle grasp result.");
 
     int res = client.getResult()->result.result;
-    if(res == tiago_bartender_mtc::Result::SUCCESS)
+    if(res == tiago_bartender_msgs::ManipulationResult::SUCCESS)
     {
       ROS_INFO("Successfully poured.");
       if(current_ingredients_.empty())
@@ -541,13 +540,13 @@ private:
       else
         state = &StateMachine::state_next_bottle;
     }
-    else if(res == tiago_bartender_mtc::Result::UNREACHABLE)
+    else if(res == tiago_bartender_msgs::ManipulationResult::UNREACHABLE)
     {
       ROS_ERROR_STREAM("Could not reach glass for pouring.");
       // todo: reposition robot in different pose
       state = [glass_id](StateMachine* m) { m->state_pour(glass_id); };
     }
-    else if(res == tiago_bartender_mtc::Result::NO_PLAN_FOUND || res == tiago_bartender_mtc::Result::EXECUTION_FAILED)
+    else if(res == tiago_bartender_msgs::ManipulationResult::NO_PLAN_FOUND || res == tiago_bartender_msgs::ManipulationResult::EXECUTION_FAILED)
     {
       ROS_ERROR("Pouring failed.");
       state = [glass_id](StateMachine* m) { m->state_pour(glass_id); };
@@ -595,27 +594,27 @@ private:
     // temporary
     state = &StateMachine::state_idle_manager;
 
-    /*actionlib::SimpleActionClient<tiago_bartender_mtc::PlaceAction> client("tiago_bottle_place", true);
+    /*actionlib::SimpleActionClient<tiago_bartender_msgs::PlaceAction> client("tiago_bottle_place", true);
     client.waitForServer();
-    tiago_bartender_mtc::PlaceGoal goal;
+    tiago_bartender_msgs::PlaceGoal goal;
     goal.place_pose = last_bottle_pose_;
     client.sendGoal(goal);
     while(!client.waitForResult(ros::Duration(5.0)))
       ROS_INFO("Waiting for bottle grasp result.");
 
     int res = client.getResult()->result.result;
-    if(res == tiago_bartender_mtc::Result::SUCCESS)
+    if(res == tiago_bartender_msgs::ManipulationResult::SUCCESS)
     {
       ROS_INFO("Successfully placed.");
       state = &StateMachine::state_idle_manager;
     }
-    else if(res == tiago_bartender_mtc::Result::UNREACHABLE)
+    else if(res == tiago_bartender_msgs::ManipulationResult::UNREACHABLE)
     {
       ROS_ERROR_STREAM("Could not reach glass for pouring.");
       // todo: reposition robot in different pose or give different place pose
       state = &StateMachine::state_put_back_bottle;
     }
-    else if(res == tiago_bartender_mtc::Result::NO_PLAN_FOUND || res == tiago_bartender_mtc::Result::EXECUTION_FAILED)
+    else if(res == tiago_bartender_msgs::ManipulationResult::NO_PLAN_FOUND || res == tiago_bartender_msgs::ManipulationResult::EXECUTION_FAILED)
     {
       ROS_ERROR_STREAM("Pouring failed.");
       state = &StateMachine::state_put_back_bottle;
