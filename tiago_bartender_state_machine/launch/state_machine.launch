@@ -21,5 +21,9 @@
     <param name="take_order_pose_ori_z" type="double" value='1.0'/>
     <param name="take_order_pose_ori_w" type="double" value='0.0'/>
     <param name="take_order_pose_frame" type="string" value='world'/>
+
+    <param name="place_bottle_offset_x" type="double" value='0.15'/>
+    <param name="place_bottle_offset_y" type="double" value='0.0'/>
+    <param name="place_bottle_offset_frame" type="string" value='table1'/>
   </node>
 </launch>

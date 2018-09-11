@@ -85,6 +85,10 @@ public:
     pn.getParam("take_order_pose_ori_w", take_order_pose_.pose.orientation.w);
     pn.getParam("take_order_pose_frame", take_order_pose_.header.frame_id);
 
+    pn.getParam("place_bottle_offset_x", place_bottle_offset_x_);
+    pn.getParam("place_bottle_offset_y", place_bottle_offset_y_);
+    pn.getParam("place_bottle_offset_frame", place_bottle_offset_frame_);
+
     marker_pub_ = nh_.advertise<visualization_msgs::Marker>("bartender_state_marker", 0);
     look_at_client_ = nh_.serviceClient<tiago_bartender_msgs::LookAt>("head_controller/look_at_service");
     person_detection_sub_ = nh_.subscribe("person_detection", 1000, &StateMachine::person_detection_cb, this);
@@ -345,7 +349,7 @@ private:
     // if any objects are attached place the bottle first
     if(psi_.getAttachedObjects().size() != 0)
     {
-      state = [bottle_name](StateMachine* m) {m->state_search_bottle_place(bottle_name); };
+      state = [bottle_name](StateMachine* m) {m->state_place_bottle(bottle_name); };
       return;
     }
 
@@ -363,102 +367,74 @@ private:
     }
   }
 
-  void state_search_bottle_place(const std::string& bottle_name)
-  {
-    std::map< std::string, moveit_msgs::CollisionObject> objects = psi_.getObjects();
-    geometry_msgs::PoseStamped bottle_pose;
-    bottle_pose.pose = objects[bottle_name].mesh_poses[0];
-    bottle_pose.header.frame_id = "world";
-    tf_listener_.transformPose("table1", bottle_pose, bottle_pose);
-    geometry_msgs::PoseStamped left_pose = bottle_pose;
-    geometry_msgs::PoseStamped right_pose = bottle_pose;
-    left_pose.pose.position.x = left_pose.pose.position.x + 0.15;
-    right_pose.pose.position.x = right_pose.pose.position.x - 0.15;
-
-    double left_min_distance = std::numeric_limits<double>::max();
-    double right_min_distance = std::numeric_limits<double>::max();
-
-    for(auto& it : objects)
-    {
-      if(std::find(bottle_list_.begin(), bottle_list_.end(), it.first) != bottle_list_.end())
-      {
-        geometry_msgs::PoseStamped current_pose;
-        current_pose.pose = it.second.mesh_poses[0];
-        current_pose.header.frame_id = "world";
-        tf_listener_.transformPose("table1", current_pose, current_pose);
-        double left_distance = std::abs(left_pose.pose.position.x - current_pose.pose.position.x);
-        double right_distance = std::abs(right_pose.pose.position.x - current_pose.pose.position.x);
-        if(left_min_distance > left_distance)
-          left_min_distance = left_distance;
-        if(right_min_distance > right_distance)
-          right_min_distance = right_distance;
-      }
-    }
-    geometry_msgs::PoseStamped bottle_place_pose;
-    bool robot_moved = false;
-    if(left_min_distance < 0.15 && right_min_distance < 0.15)
-    {
-      // move to where the bottle was picked.
-      while(!move_to_pose(second_last_bottle_pose_, false))
-      {
-        ROS_ERROR_STREAM("Failed moving to bottle place pose.");
-      }
-      bottle_place_pose = second_last_bottle_pose_;
-      robot_moved = true;
-    }
-    else if(left_min_distance < right_min_distance)
-    {
-      bottle_place_pose = right_pose;
-    }
-    else
-    {
-      bottle_place_pose = left_pose;
-    }
-
-    state = [bottle_name, bottle_place_pose, robot_moved](StateMachine* m) { m->state_place_bottle(bottle_name, bottle_place_pose, robot_moved); };
-  }
-
-  void state_place_bottle(std::string bottle_name, geometry_msgs::PoseStamped place_pose, bool robot_moved)
+  void state_place_bottle(std::string bottle_name)
   {
     ROS_INFO_STREAM("state_place_bottle");
     publish_marker("state_place_bottle");
     ros::Duration(1).sleep();
     look_at_target("forward");
 
-    // temporary
-    if(robot_moved)
-      state = [bottle_name](StateMachine* m) { m->state_move_to_bottle(bottle_name); };
-    else
-      state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
+    std::map< std::string, moveit_msgs::CollisionObject> objects = psi_.getObjects();
+    geometry_msgs::PoseStamped bottle_pose;
+    bottle_pose.pose = objects[bottle_name].mesh_poses[0];
+    bottle_pose.header.frame_id = "world";
+    tf_listener_.transformPose(place_bottle_offset_frame_, bottle_pose, bottle_pose);
+    geometry_msgs::PoseStamped left_pose = bottle_pose;
+    geometry_msgs::PoseStamped right_pose = bottle_pose;
+    left_pose.pose.position.x = left_pose.pose.position.x + place_bottle_offset_x_;
+    right_pose.pose.position.x = right_pose.pose.position.x - place_bottle_offset_x_;
+    left_pose.pose.position.y = left_pose.pose.position.y + place_bottle_offset_y_;
+    right_pose.pose.position.y = right_pose.pose.position.y - place_bottle_offset_y_;
+    std::vector<geometry_msgs::PoseStamped> place_poses = {left_pose, right_pose};
 
-    /*actionlib::SimpleActionClient<tiago_bartender_msgs::PlaceAction> client("tiago_bottle_place", true);
+    actionlib::SimpleActionClient<tiago_bartender_msgs::PlaceAction> client("tiago_bottle_place", true);
     client.waitForServer();
     tiago_bartender_msgs::PlaceGoal goal;
-    goal.place_pose = place_pose;
+
+    for(geometry_msgs::PoseStamped place_pose : place_poses)
+    {
+      goal.place_pose = place_pose;
+      client.sendGoal(goal);
+      while(!client.waitForResult(ros::Duration(5.0)))
+        ROS_INFO("Waiting for bottle grasp result.");
+
+      int res = client.getResult()->result.result;
+      if(res == tiago_bartender_msgs::ManipulationResult::SUCCESS)
+      {
+        ROS_INFO("Successfully placed.");
+        state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
+        return;
+      }
+    }
+
+    // placing next to new bottle was not successful. Go to old place instead
+    while(!move_to_pose(second_last_bottle_pose_, false))
+    {
+      ROS_ERROR_STREAM("Failed moving to bottle place pose.");
+    }
+
+    goal.place_pose = second_last_bottle_pose_;
     client.sendGoal(goal);
     while(!client.waitForResult(ros::Duration(5.0)))
       ROS_INFO("Waiting for bottle grasp result.");
 
     int res = client.getResult()->result.result;
-    if(res == tiago_bartender_mgs::ManipulationResult::SUCCESS)
+    if(res == tiago_bartender_msgs::ManipulationResult::SUCCESS)
     {
       ROS_INFO("Successfully placed.");
-      if(robot_moved)
-        state = [bottle_name](StateMachine* m) { m->state_move_to_bottle(bottle_name); };
-      else
-        state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
+      state = [bottle_name](StateMachine* m) { m->state_move_to_bottle(bottle_name); };
     }
     else if(res == tiago_bartender_msgs::ManipulationResult::UNREACHABLE)
     {
       ROS_ERROR_STREAM("Could not reach glass for pouring.");
       // todo: reposition robot in different pose or give different place pose
-      state = [bottle_name, bottle_place_pose, robot_moved](StateMachine* m) { m->state_place_bottle(bottle_name, bottle_place_pose, robot_moved); };
+      state = [bottle_name](StateMachine* m) { m->state_place_bottle(bottle_name); };
     }
     else if(res == tiago_bartender_msgs::ManipulationResult::NO_PLAN_FOUND || res == tiago_bartender_msgs::ManipulationResult::EXECUTION_FAILED)
     {
-      ROS_ERROR_STREAM("Pouring failed.");
-      state = [bottle_name, bottle_place_pose, robot_moved](StateMachine* m) { m->state_place_bottle(bottle_name, bottle_place_pose, robot_moved); };
-    }*/
+      ROS_ERROR_STREAM("Placing failed.");
+      state = [bottle_name](StateMachine* m) { m->state_place_bottle(bottle_name); };
+    }
   }
  
   void state_grasp_bottle(const std::string& bottle_name)
@@ -845,6 +821,11 @@ private:
 
   geometry_msgs::PoseStamped home_pose_;
   geometry_msgs::PoseStamped take_order_pose_;
+
+  // to compute where a bottle should be placed next to the bottle that will be grasped next
+  double place_bottle_offset_x_;
+  double place_bottle_offset_y_;
+  std::string place_bottle_offset_frame_;
 };
 
 int main(int argc, char **argv)
