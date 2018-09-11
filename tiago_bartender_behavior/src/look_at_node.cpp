@@ -2,7 +2,7 @@
 #include <control_msgs/PointHeadAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/client/simple_action_client.h>
-#include <tiago_bartender_behavior/LookAt.h>
+#include <tiago_bartender_msgs/LookAt.h>
 #include <random>
 #include <chrono>
 
@@ -84,7 +84,7 @@ public:
   }
 
 private:
-  bool look_at_cb(tiago_bartender_behavior::LookAt::Request& req, tiago_bartender_behavior::LookAt::Response& res)
+  bool look_at_cb(tiago_bartender_msgs::LookAt::Request& req, tiago_bartender_msgs::LookAt::Response& res)
   {
     if(req.direction.empty())
     {

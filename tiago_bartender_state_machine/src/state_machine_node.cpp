@@ -16,7 +16,7 @@
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <tiago_bartender_speech/BartenderSpeechAction.h>
 #include <tiago_bartender_menu/TakeOrderAction.h>
-#include <tiago_bartender_behavior/LookAt.h>
+#include <tiago_bartender_msgs/LookAt.h>
 #include <queue>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <random>
@@ -777,7 +777,7 @@ private:
   void look_at_target(std::string direction, geometry_msgs::PointStamped target_point = geometry_msgs::PointStamped())
   {
     // Point head to look at the customer
-    tiago_bartender_behavior::LookAt srv;
+    tiago_bartender_msgs::LookAt srv;
     srv.request.direction = direction;
     srv.request.target_point = target_point;
     if (!look_at_client_.call(srv))

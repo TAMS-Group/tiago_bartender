@@ -10,7 +10,7 @@
 #include <moveit_msgs/CollisionObject.h>
 #include <tf/transform_listener.h>
 #include <visualization_msgs/Marker.h>
-#include <tiago_bartender_behavior/LookAt.h>
+#include <tiago_bartender_msgs/LookAt.h>
 
 class MoveToTarget
 {
@@ -49,7 +49,7 @@ public:
       ROS_ERROR_STREAM("All vectors for the line segments must be the same size.");
     }
 
-    look_at_client_ = nh_.serviceClient<tiago_bartender_behavior::LookAt>("head_controller/look_at_service");
+    look_at_client_ = nh_.serviceClient<tiago_bartender_msgs::LookAt>("head_controller/look_at_service");
 
     //wait for the action server to come up
     while(!ac_.waitForServer(ros::Duration(5.0)))
@@ -80,7 +80,7 @@ public:
     // Point head to target
     if(goal->look_at_target)
     {
-      tiago_bartender_behavior::LookAt srv;
+      tiago_bartender_msgs::LookAt srv;
       srv.request.target_point.header = target_pose.header;
       srv.request.target_point.point = target_pose.pose.position;
       if (!look_at_client_.call(srv))
@@ -132,7 +132,7 @@ public:
     // Point head to target
     if(goal->look_at_target)
     {
-      tiago_bartender_behavior::LookAt srv;
+      tiago_bartender_msgs::LookAt srv;
       srv.request.target_point.header = target_pose.header;
       srv.request.target_point.point = target_pose.pose.position;
       if (!look_at_client_.call(srv))

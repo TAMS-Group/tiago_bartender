@@ -8,23 +8,10 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   actionlib_msgs
   geometry_msgs
-  tiago_bartender_navigation
+  tiago_bartender_msgs
   control_msgs
   actionlib
   move_base_msgs
-)
-
-add_service_files(
-  FILES
-  LookAt.srv
-)
-
-# Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  actionlib_msgs
-  std_msgs
-  geometry_msgs
 )
 
 catkin_package(
