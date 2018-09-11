@@ -8,7 +8,6 @@ set(MSG_DEPS
 )
 
 find_package(catkin REQUIRED COMPONENTS
-	actionlib
 	message_generation
 	${MSG_DEPS}
 )
@@ -20,24 +19,22 @@ find_package(catkin REQUIRED COMPONENTS
 ##     find_package(catkin REQUIRED COMPONENTS ...)
 ##   * add every package in MSG_DEPS to generate_messages(DEPENDENCIES ...)
 
-add_message_files(
-	FILES
-	ManipulationResult.msg
+add_action_files(FILES
+	Pick.action
+	Pour.action
+	Place.action
 )
 
 add_service_files(FILES
 	LookAt.srv
 )
 
-add_action_files(
-	FILES
-		Pick.action
-		Pour.action
-		Place.action
+add_message_files(FILES
+	ManipulationResult.msg
 )
 
 generate_messages(
-DEPENDENCIES
+	DEPENDENCIES
 	${MSG_DEPS}
 )
 
