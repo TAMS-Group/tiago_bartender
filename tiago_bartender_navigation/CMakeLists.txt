@@ -8,9 +8,11 @@ find_package(catkin REQUIRED COMPONENTS
   urdf
   actionlib
   actionlib_msgs
-  std_msgs geometry_msgs
+  std_msgs
+  geometry_msgs
   move_base_msgs
   moveit_ros_planning_interface
+  tiago_bartender_msgs
   tf
 )
 
