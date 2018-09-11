@@ -11,26 +11,32 @@
 #include <std_srvs/Empty.h>
 #include <mutex>
 #include <gazebo_msgs/GetLinkState.h>
+#include <actionlib/server/simple_action_server.h>
+#include <tiago_bartender_msgs/UpdateBottlesAction.h>
 
 class PlanningSceneInit
 {
+protected:
+  ros::NodeHandle nh_;
+  actionlib::SimpleActionServer<tiago_bartender_msgs::UpdateBottlesAction> as_;
 public:
-  PlanningSceneInit() : psi_(), objects_found_(false)
+  PlanningSceneInit() : psi_(),
+                        objects_found_(false),
+                        as_(nh_, "dummy_planning_scene/update_bottles", boost::bind(&PlanningSceneInit::update_bottles_cb, this, _1), false)
   {
-    ros::NodeHandle nh;
-    obj_pose_sub_ = nh.subscribe("/gazebo/link_states", 1000, &PlanningSceneInit::obj_pose_callback, this);
+    obj_pose_sub_ = nh_.subscribe("/gazebo/link_states", 1000, &PlanningSceneInit::obj_pose_callback, this);
 
-    init_server_ = nh.advertiseService("dummy_planning_scene/init_planning_scene", &PlanningSceneInit::init_service, this);
-    update_server_ = nh.advertiseService("dummy_planning_scene/update_planning_scene", &PlanningSceneInit::update_service, this);
-    link_state_client_ = nh.serviceClient<gazebo_msgs::GetLinkState>("gazebo/get_link_state");
+    init_server_ = nh_.advertiseService("dummy_planning_scene/init_planning_scene", &PlanningSceneInit::init_service, this);
+    update_server_ = nh_.advertiseService("dummy_planning_scene/update_planning_scene", &PlanningSceneInit::update_service, this);
+    link_state_client_ = nh_.serviceClient<gazebo_msgs::GetLinkState>("gazebo/get_link_state");
 
     gazebo_planning_scene_mapping_ = {
-      {"bottle_1::bottle_2_coke", "bottle_1"},
-      { "bottle_2::bottle_2_fanta", "bottle_2"}, 
-      {"bottle_3::bottle_2_pepsi", "bottle_3"},
-      {"bottle_4::bottle_coke", "bottle_4"},
-      {"bottle_5::bottle_fanta", "bottle_5"},
-      { "bottle_6::bottle_pepsi", "bottle_6"},
+      {"orange_juice::bottle_2_coke", "orange_juice"},
+      {"grenadine::bottle_2_fanta", "grenadine"}, 
+      {"tequila::bottle_2_pepsi", "tequila"},
+      {"rum::bottle_coke", "rum"},
+      {"coke::bottle_fanta", "coke"},
+      {"lime::bottle_pepsi", "lime"},
       {"glass_1::yellow_glass", "glass_1"},
       {"glass_2::yellow_glass", "glass_2"},
       {"glass_3::yellow_glass", "glass_3"},
@@ -38,6 +44,17 @@ public:
       {"bar_model::table1", "table1"},
       {"bar_model::table2", "table2"},
       {"bar_model::table3", "table3"}};
+
+
+    gazebo_planning_scene_bottle_mapping_ = {
+      {"orange_juice::bottle_2_coke", "orange_juice"},
+      {"grenadine::bottle_2_fanta", "grenadine"}, 
+      {"tequila::bottle_2_pepsi", "tequila"},
+      {"rum::bottle_coke", "rum"},
+      {"coke::bottle_fanta", "coke"},
+      {"lime::bottle_pepsi", "lime"}};
+
+    as_.start();
   }
 
   void update_scene()
@@ -59,6 +76,34 @@ public:
       }
       if(object.first.find("bottle") != std::string::npos)
         srv.response.link_state.pose.position.z += 0.005;
+
+      collision_object.mesh_poses.resize(1);
+      collision_object.mesh_poses[0] = srv.response.link_state.pose;
+      collision_object.id = object.second;
+      collision_object.operation = moveit_msgs::CollisionObject::MOVE;
+      collision_objects.push_back(collision_object);
+    }
+    psi_.applyCollisionObjects(collision_objects);
+  }
+
+  void update_bottles()
+  {
+    std::vector<moveit_msgs::CollisionObject> collision_objects;
+    moveit_msgs::CollisionObject collision_object;
+    collision_object.header.frame_id = "base_footprint";
+    geometry_msgs::Pose pose;
+
+    for(std::pair<std::string, std::string> object : gazebo_planning_scene_bottle_mapping_)
+    {
+      gazebo_msgs::GetLinkState srv;
+      srv.request.link_name = object.first;
+      srv.request.reference_frame = "tiago_custom::base_footprint";
+      if (!link_state_client_.call(srv) || !srv.response.success)
+      {
+        ROS_ERROR("Failed to call service get_link_state with %s", object.first.c_str());
+        return;
+      }
+      srv.response.link_state.pose.position.z += 0.005;
 
       collision_object.mesh_poses.resize(1);
       collision_object.mesh_poses[0] = srv.response.link_state.pose;
@@ -272,6 +317,15 @@ private:
     return true;
   }
 
+  void update_bottles_cb(const tiago_bartender_msgs::UpdateBottlesGoalConstPtr& goal)
+  {
+    update_bottles();
+    std::vector<std::string> updated_bottles = {"coke", "grenadine", "lime", "orange_juice", "rum", "tequila"};
+    tiago_bartender_msgs::UpdateBottlesResult result;
+    result.updated_bottles = updated_bottles;
+    as_.setSucceeded(result);
+  }
+
   moveit::planning_interface::PlanningSceneInterface psi_;
   ros::Subscriber obj_pose_sub_;
   std::map<std::string, geometry_msgs::Pose> bottle_poses_;
@@ -284,6 +338,7 @@ private:
   ros::ServiceServer update_server_;
   ros::ServiceClient link_state_client_;
   std::vector<std::pair<std::string, std::string>> gazebo_planning_scene_mapping_;
+  std::vector<std::pair<std::string, std::string>> gazebo_planning_scene_bottle_mapping_;
 };
 
 int main(int argc, char **argv)

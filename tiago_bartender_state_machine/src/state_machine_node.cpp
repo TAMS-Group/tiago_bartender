@@ -16,6 +16,7 @@
 #include <tiago_bartender_msgs/BartenderSpeechAction.h>
 #include <tiago_bartender_msgs/TakeOrderAction.h>
 #include <tiago_bartender_msgs/LookAt.h>
+#include <tiago_bartender_msgs/UpdateBottlesAction.h>
 #include <queue>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <random>
@@ -32,6 +33,7 @@ public:
                    bs_client_("bartender_speech_action", true),
                    to_client_("menu/take_order", true),
                    mb_client_("move_base", true),
+                   ub_client_("dummy_planning_scene/update_bottles", true),
                    unif_(0, 1),
                    person_detected_(false),
                    psi_()
@@ -120,7 +122,7 @@ public:
     // without this sleep the first marker is not published
     ros::Duration(1.0).sleep();
 
-    while(!mtt_client_.waitForServer(ros::Duration(1.0)) || !fct_client_.waitForServer(ros::Duration(1.0)) || !fjt_client_.waitForServer(ros::Duration(1.0)) || !bs_client_.waitForServer(ros::Duration(1.0)) || !to_client_.waitForServer(ros::Duration(1.0)) || !mb_client_.waitForServer(ros::Duration(1.0)))
+    while(!mtt_client_.waitForServer(ros::Duration(1.0)) || !fct_client_.waitForServer(ros::Duration(1.0)) || !fjt_client_.waitForServer(ros::Duration(1.0)) || !bs_client_.waitForServer(ros::Duration(1.0)) || !to_client_.waitForServer(ros::Duration(1.0)) || !mb_client_.waitForServer(ros::Duration(1.0))|| !ub_client_.waitForServer(ros::Duration(1.0)))
     {
       ROS_ERROR_STREAM("tiago bartender state machine waits for all action servers to start.");
     }
@@ -336,34 +338,31 @@ private:
     ROS_INFO_STREAM("state_update_scene");
     publish_marker("state_update_scene");
     // todo: replace this place holder with actual update method
-    ros::NodeHandle node;
-    ros::ServiceClient client = node.serviceClient<std_srvs::Empty>("dummy_planning_scene/update_planning_scene");
-    std_srvs::Empty srv;
-    if (!client.call(srv))
-    {
-      ROS_ERROR("Failed to call service update_planning_scene");
-      state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
-      return;
-    }
+    
+    tiago_bartender_msgs::UpdateBottlesGoal goal;
+    ub_client_.sendGoal(goal);
+    while(!ub_client_.waitForResult(ros::Duration(5.0)))
+      ROS_INFO("Waiting update bottles result.");
 
-    // if any objects are attached place the bottle first
-    if(psi_.getAttachedObjects().size() != 0)
-    {
-      state = [bottle_name](StateMachine* m) {m->state_place_bottle(bottle_name); };
-      return;
-    }
+    ROS_INFO("Successfully found and moved to target.");
+    auto result = ub_client_.getResult();
+    std::vector<std::string> updated_bottles = result->updated_bottles;
 
-    // todo: check if the correct bottle was observed by the recognition
-    if(false)
+    if(std::find(updated_bottles.begin(), updated_bottles.end(), bottle_name) == updated_bottles.end())
     {
       voice_command("bottle_not_found");
       state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
       return;
     }
+    // if any objects are attached place the bottle first
+    else if(psi_.getAttachedObjects().size() != 0)
+    {
+      state = [bottle_name](StateMachine* m) {m->state_place_bottle(bottle_name); };
+      return;
+    }
     else
     {
       state = [bottle_name](StateMachine* m) { m->state_grasp_bottle(bottle_name); };
-      return;
     }
   }
 
@@ -790,6 +789,7 @@ private:
   actionlib::SimpleActionClient<tiago_bartender_msgs::BartenderSpeechAction> bs_client_;
   actionlib::SimpleActionClient<tiago_bartender_msgs::TakeOrderAction> to_client_;
   actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> mb_client_;
+  actionlib::SimpleActionClient<tiago_bartender_msgs::UpdateBottlesAction> ub_client_;
 
   ros::ServiceClient look_at_client_;
 
