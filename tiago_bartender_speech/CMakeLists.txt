@@ -53,4 +53,5 @@ target_link_libraries(
 add_dependencies(
   play_file_node
   ${catkin_EXPORTED_TARGETS}
+  ${${PACKAGE_NAME}_EXPORTED_TARGETS}
 )
