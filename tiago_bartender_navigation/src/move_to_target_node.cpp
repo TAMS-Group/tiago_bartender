@@ -1,6 +1,6 @@
 #include <ros/ros.h>
-#include <tiago_bartender_navigation/MoveToTargetAction.h>
-#include <tiago_bartender_navigation/FindClosestTargetAction.h>
+#include <tiago_bartender_msgs/MoveToTargetAction.h>
+#include <tiago_bartender_msgs/FindClosestTargetAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/client/simple_action_client.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -16,12 +16,12 @@ class MoveToTarget
 {
 protected:
   ros::NodeHandle nh_;
-  actionlib::SimpleActionServer<tiago_bartender_navigation::MoveToTargetAction> as_mtt_;
-  actionlib::SimpleActionServer<tiago_bartender_navigation::FindClosestTargetAction> as_fct_;
+  actionlib::SimpleActionServer<tiago_bartender_msgs::MoveToTargetAction> as_mtt_;
+  actionlib::SimpleActionServer<tiago_bartender_msgs::FindClosestTargetAction> as_fct_;
   std::string mtt_action_name_;
   std::string fct_action_name_;
-  tiago_bartender_navigation::FindClosestTargetResult fct_res_;
-  tiago_bartender_navigation::MoveToTargetResult mtt_res_;
+  tiago_bartender_msgs::FindClosestTargetResult fct_res_;
+  tiago_bartender_msgs::MoveToTargetResult mtt_res_;
 
 public:
   MoveToTarget(std::string mtt_name, std::string fct_name) : as_mtt_(nh_, mtt_name, boost::bind(&MoveToTarget::executeMTT, this, _1), false), 
@@ -63,7 +63,7 @@ public:
     as_fct_.start();
   }
 
-  void executeMTT(const tiago_bartender_navigation::MoveToTargetGoalConstPtr& goal)
+  void executeMTT(const tiago_bartender_msgs::MoveToTargetGoalConstPtr& goal)
   {
     geometry_msgs::PoseStamped target_pose;
     if(!goal->target.empty())
@@ -118,7 +118,7 @@ public:
   }
 
 
-  void executeFCT(const tiago_bartender_navigation::FindClosestTargetGoalConstPtr &goal)
+  void executeFCT(const tiago_bartender_msgs::FindClosestTargetGoalConstPtr &goal)
   {
     geometry_msgs::PoseStamped target_pose;
     target_pose = get_pose_from_type(goal->target_type, goal->target_pose);

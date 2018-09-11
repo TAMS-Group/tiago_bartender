@@ -34,6 +34,10 @@ add_action_files(
 		Pick.action
 		Pour.action
 		Place.action
+		TakeOrder.action
+		MoveToTarget.action
+		FindClosestTarget.action
+		BartenderSpeech.action
 )
 
 generate_messages(

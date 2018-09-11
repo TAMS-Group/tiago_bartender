@@ -20,16 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   sensor_msgs
   cv_bridge
-  actionlib_msgs
-)
-
-add_action_files(
-  DIRECTORY action
-  FILES TakeOrder.action
-)
-
-generate_messages(
-  DEPENDENCIES actionlib_msgs std_msgs
+  tiago_bartender_msgs
 )
 
 catkin_package(

@@ -47,7 +47,7 @@
 #include <std_msgs/String.h>
 
 #include <actionlib/server/simple_action_server.h>
-#include <tiago_bartender_menu/TakeOrderAction.h>
+#include <tiago_bartender_msgs/TakeOrderAction.h>
 
 int main(int argc, char **argv) {
 
@@ -89,10 +89,10 @@ int main(int argc, char **argv) {
   // static std::atomic<int> listener_count;
   // listener_count = 0;
 
-  static actionlib::SimpleActionServer<tiago_bartender_menu::TakeOrderAction>
+  static actionlib::SimpleActionServer<tiago_bartender_msgs::TakeOrderAction>
       takeOrderAction(
           node, "menu/take_order" /*,
-          [](const tiago_bartender_menu::TakeOrderPtr &action) {
+          [](const tiago_bartender_msgs::TakeOrderPtr &action) {
             listener_count++;
 
             listener_count--;
@@ -262,7 +262,7 @@ int main(int argc, char **argv) {
       if (takeOrderAction.isActive()) {
         detection_failures++;
         if (detection_failures > max_detection_failures) {
-          tiago_bartender_menu::TakeOrderResult result;
+          tiago_bartender_msgs::TakeOrderResult result;
           result.status = "no_menu_card_detected";
           takeOrderAction.setAborted(result);
         }
@@ -449,7 +449,7 @@ int main(int argc, char **argv) {
 
       if (!timeout.isZero() && ros::Time::now() > timeout) {
         // takeOrderAction.setAborted();
-        tiago_bartender_menu::TakeOrderResult result;
+        tiago_bartender_msgs::TakeOrderResult result;
         result.status = "timeout";
         takeOrderAction.setAborted(result);
         continue;
@@ -584,7 +584,7 @@ int main(int argc, char **argv) {
         current_level = 0;
 
         {
-          tiago_bartender_menu::TakeOrderFeedback feedback;
+          tiago_bartender_msgs::TakeOrderFeedback feedback;
           feedback.feature_matches = feature_matches;
           feedback.detection_failures = detection_failures;
           takeOrderAction.publishFeedback(feedback);
@@ -636,7 +636,7 @@ int main(int argc, char **argv) {
       }
 
       {
-        tiago_bartender_menu::TakeOrderFeedback feedback;
+        tiago_bartender_msgs::TakeOrderFeedback feedback;
         if (selection.size()) {
           feedback.current_selection = selection;
           feedback.selection_counter = current_level;
@@ -657,7 +657,7 @@ int main(int argc, char **argv) {
         selection_pub.publish(msg);
 
         if (takeOrderAction.isActive()) {
-          tiago_bartender_menu::TakeOrderResult result;
+          tiago_bartender_msgs::TakeOrderResult result;
           result.selection = selection;
           result.status = "order_selected";
           takeOrderAction.setSucceeded(result);

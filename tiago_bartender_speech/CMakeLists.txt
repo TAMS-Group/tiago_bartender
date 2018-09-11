@@ -15,23 +15,11 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
   sound_play
-  message_generation
-)
-
-add_action_files(
-  DIRECTORY action
-  FILES
-  BartenderSpeech.action
-)
-
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  actionlib_msgs
+  tiago_bartender_msgs
 )
 
 catkin_package(
-  CATKIN_DEPENDS message_runtime roslib actionlib_msgs
+  CATKIN_DEPENDS roslib actionlib_msgs
 #  INCLUDE_DIRS include
 #  LIBRARIES tiago_bartender_speech
 #  CATKIN_DEPENDS roscpp std_msgs

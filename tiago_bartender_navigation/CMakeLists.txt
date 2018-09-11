@@ -16,17 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
   tf
 )
 
-add_action_files(
-  DIRECTORY action
-  FILES
-  MoveToTarget.action
-  FindClosestTarget.action
-)
-
-generate_messages(
-  DEPENDENCIES std_msgs geometry_msgs actionlib_msgs
-)
-
 catkin_package(
   CATKIN_DEPENDS actionlib_msgs geometry_msgs
 )

@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <sound_play/sound_play.h>
-#include <tiago_bartender_speech/BartenderSpeechAction.h>
+#include <tiago_bartender_msgs/BartenderSpeechAction.h>
 #include <ros/package.h>
 #include <visualization_msgs/Marker.h>
 #include <actionlib/server/simple_action_server.h>
@@ -28,7 +28,7 @@ class TiagoSpeech
 {
 protected:
   ros::NodeHandle nh_;
-  actionlib::SimpleActionServer<tiago_bartender_speech::BartenderSpeechAction> as_;
+  actionlib::SimpleActionServer<tiago_bartender_msgs::BartenderSpeechAction> as_;
   std::string action_name_;
 public:
   TiagoSpeech(std::string action_name) : as_(nh_, action_name, boost::bind(&TiagoSpeech::executeCB, this, _1), false),
@@ -80,7 +80,7 @@ public:
     as_.start();
   }
 private:
-  void executeCB(const tiago_bartender_speech::BartenderSpeechGoalConstPtr& goal)
+  void executeCB(const tiago_bartender_msgs::BartenderSpeechGoalConstPtr& goal)
   {
     marker_.action = visualization_msgs::Marker::ADD;
     marker_.text = goal->id;

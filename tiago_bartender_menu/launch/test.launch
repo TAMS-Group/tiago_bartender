@@ -4,7 +4,7 @@
     pkg="actionlib"
     type="axclient.py"
     name="axclient"
-    args="/menu/take_order tiago_bartender_menu/TakeOrderAction"
+    args="/menu/take_order tiago_bartender_msgs/TakeOrderAction"
     />
 
 </launch>

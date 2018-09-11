@@ -1,8 +1,8 @@
 #include <ros/ros.h>
 #include <functional>
 #include <std_msgs/String.h>
-#include <tiago_bartender_navigation/MoveToTargetAction.h>
-#include <tiago_bartender_navigation/FindClosestTargetAction.h>
+#include <tiago_bartender_msgs/MoveToTargetAction.h>
+#include <tiago_bartender_msgs/FindClosestTargetAction.h>
 //#include <tiago_bartender_mtc/PickBottleAction.h>
 #include <tiago_bartender_mtc/PickAction.h>
 #include <tiago_bartender_mtc/PlaceAction.h>
@@ -14,8 +14,8 @@
 #include <visualization_msgs/Marker.h>
 #include <trajectory_msgs/JointTrajectory.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
-#include <tiago_bartender_speech/BartenderSpeechAction.h>
-#include <tiago_bartender_menu/TakeOrderAction.h>
+#include <tiago_bartender_msgs/BartenderSpeechAction.h>
+#include <tiago_bartender_msgs/TakeOrderAction.h>
 #include <tiago_bartender_msgs/LookAt.h>
 #include <queue>
 #include <move_base_msgs/MoveBaseAction.h>
@@ -243,7 +243,7 @@ private:
     look_at_target("down");
 
     // take order action
-    tiago_bartender_menu::TakeOrderGoal goal;
+    tiago_bartender_msgs::TakeOrderGoal goal;
     goal.timeout = ros::Duration(30.0);
     to_client_.sendGoal(goal);
     while(!to_client_.waitForResult(ros::Duration(20.0)))
@@ -625,7 +625,7 @@ private:
   bool move_to_target(const std::string& target_name, bool look_at_target, geometry_msgs::PoseStamped& target_pose)
   {
     ROS_INFO("moving to target %s", target_name.c_str());
-    tiago_bartender_navigation::MoveToTargetGoal goal;
+    tiago_bartender_msgs::MoveToTargetGoal goal;
     goal.target = target_name;
     goal.look_at_target = look_at_target;
     mtt_client_.sendGoal(goal);
@@ -647,7 +647,7 @@ private:
   bool find_closest_target(const std::string& type_name, const geometry_msgs::PoseStamped& pose, const bool look_at_target, std::string& target_id_result, geometry_msgs::PoseStamped& target_pose)
   {
     ROS_INFO("Finding closest target of type %s", type_name.c_str());
-    tiago_bartender_navigation::FindClosestTargetGoal goal;
+    tiago_bartender_msgs::FindClosestTargetGoal goal;
     goal.target_type = type_name;
     goal.target_pose = pose;
     goal.look_at_target = look_at_target;
@@ -671,7 +671,7 @@ private:
 
   bool move_to_pose(const geometry_msgs::PoseStamped pose, bool look_at_target)
   {
-    tiago_bartender_navigation::MoveToTargetGoal goal;
+    tiago_bartender_msgs::MoveToTargetGoal goal;
     goal.target_pose = pose;
     goal.look_at_target = look_at_target;
     mtt_client_.sendGoal(goal);
@@ -691,7 +691,7 @@ private:
 
   bool move_to_person()
   {
-    tiago_bartender_navigation::MoveToTargetGoal goal;
+    tiago_bartender_msgs::MoveToTargetGoal goal;
     goal.target_pose.header = last_person_position_.header;
     goal.target_pose.pose.position = last_person_position_.point;
     goal.look_at_target = true;
@@ -747,7 +747,7 @@ private:
 
   void voice_command(std::string audio_id, bool wait_for_result = true)
   {
-    tiago_bartender_speech::BartenderSpeechGoal speech_goal;
+    tiago_bartender_msgs::BartenderSpeechGoal speech_goal;
     speech_goal.id = audio_id;
     bs_client_.sendGoal(speech_goal);
     if(wait_for_result)
@@ -802,11 +802,11 @@ private:
 
   moveit::planning_interface::PlanningSceneInterface psi_;
 
-  actionlib::SimpleActionClient<tiago_bartender_navigation::MoveToTargetAction> mtt_client_;
-  actionlib::SimpleActionClient<tiago_bartender_navigation::FindClosestTargetAction> fct_client_;
+  actionlib::SimpleActionClient<tiago_bartender_msgs::MoveToTargetAction> mtt_client_;
+  actionlib::SimpleActionClient<tiago_bartender_msgs::FindClosestTargetAction> fct_client_;
   actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction> fjt_client_;
-  actionlib::SimpleActionClient<tiago_bartender_speech::BartenderSpeechAction> bs_client_;
-  actionlib::SimpleActionClient<tiago_bartender_menu::TakeOrderAction> to_client_;
+  actionlib::SimpleActionClient<tiago_bartender_msgs::BartenderSpeechAction> bs_client_;
+  actionlib::SimpleActionClient<tiago_bartender_msgs::TakeOrderAction> to_client_;
   actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> mb_client_;
 
   ros::ServiceClient look_at_client_;
