@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 2.9.3)
 project(tiago_bartender_menu)
 
 set(CMAKE_CXX_FLAGS "-std=c++11")
