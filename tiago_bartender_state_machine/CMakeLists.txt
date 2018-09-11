@@ -7,8 +7,11 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   actionlib
-  tiago_bartender_navigation
   tiago_bartender_behavior
+  tiago_bartender_msgs
+  tiago_bartender_navigation
+  tiago_bartender_speech
+  tiago_bartender_menu
   move_base_msgs
   tiago_bartender_msgs
   moveit_ros_planning_interface

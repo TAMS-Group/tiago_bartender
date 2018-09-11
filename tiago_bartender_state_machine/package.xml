@@ -10,8 +10,11 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>tiago_bartender_navigation</build_depend>
   <build_depend>tiago_bartender_behavior</build_depend>
+  <build_depend>tiago_bartender_menu</build_depend>
+  <build_depend>tiago_bartender_msgs</build_depend>
+  <build_depend>tiago_bartender_navigation</build_depend>
+  <build_depend>tiago_bartender_speech</build_depend>
   <build_depend>move_base_msgs</build_depend>
   <build_depend>tiago_bartender_msgs</build_depend>
 
@@ -20,8 +23,11 @@
 
   <exec_depend>roscpp</exec_depend>
   <exec_depend>std_msgs</exec_depend>
-  <exec_depend>tiago_bartender_navigation</exec_depend>
   <exec_depend>tiago_bartender_behavior</exec_depend>
+  <exec_depend>tiago_bartender_menu</exec_depend>
+  <exec_depend>tiago_bartender_msgs</exec_depend>
+  <exec_depend>tiago_bartender_navigation</exec_depend>
+  <exec_depend>tiago_bartender_speech</exec_depend>
   <exec_depend>move_base_msgs</exec_depend>
   <exec_depend>tiago_bartender_msgs</exec_depend>
 </package>
