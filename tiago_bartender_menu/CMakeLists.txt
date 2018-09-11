@@ -11,17 +11,13 @@ add_compile_options($<$<CONFIG:Release>:-ffast-math>)
 find_package(OpenCV REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
-  moveit_core
-  moveit_ros_planning
-  moveit_ros_move_group
   tf
   tf_conversions
   roscpp
   std_srvs
-  moveit_ros_planning_interface
   visualization_msgs
   interactive_markers
-  moveit_ros_robot_interaction
+  image_transport
   sensor_msgs
   cv_bridge
   actionlib_msgs
@@ -38,14 +34,13 @@ generate_messages(
 
 catkin_package(
   CATKIN_DEPENDS
-  moveit_core
-  moveit_ros_planning
   roscpp
   tf
   tf_conversions
   sensor_msgs
   cv_bridge
   actionlib_msgs
+  image_transport
 )
 
 include_directories(
