@@ -79,7 +79,7 @@ public:
     pn.getParam("home_pose_frame", home_pose_.header.frame_id);
 
     marker_pub_ = nh_.advertise<visualization_msgs::Marker>("bartender_state_marker", 0);
-    look_at_client_ = nh_.serviceClient<tiago_bartender_behavior::LookAt>("head_controller/look_at_service");
+    look_at_client_ = nh_.serviceClient<tiago_bartender_msgs::LookAt>("head_controller/look_at_service");
     person_detection_sub_ = nh_.subscribe("person_detection", 1000, &StateMachine::person_detection_cb, this);
 
     // prepare random number generator for random idle states
