@@ -77,6 +77,14 @@ public:
     pn.getParam("home_pose_ori_w", home_pose_.pose.orientation.w);
     pn.getParam("home_pose_frame", home_pose_.header.frame_id);
 
+    pn.getParam("take_order_pose_x", take_order_pose_.pose.position.x);
+    pn.getParam("take_order_pose_y", take_order_pose_.pose.position.y);
+    pn.getParam("take_order_pose_ori_x", take_order_pose_.pose.orientation.x);
+    pn.getParam("take_order_pose_ori_y", take_order_pose_.pose.orientation.y);
+    pn.getParam("take_order_pose_ori_z", take_order_pose_.pose.orientation.z);
+    pn.getParam("take_order_pose_ori_w", take_order_pose_.pose.orientation.w);
+    pn.getParam("take_order_pose_frame", take_order_pose_.header.frame_id);
+
     marker_pub_ = nh_.advertise<visualization_msgs::Marker>("bartender_state_marker", 0);
     look_at_client_ = nh_.serviceClient<tiago_bartender_msgs::LookAt>("head_controller/look_at_service");
     person_detection_sub_ = nh_.subscribe("person_detection", 1000, &StateMachine::person_detection_cb, this);
@@ -130,6 +138,7 @@ private:
     publish_marker("state_init");
     extend_torso();
     look_at_target("forward");
+    ros::Duration(1.5).sleep();
     state = &StateMachine::state_idle_manager;
   }
 
@@ -240,6 +249,7 @@ private:
     ++iteration;
     // Point head down to look at menu
     look_at_target("down");
+    ros::Duration(1.5).sleep();
 
     // take order action
     tiago_bartender_msgs::TakeOrderGoal goal;
@@ -690,32 +700,30 @@ private:
 
   bool move_to_person()
   {
-    tiago_bartender_msgs::MoveToTargetGoal goal;
-    goal.target_pose.header = last_person_position_.header;
-    goal.target_pose.pose.position = last_person_position_.point;
-    goal.look_at_target = true;
-    mtt_client_.sendGoal(goal);
-    person_detected_ = false;
+    look_at_target("", last_person_position_);
 
-    while(!mtt_client_.waitForResult(ros::Duration(0.5)))
+    move_base_msgs::MoveBaseGoal target;
+    target.target_pose = take_order_pose_;
+    mb_client_.sendGoal(target);
+
+    person_detected_ = false;
+    while(!mb_client_.waitForResult(ros::Duration(0.5)))
     {
       // update pose if person detected
       if(person_detected_)
       {
-        goal.target_pose.header = last_person_position_.header;
-        goal.target_pose.pose.position = last_person_position_.point;
-        mtt_client_.sendGoal(goal);
+        look_at_target("", last_person_position_);
         person_detected_ = false;
       }
     }
-    if(mtt_client_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+    if(mb_client_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
     {
-      ROS_INFO("Successfully moved to target.");
+      ROS_INFO("Successfully moved to take order.");
       return true;
     }
     else
     {
-      ROS_ERROR("Moving to target aborted.");
+      ROS_ERROR("Moving to take order aborted.");
       return false;
     }
   }
@@ -783,7 +791,6 @@ private:
     {
       ROS_ERROR("Failed to call look_at_service");
     }
-    ros::Duration(1.5).sleep();
   }
 
   double get_rand()
@@ -837,6 +844,7 @@ private:
   bool person_detected_;
 
   geometry_msgs::PoseStamped home_pose_;
+  geometry_msgs::PoseStamped take_order_pose_;
 };
 
 int main(int argc, char **argv)
