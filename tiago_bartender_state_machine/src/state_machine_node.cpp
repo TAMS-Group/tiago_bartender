@@ -362,7 +362,7 @@ private:
     }
     else
     {
-      state = [bottle_name](StateMachine* m) { m->state_grasp_bottle(bottle_name); };
+      state = [bottle_name](StateMachine* m) { m->state_pick_bottle(bottle_name); };
     }
   }
 
@@ -436,15 +436,12 @@ private:
     }
   }
  
-  void state_grasp_bottle(const std::string& bottle_name)
+  void state_pick_bottle(const std::string& bottle_name)
   {
-    ROS_INFO_STREAM("state_grasp_bottle");
-    publish_marker("state_grasp_bottle");
+    ROS_INFO_STREAM("state_pick_bottle");
+    publish_marker("state_pick_bottle");
 
-    // temporary
-    state = &StateMachine::state_move_to_glass;
-
-    /*actionlib::SimpleActionClient<tiago_bartender_msgs::PickAction> client("tiago_bottle_pick", true);
+    actionlib::SimpleActionClient<tiago_bartender_msgs::PickAction> client("tiago_pick", true);
     client.waitForServer();
     tiago_bartender_msgs::PickGoal goal;
     goal.object_id = bottle_name;
@@ -462,13 +459,13 @@ private:
     {
       ROS_ERROR_STREAM("Could not reach object.");
       // todo: reposition robot in different pose
-      state = [bottle_name](StateMachine* m) { m->state_grasp_bottle(bottle_name); };
+      state = [bottle_name](StateMachine* m) { m->state_pick_bottle(bottle_name); };
     }
     else if(res == tiago_bartender_msgs::ManipulationResult::NO_PLAN_FOUND || res == tiago_bartender_msgs::ManipulationResult::EXECUTION_FAILED)
     {
       ROS_ERROR("Grasping bottle aborted.");
-      state = [bottle_name](StateMachine* m) { m->state_grasp_bottle(bottle_name); };
-    }*/
+      state = [bottle_name](StateMachine* m) { m->state_pick_bottle(bottle_name); };
+    }
   }
   
   void state_move_to_glass()
