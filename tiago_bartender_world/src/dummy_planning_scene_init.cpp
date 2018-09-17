@@ -189,19 +189,33 @@ public:
     // Use solid primitives for the legs of the table
     shape_msgs::SolidPrimitive prim_msg;
     prim_msg.type = shape_msgs::SolidPrimitive::BOX;
-    prim_msg.dimensions = {0.02, 0.02, 0.73};
+    //prim_msg.dimensions = {0.02, 0.02, 0.73};
     geometry_msgs::Pose prim_pose;
 
     for(auto pose : bar_poses_)
     {
+      collision_object.mesh_poses.clear();
+      collision_object.primitive_poses.clear();
+      collision_object.primitives.clear();
+      collision_object.meshes.clear();
+
       if(pose.first == "counter")
       {
         m = shapes::createMeshFromResource("package://tiago_bartender_world/meshes/bartresen_binary.stl", bar_scale);
+        shapes::constructMsgFromShape(m, mesh_msg);
+        mesh = boost::get<shape_msgs::Mesh>(mesh_msg);
+        collision_object.meshes.push_back(mesh);
+        collision_object.mesh_poses.push_back(pose.second);
       }
       else if(pose.first == "table1" || pose.first == "table2")
       {
+        prim_msg.dimensions = {1.60, 0.90, 0.75};
+        collision_object.primitives = {prim_msg};
+        prim_pose = pose.second;
+        prim_pose.position.z += 0.75/2.0;
+        collision_object.primitive_poses.push_back(prim_pose);
+        /*
         m = shapes::createMeshFromResource("package://tiago_bartender_world/meshes/table_plate_160x80x2.dae", table_scale);
-
         collision_object.primitives = {prim_msg, prim_msg, prim_msg, prim_msg};
 
         prim_pose = pose.second;
@@ -228,12 +242,17 @@ public:
         prim_pose.position.z += 0.73/2.0;
         collision_object.primitive_poses.push_back(prim_pose);
 
-        pose.second.position.z += 0.74;
+        pose.second.position.z += 0.74;*/
 
       }
       else if(pose.first == "table3")
       {
-        m = shapes::createMeshFromResource("package://tiago_bartender_world/meshes/table_plate_140x70x2.dae", table_scale);
+        prim_msg.dimensions = {1.40, 0.80, 0.75};
+        collision_object.primitives = {prim_msg};
+        prim_pose = pose.second;
+        prim_pose.position.z += 0.75/2.0;
+        collision_object.primitive_poses.push_back(prim_pose);
+        /*m = shapes::createMeshFromResource("package://tiago_bartender_world/meshes/table_plate_140x70x2.dae", table_scale);
 
         collision_object.primitives = {prim_msg, prim_msg, prim_msg, prim_msg};
 
@@ -261,22 +280,14 @@ public:
         prim_pose.position.z += 0.73/2.0;
         collision_object.primitive_poses.push_back(prim_pose);
 
-        pose.second.position.z += 0.74;
+        pose.second.position.z += 0.74;*/
       }
       else
       {
         continue;
       }
-      shapes::constructMsgFromShape(m, mesh_msg);
-      mesh = boost::get<shape_msgs::Mesh>(mesh_msg);
-      collision_object.meshes[0] = mesh;
-
       collision_object.id = pose.first;
-      collision_object.mesh_poses.push_back(pose.second);
       collision_objects.push_back(collision_object);
-      collision_object.mesh_poses.clear();
-      collision_object.primitive_poses.clear();
-      collision_object.primitives.clear();
 
       object_color.id = pose.first;
       object_colors.push_back(object_color);
