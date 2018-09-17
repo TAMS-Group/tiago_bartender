@@ -1,0 +1,21 @@
+- joke:
+- ask_order:
+	Welcome. You can order by pointing at the drink of your choice on the menu card.
+	Hello there. Please order by pointing at one of the drinks on the menu card.
+- menu_not_found:
+	I thought I put the menu card here? Could you help me and put the menu card in front of me.
+	I was sure the menu card was right here. Could you help me by putting in in front of me.
+	Where did I put the menu again? Please help me and put it in front of me, so I can see it.
+- drink_$drink_name:
+	One $drink_name coming right up.
+- abort_order:
+	I see, you want another drink.
+- bottle_$bottle_name
+	I am going to get $bottle_name
+	Next up is $bottle_name
+- bottle_not_found
+	I was sure I put the bottle right here. Please help me by putting the bottle in front of me.
+- enjoy
+	Here you go!
+	Enjoy!
+	Here's your drink!

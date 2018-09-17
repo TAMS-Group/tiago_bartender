@@ -3,24 +3,45 @@ audio_map:
     - joke_1.wav
     - joke_2.wav
   ask_order:
-    - ask_order.wav
+    - ask_order_01.wav
+    - ask_order_02.wav
   menu_not_found:
-    - menu_not_found.wav
+    - menu_not_found_01.wav
+    - menu_not_found_02.wav
+    - menu_not_found_03.wav
   arbort_order:
     - arbort_order.wav
   tequila:
-    - tequila.wav
+    - bottle_tequila_01.wav
+    - bottle_tequila_02.wav
   orange_juice:
-    - orange_juice.wav
+    - bottle_orange_juice_01.wav
+    - bottle_orange_juice_02.wav
   grenadine:
-    - grenadine.wav
+    - bottle_grenadine_01.wav
+    - bottle_grenadine_02.wav
   rum:
-    - rum.wav
+    - bottle_rum_01.wav
+    - bottle_rum_02.wav
   coke:
-    - coke.wav
+    - bottle_coke_01.wav
+    - bottle_coke_02.wav
   lime:
-    - lime.wav
+    - bottle_lime_01.wav
+    - bottle_lime_02.wav
+  drink_coke:
+    - drink_coke.wav
+  drink_cuba_libre:
+    - drink_cuba_libre.wav
+  drink_orange_juice:
+    - drink_orange_juice.wav
+  drink_sunrise:
+    - drink_sunrise.wav
+  drink_tequila_sunrise:
+    - drink_tequila_sunrise.wav
   bottle_not_found:
     - bottle_not_found.wav
   enjoy:
-    - enjoy.wav
+    - enjoy_01.wav
+    - enjoy_02.wav
+    - enjoy_03.wav
