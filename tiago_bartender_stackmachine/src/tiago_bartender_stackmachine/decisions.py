@@ -1,5 +1,5 @@
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
-from .actions import IdleMoveAround, Noop
+from .actions import IdleMoveAround, Noop, MoveToCustomer, SayRepeatOrder
 
 # @BitBots: see IMPROVE tags
 
@@ -86,7 +86,86 @@ class InFrontOfCustomer(AbstractDecisionElement):
 
 class TakeOrder(AbstractDecisionElement):
     """
-    
+    Let the robot take to order of the human
     """
     def perform(self, blackboard, reevaluate=False):
-        pass
+        if blackboard.order:
+            return self.push(MakeCocktail)
+        else:
+            return self.push(LookAtMenu)
+
+
+class MakeCocktail(AbstractDecisionElement):
+    """
+    Make a cocktail out of multiple ingrediances
+    """
+    def perform(self, blackboard, reevaluate=False):
+        if len(blackboard.order)>0:
+            # add next liquide
+            return self.push(AddLiquide)
+        else:
+            # we're finished
+            return self.push(DrinkFinished) #TODO
+
+
+
+class AddLiquide(AbstractDecisionElement):
+    """
+    Add a liquide to the cocktail
+    """
+
+    def perform(self, blackboard, reevaluate=False):
+        return self.push(InFrontOfBottle)
+        
+        
+class InFrontOfBottle(AbstractDecisionElement):
+    """
+    Decides if the robot is in front of the bottle
+    """
+
+    def perform(self, blackboard, reevaluate=False):
+        if blackboard.redo_requested and blackboard.last_redoable == blackboard.PICK:
+            #TODO maybe go back to init position
+            return self.push_action_sequence([SayRepeatOrder, MoveToBottle])
+        elif blackboard.arrived_at_bottle:
+            return self.push(BottleLocated)
+        else:
+            return self.push(MoveToBottle)
+
+    def get_reevaluate(self):
+        return True
+
+class BottleLocated(AbstractDecisionElement):
+    """
+    Locates the position of the bottle to be able to grasp it
+    """
+
+    def perform(self, blackboard, reevaluate=False):
+        if blackboard.bottle_located:
+            return self.push(BottleGrasped)
+        else:
+            return self.push(LookAtBottle)
+
+class BottleGrasped(AbstractDecisionElement):
+    """
+    Graps the Bottle
+    """
+
+    def perform(self, blackboard, reevaluate=False):
+        if blackboard.bottle_grapsed:
+            return self.push(InPouringPosition)
+        else:
+            return self.push(GrapsBottle)
+
+
+class InPouringPosition(AbstractDecisionElement):
+    """
+    Goes to pouring position
+    """
+
+    def perform(self, blackboard, reevaluate=False):
+        if blackboard.in_pouring_position:
+            return self.push(FillLiquide)
+        else:
+            return self.push(MoveToPouringPosition)
+ 

@@ -10,3 +10,6 @@ class Blackboard:
         self.TAKE_ORDER = 1
         self.PICK = 2
         self.POUR = 3
+
+        # list of tuples with liquide name and quantity
+        self.order = None
