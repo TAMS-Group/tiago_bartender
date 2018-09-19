@@ -36,5 +36,5 @@
     <node name="tuck_arm" pkg="tiago_gazebo" type="tuck_arm.py" output="screen"/>
   </group>
 
-  <param name="move_group/constraint_approximations_path" value="$(find tiago_bartender_mtc)/cadb"/>
+  <!-- <param name="move_group/constraint_approximations_path" value="$(find tiago_bartender_mtc)/cadb"/> -->
 </launch>
