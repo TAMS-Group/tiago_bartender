@@ -26,6 +26,7 @@ class Noop(AbstractActionElement):
 class MoveToCustomer(AbstractActionElement):
     def perform(self, blackboard, reevaluate=False):
         print("MoveToCustomer")
+        blackboard.arrived_at_customer = True
 
 
 
@@ -43,3 +44,19 @@ class SayRepeatOrder(AbstractSay):
     def text(self):
         return "Oh, so you want something different?"
 
+
+class ObserveOrder(AbstractActionElement):
+    def __init__(self, blackboard, _):
+        self.first_try = True
+
+    def perform(self, blackboard, reevaluate=False):
+        blackboard.no_menu_found = False
+
+        if self.first_try:
+            print("ObserveOrder - fail")
+            blackboard.no_menu_found = True
+            self.first_try= False
+        else:
+            print("ObserveOrder - fail")
+            blackboard.recipe
+        # TODO: set blackboard.recipe

@@ -8,8 +8,14 @@ class Blackboard:
 
         self.last_redoable = None
         self.TAKE_ORDER = 1
-        self.PICK = 2
+                self.PICK = 2
         self.POUR = 3
 
-        # list of tuples with liquide name and quantity
-        self.order = None
+        # We tried to find a menu, but failed
+        self.no_menu_found = False
+
+        # list of tuples with liquid name and quantity
+        self.recipe = None
+
+    def order(self, drink):
+        self.recipe = [("rum", 5), ("tequila", 10)]

@@ -69,9 +69,18 @@ class InFrontOfCustomer(AbstractDecisionElement):
     """
     Decide whether to take order or move to customer first
     """
+    def __init__(self, blackboard, _):
+        blackboard.last_redoable = blackboard.TAKE_ORDER
+
     def perform(self, blackboard, reevaluate=False):
-        if blackboard.redo_requested and blackboard.last_redoable == blackboard.TAKE_ORDER:
+        if blackboard.redo_requested and
+           blackboard.last_redoable == blackboard.TAKE_ORDER and
+           self.arrived_at_customer:
+
+            blackboard.redo_requested = False
+            blackboard.arrived_at_customer = False
             return self.push_action_sequence([SayRepeatOrder, MoveToCustomer])
+
         if blackboard.arrived_at_customer:
             return self.push(TakeOrder)
         else:
@@ -84,15 +93,26 @@ class InFrontOfCustomer(AbstractDecisionElement):
         return True
 
 
+
 class TakeOrder(AbstractDecisionElement):
     """
-    Let the robot take to order of the human
+    Let the robot take an order from the human
     """
+    def __init__(self, blackboard, _):
+        self.order_confirmed = False
+
     def perform(self, blackboard, reevaluate=False):
         if blackboard.order:
-            return self.push(MakeCocktail)
+            if self.order_confirmed:
+                return self.push(MakeCocktail)
+            else:
+                self.order_confirmed = True
+                return self.push(SayOrderConfirmed)
+        elif blackboard.no_menu_found:
+            return self.push_action_sequence([SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer])
         else:
-            return self.push(LookAtMenu)
+            return self.push_action_sequence([SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer])
+
 
 
 class MakeCocktail(AbstractDecisionElement):
@@ -100,28 +120,20 @@ class MakeCocktail(AbstractDecisionElement):
     Make a cocktail out of multiple ingrediances
     """
     def perform(self, blackboard, reevaluate=False):
-        if len(blackboard.order)>0:
-            # add next liquide
-            return self.push(AddLiquide)
+        if len(blackboard.recipe)>0:
+            # add next liquid
+            return self.push(InFrontOfRequiredBottle)
         else:
             # we're finished
-            return self.push(DrinkFinished) #TODO
+            return self.push(DrinkFinished) #TODO: say something & place bottle back
 
 
-
-class AddLiquide(AbstractDecisionElement):
-    """
-    Add a liquide to the cocktail
-    """
-
-    def perform(self, blackboard, reevaluate=False):
-        return self.push(InFrontOfBottle)
-        
-        
-class InFrontOfBottle(AbstractDecisionElement):
+class InFrontOfRequiredBottle(AbstractDecisionElement):
     """
     Decides if the robot is in front of the bottle
     """
+    def __init__(self, blackboard, _):
+        blackboard.last_redoable = blackboard.PICK
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.redo_requested and blackboard.last_redoable == blackboard.PICK:
