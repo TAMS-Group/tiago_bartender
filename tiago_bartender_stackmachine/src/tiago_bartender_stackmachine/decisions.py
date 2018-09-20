@@ -12,10 +12,6 @@ class Init(AbstractDecisionElement):
     def perform(self, blackboard, reevaluate=False):
         return self.push(Paused)
 
-    def get_reevaluate(self):
-        return True
-
-
 
 # TODO: refactor as AbstractPausableAction
 class Paused(AbstractDecisionElement):
@@ -79,7 +75,7 @@ class InFrontOfCustomer(AbstractDecisionElement):
 
             blackboard.redo_requested = False
             blackboard.arrived_at_customer = False
-            return self.push_action_sequence([SayRepeatOrder, MoveToCustomer])
+            return self.push_action_sequence(SequenceElement, [SayRepeatOrder, MoveToCustomer], [None, None])
 
         if blackboard.arrived_at_customer:
             return self.push(TakeOrder)
@@ -109,9 +105,9 @@ class TakeOrder(AbstractDecisionElement):
                 self.order_confirmed = True
                 return self.push(SayOrderConfirmed)
         elif blackboard.no_menu_found:
-            return self.push_action_sequence([SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer])
+            return self.push_action_sequence(SequenceElement, [SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer], [None, None, None, None])
         else:
-            return self.push_action_sequence([SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer])
+            return self.push_action_sequence(SequenceElement, [SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer], [None, None, None, None])
 
 
 
@@ -127,6 +123,13 @@ class MakeCocktail(AbstractDecisionElement):
             # we're finished
             return self.push(DrinkFinished) #TODO: say something & place bottle back
 
+class DrinkFinished(AbstractDecisionElement):
+    """
+    The Drink is finished.
+    """
+    def perform(self, blackboard, reevaluate=False):
+        pass#TODO
+
 
 class InFrontOfRequiredBottle(AbstractDecisionElement):
     """
@@ -138,7 +141,7 @@ class InFrontOfRequiredBottle(AbstractDecisionElement):
     def perform(self, blackboard, reevaluate=False):
         if blackboard.redo_requested and blackboard.last_redoable == blackboard.PICK:
             #TODO maybe go back to init position
-            return self.push_action_sequence([SayRepeatOrder, MoveToBottle])
+            return self.push(MoveToBottle)
         elif blackboard.arrived_at_bottle:
             return self.push(BottleLocated)
         else:
@@ -167,8 +170,7 @@ class BottleGrasped(AbstractDecisionElement):
         if blackboard.bottle_grapsed:
             return self.push(InPouringPosition)
         else:
-            return self.push(GrapsBottle)
-
+            return self.push(GraspBottle)
 
 class InPouringPosition(AbstractDecisionElement):
     """
@@ -176,8 +178,14 @@ class InPouringPosition(AbstractDecisionElement):
     """
 
     def perform(self, blackboard, reevaluate=False):
+        if blackboard.redo_requested and blackboard.last_redoable == blackboard.POUR:
+            return self.push(MoveToPouringPosition)
+
         if blackboard.in_pouring_position:
-            return self.push(FillLiquide)
+            # fill in liquid and wait a moment to see if redo card was shown
+            return self.push(SequenceElement, [PourLiquid, Wait], [None, None])
         else:
             return self.push(MoveToPouringPosition)
- 
+
+    def get_reevaluate(self):
+        return True

@@ -5,10 +5,12 @@ class Blackboard:
         self.is_paused = False
 
         self.arrived_at_customer = False
+        self.arrived_at_bottle = False
+        self.arrived_at_pouring_position = False
 
         self.last_redoable = None
         self.TAKE_ORDER = 1
-                self.PICK = 2
+        self.PICK = 2
         self.POUR = 3
 
         # We tried to find a menu, but failed
