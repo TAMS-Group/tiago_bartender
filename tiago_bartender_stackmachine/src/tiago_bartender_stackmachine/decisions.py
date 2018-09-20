@@ -1,5 +1,10 @@
+import rospy
+import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
-from .actions import IdleMoveAround, Noop, MoveToCustomer, SayRepeatOrder
+from bitbots_stackmachine.sequence_element import SequenceElement
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished
+import tiago_bartender_msgs.action 
+
 
 # @BitBots: see IMPROVE tags
 
@@ -9,6 +14,27 @@ class Init(AbstractDecisionElement):
     Initializes the tiago bartender demo.
     Verifies ros connectivity
     """
+    def __init__(self, blackboard):
+        # we initlizie all the action clients
+        rospy.loginfo("Initilizing move action client")
+        blackboard.move_action_client = actionlib.SimpleActionClient('move', MoveToTarget)
+        blackboard.move_action_client.wait_for_server()
+
+        rospy.loginfo("Initilizing take order action client")
+        blackboard.take_order_action_client = actionlib.SimpleActionClient('take_order', TakeOrder)
+        blackboard.take_order_action_client.wait_for_server()
+
+        rospy.loginfo("Initilizing pick action client")
+        blackboard.pick_action_client = actionlib.SimpleActionClient('pick', Pick)
+        blackboard.pick_action_client.wait_for_server()
+
+        rospy.loginfo("Initilizing pouring action client")
+        blackboard.pour_action_client = actionlib.SimpleActionClient('pour', Pour)
+        blackboard.pour_action_client.wait_for_server()
+
+        # init LookAtService
+        blackboard.look_at_service = None #TODO init
+
     def perform(self, blackboard, reevaluate=False):
         return self.push(Paused)
 
@@ -25,17 +51,19 @@ class Paused(AbstractDecisionElement):
         return True
 
     def perform(self, blackboard):
-        if blackboard.is_paused:
-            # IMPROVE: the stack should *not* be called _behaviour, especially not in BE
-            self.saved_stack = self._behaviour
-            return self.push(Noop)
-        elif self.saved_stack:
-            self._behaviour = self.saved_stack
-            self.saved_stack = None
-            return
+        if blackboard.was_pause_card_shown:
+            blackboard.was_pause_card_shown = False
+            if self.saved_stack:
+                # see if we already saved a stack (meaning we're currently paused)
+                self._behaviour = self.saved_stack
+                self.saved_stack = None
+                return    
+            else:
+                # IMPROVE: the stack should *not* be called _behaviour, especially not in BE            
+                self.saved_stack = self._behaviour
+                return self.push(WaitingToResume)        
         else:
             return self.push(HasCustomer)
-
 
 
 class HasCustomer(AbstractDecisionElement):
@@ -44,17 +72,16 @@ class HasCustomer(AbstractDecisionElement):
     """
     def perform(self, blackboard, reevaluate=False):
         if blackboard.has_customer:
+            #TODO maybe the blackboard.has_customer has to be resettet to False
             return self.push(InFrontOfCustomer)
         else:
             return self.push(Idle)
-
 
 
 class Idle(AbstractDecisionElement):
     """
     Act in idle mode, checking for customer every so often
     """
-    # IMPROVE: reevaluate should not
     def perform(self, blackboard, reevaluate=False):
         # TODO: implement alternatives
         return self.push(IdleMoveAround)
@@ -69,13 +96,11 @@ class InFrontOfCustomer(AbstractDecisionElement):
         blackboard.last_redoable = blackboard.TAKE_ORDER
 
     def perform(self, blackboard, reevaluate=False):
-        if blackboard.redo_requested and
-           blackboard.last_redoable == blackboard.TAKE_ORDER and
-           self.arrived_at_customer:
+        if blackboard.redo_requested and blackboard.last_redoable == blackboard.TAKE_ORDER and self.arrived_at_customer:
 
-            blackboard.redo_requested = False
-            blackboard.arrived_at_customer = False
-            return self.push_action_sequence(SequenceElement, [SayRepeatOrder, MoveToCustomer], [None, None])
+           blackboard.redo_requested = False
+           blackboard.arrived_at_customer = False
+           return self.push_action_sequence(SequenceElement, [SayRepeatOrder, MoveToCustomer], [None, None])
 
         if blackboard.arrived_at_customer:
             return self.push(TakeOrder)
@@ -105,10 +130,9 @@ class TakeOrder(AbstractDecisionElement):
                 self.order_confirmed = True
                 return self.push(SayOrderConfirmed)
         elif blackboard.no_menu_found:
-            return self.push_action_sequence(SequenceElement, [SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer], [None, None, None, None])
+            return self.push_action_sequence(SequenceElement, [SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer], [None, None, None, None])
         else:
             return self.push_action_sequence(SequenceElement, [SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer], [None, None, None, None])
-
 
 
 class MakeCocktail(AbstractDecisionElement):
@@ -125,10 +149,30 @@ class MakeCocktail(AbstractDecisionElement):
 
 class DrinkFinished(AbstractDecisionElement):
     """
-    The Drink is finished.
+    The Drink is finished. Tell it to the costumer and clean up
     """
+    def __init__(self, blackboard):
+        self.first = True
+
     def perform(self, blackboard, reevaluate=False):
-        pass#TODO
+        if self.first:
+            self.first = False
+            return self.push(SayDrinkFinished)
+        else:
+            return self.push(CleanUp)
+
+class CleanUp(AbstractDecisionElement):
+    """
+    Put away last bottle and go back to init via interrupt.
+    """
+
+    def perform(self, blackboard, reevaluate=False):
+        if blackboard.has_bottle_in_hand:
+            # TODO put bottle away
+            pass
+        else:
+            # we call an interrupt to get completely back to init
+            return self.interrupt()
 
 
 class InFrontOfRequiredBottle(AbstractDecisionElement):
@@ -170,12 +214,15 @@ class BottleGrasped(AbstractDecisionElement):
         if blackboard.bottle_grapsed:
             return self.push(InPouringPosition)
         else:
-            return self.push(GraspBottle)
+            return self.push(PickUpBottle)
 
 class InPouringPosition(AbstractDecisionElement):
     """
     Goes to pouring position
     """
+    def __init__(self, blackboard, _):
+        blackboard.last_redoable = blackboard.POUR
+
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.redo_requested and blackboard.last_redoable == blackboard.POUR:
@@ -183,7 +230,7 @@ class InPouringPosition(AbstractDecisionElement):
 
         if blackboard.in_pouring_position:
             # fill in liquid and wait a moment to see if redo card was shown
-            return self.push(SequenceElement, [PourLiquid, Wait], [None, None])
+            return self.push_action_sequence(SequenceElement, [PourLiquid, Wait], [None, 5])
         else:
             return self.push(MoveToPouringPosition)
 

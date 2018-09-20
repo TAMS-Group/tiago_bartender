@@ -2,7 +2,7 @@
 class Blackboard:
     def __init__(self):
         # TODO: implement with command cards listener
-        self.is_paused = False
+        self.was_pause_card_shown = False
 
         self.arrived_at_customer = False
         self.arrived_at_bottle = False
@@ -18,6 +18,14 @@ class Blackboard:
 
         # list of tuples with liquid name and quantity
         self.recipe = None
+
+        # action clients
+        self.move_action_client = None
+        self.take_order_action_client = None
+        self.grasp_action_client = None
+        self.pour_action_client = None
+
+        self.look_at_service = None
 
     def order(self, drink):
         self.recipe = [("rum", 5), ("tequila", 10)]
