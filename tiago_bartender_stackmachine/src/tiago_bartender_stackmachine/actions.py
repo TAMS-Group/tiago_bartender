@@ -3,7 +3,7 @@ from __future__ import print_function
 import rospy
 import actionlib
 from bitbots_stackmachine.abstract_action_element import AbstractActionElement
-from tiago_bartender_msgs.action import Pour, Pick
+from tiago_bartender_msgs.msg import PourAction, PickAction
 
 class IdleMoveAround(AbstractActionElement):
     """
@@ -11,6 +11,8 @@ class IdleMoveAround(AbstractActionElement):
     """
     def perform(self, blackboard, reevaluate=False):
         print("IdleMoveAround")
+        rospy.sleep(0.1)
+        return self.pop()
         #TODO actually do something
 
 
@@ -67,6 +69,8 @@ class AbstractSay(AbstractActionElement):
     def perform(self, blackboard, reevaluate=False):
         text = self.text()
         print("Saying '" + text + "'")
+        rospy.sleep(0.1)
+        return self.pop()
         #TODO call action speach service or espeak or what ever
 
     def text(self):

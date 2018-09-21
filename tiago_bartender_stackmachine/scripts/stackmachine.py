@@ -11,9 +11,9 @@ class TiagoBartender:
         rospy.init_node('tiago_bartender_stackmachine')
 
         self.blackboard = Blackboard()
-        self.stackmachine = StackMachine(self.blackboard, "controller")
+        self.stackmachine = StackMachine(self.blackboard, "/debug_stackmachine")
+        rospy.sleep(1) # needed to prevent race condition with initilizing the publisher of the stack machine. without the vizualization will not have data of the init
     	self.stackmachine.set_start_element(Init)
-
         #TODO self.pause_card_subscriber(..., self.pause_card_cb)
         #TODO self.redo_card_subscriber(..., self.redo_card_cb)
 

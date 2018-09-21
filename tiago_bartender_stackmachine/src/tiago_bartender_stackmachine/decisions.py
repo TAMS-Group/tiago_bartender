@@ -3,7 +3,7 @@ import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
 from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished
-import tiago_bartender_msgs.action 
+from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 
 
 # @BitBots: see IMPROVE tags
@@ -14,28 +14,34 @@ class Init(AbstractDecisionElement):
     Initializes the tiago bartender demo.
     Verifies ros connectivity
     """
-    def __init__(self, blackboard):
-        # we initlizie all the action clients
-        rospy.loginfo("Initilizing move action client")
-        blackboard.move_action_client = actionlib.SimpleActionClient('move', MoveToTarget)
-        blackboard.move_action_client.wait_for_server()
-
-        rospy.loginfo("Initilizing take order action client")
-        blackboard.take_order_action_client = actionlib.SimpleActionClient('take_order', TakeOrder)
-        blackboard.take_order_action_client.wait_for_server()
-
-        rospy.loginfo("Initilizing pick action client")
-        blackboard.pick_action_client = actionlib.SimpleActionClient('pick', Pick)
-        blackboard.pick_action_client.wait_for_server()
-
-        rospy.loginfo("Initilizing pouring action client")
-        blackboard.pour_action_client = actionlib.SimpleActionClient('pour', Pour)
-        blackboard.pour_action_client.wait_for_server()
-
-        # init LookAtService
-        blackboard.look_at_service = None #TODO init
+    def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)        
+        self.initilized = False
 
     def perform(self, blackboard, reevaluate=False):
+        if not self.initilized:
+            #TODO do this none blocking with timeouts            
+            # we initlizie all the action clients
+            rospy.loginfo("Initilizing move action client")
+            blackboard.move_action_client = actionlib.SimpleActionClient('move', MoveToTargetAction)
+            #blackboard.move_action_client.wait_for_server()
+
+            rospy.loginfo("Initilizing take order action client")
+            blackboard.take_order_action_client = actionlib.SimpleActionClient('take_order', TakeOrderAction)
+            #blackboard.take_order_action_client.wait_for_server()
+
+            rospy.loginfo("Initilizing pick action client")
+            blackboard.pick_action_client = actionlib.SimpleActionClient('pick', PickAction)
+            #blackboard.pick_action_client.wait_for_server()
+
+            rospy.loginfo("Initilizing pouring action client")
+            blackboard.pour_action_client = actionlib.SimpleActionClient('pour', PourAction)
+            #blackboard.pour_action_client.wait_for_server()
+
+            # init LookAtService
+            blackboard.look_at_service = None #TODO init
+
+            self.initilized = True
         return self.push(Paused)
 
 
@@ -44,13 +50,14 @@ class Paused(AbstractDecisionElement):
     """
     Check whether the system should is paused.
     """
-    def __init__(self):
+    def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)        
         self.saved_stack = None
 
     def get_reevaluate(self):
         return True
 
-    def perform(self, blackboard):
+    def perform(self, blackboard, reevaluate=False):
         if blackboard.was_pause_card_shown:
             blackboard.was_pause_card_shown = False
             if self.saved_stack:
@@ -93,6 +100,7 @@ class InFrontOfCustomer(AbstractDecisionElement):
     Decide whether to take order or move to customer first
     """
     def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)        
         blackboard.last_redoable = blackboard.TAKE_ORDER
 
     def perform(self, blackboard, reevaluate=False):
@@ -120,6 +128,7 @@ class TakeOrder(AbstractDecisionElement):
     Let the robot take an order from the human
     """
     def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)        
         self.order_confirmed = False
 
     def perform(self, blackboard, reevaluate=False):
@@ -152,6 +161,7 @@ class DrinkFinished(AbstractDecisionElement):
     The Drink is finished. Tell it to the costumer and clean up
     """
     def __init__(self, blackboard):
+        super(AbstractDecisionElement, self).__init__(blackboard)        
         self.first = True
 
     def perform(self, blackboard, reevaluate=False):
@@ -180,6 +190,7 @@ class InFrontOfRequiredBottle(AbstractDecisionElement):
     Decides if the robot is in front of the bottle
     """
     def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)        
         blackboard.last_redoable = blackboard.PICK
 
     def perform(self, blackboard, reevaluate=False):
@@ -221,6 +232,7 @@ class InPouringPosition(AbstractDecisionElement):
     Goes to pouring position
     """
     def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)        
         blackboard.last_redoable = blackboard.POUR
 
 
