@@ -27,7 +27,8 @@ add_action_files(FILES
 	MoveToTarget.action
 	FindClosestTarget.action
 	BartenderSpeech.action
-	UpdateBottles.action
+	DetectBottles.action
+	DetectGlass.action
 )
 
 add_service_files(FILES
