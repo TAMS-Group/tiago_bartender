@@ -1,0 +1,5 @@
+<launch>
+  <node name="tiago_bartender_stackmachine" pkg="tiago_bartender_stackmachine" type="stackmachine.py" output="screen">
+    <rosparam command="load" file="$(find tiago_bartender_stackmachine)/config/config.yaml" />
+  </node>
+</launch>

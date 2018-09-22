@@ -1,0 +1,49 @@
+recipes:
+  tequila_sunrise:
+    - tequila: 1.0
+    - orange_juice: 1.0
+    - grenadine: 1.0
+  cuba_libre:
+    - rum: 1.0
+    - coke: 1.0
+  sunrise:
+    - orange_juice: 1.0
+    - grenadine: 1.0
+  driver:
+    - orange_juice: 1.0
+    - grenadine: 1.0
+    - lime: 1.0
+  orange_juice:
+    - orange_juice: 1.0
+  coke:
+    - coke: 1.0
+
+idle_zone:
+  center_x: -0.4
+  center_y: 0.25
+  radius_x: 0.4
+  radius_y: 1.25
+  frame: 'map'
+
+home_pose:
+  pos_x: -0.5
+  pos_y: 0.0
+  ori_x: 0.0
+  ori_y: 0.0
+  ori_z: 0.0
+  ori_w: 1.0
+  frame: 'map'
+
+take_order_pose:
+  pos_x: 0.5
+  pos_y: 0.3
+  ori_x: 0.0
+  ori_y: 0.0
+  ori_z: 1.0
+  ori_w: 0.0
+  frame: 'world'
+
+place_bottle_offset:
+  x: 0.15
+  y: 0.0
+  frame: 'table1'
