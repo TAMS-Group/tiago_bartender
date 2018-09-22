@@ -12,13 +12,13 @@
 #include <mutex>
 #include <gazebo_msgs/GetLinkState.h>
 #include <actionlib/server/simple_action_server.h>
-#include <tiago_bartender_msgs/UpdateBottlesAction.h>
+#include <tiago_bartender_msgs/DetectBottlesAction.h>
 
 class PlanningSceneInit
 {
 protected:
   ros::NodeHandle nh_;
-  actionlib::SimpleActionServer<tiago_bartender_msgs::UpdateBottlesAction> as_;
+  actionlib::SimpleActionServer<tiago_bartender_msgs::DetectBottlesAction> as_;
 public:
   PlanningSceneInit() : psi_(),
                         objects_found_(false),
@@ -328,12 +328,12 @@ private:
     return true;
   }
 
-  void update_bottles_cb(const tiago_bartender_msgs::UpdateBottlesGoalConstPtr& goal)
+  void update_bottles_cb(const tiago_bartender_msgs::DetectBottlesGoalConstPtr& goal)
   {
     update_bottles();
-    std::vector<std::string> updated_bottles = {"coke", "grenadine", "lime", "orange_juice", "rum", "tequila"};
-    tiago_bartender_msgs::UpdateBottlesResult result;
-    result.updated_bottles = updated_bottles;
+    std::vector<std::string> detected_bottles = {"coke", "grenadine", "lime", "orange_juice", "rum", "tequila"};
+    tiago_bartender_msgs::DetectBottlesResult result;
+    result.detected_bottles = detected_bottles;
     as_.setSucceeded(result);
   }
 

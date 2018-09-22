@@ -16,7 +16,7 @@
 #include <tiago_bartender_msgs/BartenderSpeechAction.h>
 #include <tiago_bartender_msgs/TakeOrderAction.h>
 #include <tiago_bartender_msgs/LookAt.h>
-#include <tiago_bartender_msgs/UpdateBottlesAction.h>
+#include <tiago_bartender_msgs/DetectBottlesAction.h>
 #include <queue>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <random>
@@ -33,7 +33,7 @@ public:
                    bs_client_("bartender_speech_action", true),
                    to_client_("menu/take_order", true),
                    mb_client_("move_base", true),
-                   ub_client_("dummy_planning_scene/update_bottles", true),
+                   ub_client_("dummy_planning_scene/detect_bottles", true),
                    unif_(0, 1),
                    person_detected_(false),
                    psi_()
@@ -339,16 +339,16 @@ private:
     publish_marker("state_update_scene");
     // todo: replace this place holder with actual update method
     
-    tiago_bartender_msgs::UpdateBottlesGoal goal;
+    tiago_bartender_msgs::DetectBottlesGoal goal;
     ub_client_.sendGoal(goal);
     while(!ub_client_.waitForResult(ros::Duration(5.0)))
       ROS_INFO("Waiting update bottles result.");
 
     ROS_INFO("Successfully found and moved to target.");
     auto result = ub_client_.getResult();
-    std::vector<std::string> updated_bottles = result->updated_bottles;
+    std::vector<std::string> detected_bottles = result->detected_bottles;
 
-    if(std::find(updated_bottles.begin(), updated_bottles.end(), bottle_name) == updated_bottles.end())
+    if(std::find(detected_bottles.begin(), detected_bottles.end(), bottle_name) == detected_bottles.end())
     {
       voice_command("bottle_not_found");
       state = [bottle_name](StateMachine* m) { m->state_update_scene(bottle_name); };
@@ -786,7 +786,7 @@ private:
   actionlib::SimpleActionClient<tiago_bartender_msgs::BartenderSpeechAction> bs_client_;
   actionlib::SimpleActionClient<tiago_bartender_msgs::TakeOrderAction> to_client_;
   actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> mb_client_;
-  actionlib::SimpleActionClient<tiago_bartender_msgs::UpdateBottlesAction> ub_client_;
+  actionlib::SimpleActionClient<tiago_bartender_msgs::DetectBottlesAction> ub_client_;
 
   ros::ServiceClient look_at_client_;
 
