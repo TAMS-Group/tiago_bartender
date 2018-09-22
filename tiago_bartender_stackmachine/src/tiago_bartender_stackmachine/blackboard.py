@@ -4,6 +4,10 @@ class Blackboard:
         # TODO: implement with command cards listener
         self.was_pause_card_shown = False
 
+        self.redo_requested = False
+
+        self.has_customer = False
+
         self.arrived_at_customer = False
         self.arrived_at_bottle = False
         self.arrived_at_pouring_position = False
