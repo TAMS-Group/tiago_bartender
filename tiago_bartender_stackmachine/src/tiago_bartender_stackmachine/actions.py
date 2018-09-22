@@ -39,6 +39,16 @@ class IdleMoveAround(AbstractActionElement):
             self.pop()
 
 
+class WaitForRos(AbstractActionElement):
+    def __init__(self, blackboard, name):
+        super(WaitForRos, self).__init__(blackboard)
+        self.first_iteration = True
+        self.name = name
+    def perform(self):
+        rospy.loginfo_throttle(10, "Waiting for server %s", self.name)
+        self.pop()
+
+
 class WaitingToResume(AbstractActionElement):
     """
     This action doesn't do anything and is only put on the stack for visualization purposes

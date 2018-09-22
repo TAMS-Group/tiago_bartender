@@ -63,35 +63,27 @@ class Blackboard:
         # we initlizie all the action clients
         rospy.loginfo("Initilizing move to target action client")
         self.move_action_client = actionlib.SimpleActionClient('move_to_target', MoveToTargetAction)
-        #self.move_action_client.wait_for_server()
 
         rospy.loginfo("Initilizing follow joint trajectory action client")
         self.torso_action_client = actionlib.SimpleActionClient('torso_controller/follow_joint_trajectory', FollowJointTrajectoryAction)
-        #self.torso_action_client.wait_for_server()
 
         rospy.loginfo("Initilizing tts action client")
         self.tts_action_client = actionlib.SimpleActionClient('tts', TtsAction)
-        #self.tts_action_client.wait_for_server()
 
         rospy.loginfo("Initilizing take order action client")
         self.take_order_action_client = actionlib.SimpleActionClient('menu/take_order', TakeOrderAction)
-        #self.take_order_action_client.wait_for_server()
 
         rospy.loginfo("Initilizing move_base action client")
         self.move_base_action_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
-        #self.move_base_action_client.wait_for_server()
 
         rospy.loginfo("Initilizing pick action client")
         self.pick_action_client = actionlib.SimpleActionClient('pick', PickAction)
-        #self.pick_action_client.wait_for_server()
 
         rospy.loginfo("Initilizing pouring action client")
         self.pour_action_client = actionlib.SimpleActionClient('pour', PourAction)
-        #self.pour_action_client.wait_for_server()
 
         # init LookAtService
         rospy.loginfo("Initializing look_at service client")
-        #rospy.wait_for_service("head_controller/look_at_service")
         self.look_at_service = rospy.ServiceProxy("head_controller/look_at_service", LookAt)
 Around
 
