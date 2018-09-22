@@ -165,7 +165,7 @@ class DrinkFinished(AbstractDecisionElement):
     The Drink is finished. Tell it to the costumer and clean up
     """
     def __init__(self, blackboard):
-        super(AbstractDecisionElement, self).__init__(blackboard)        
+        super(DrinkFinished, self).__init__(blackboard)
         self.first = True
 
     def perform(self, blackboard, reevaluate=False):
@@ -173,22 +173,22 @@ class DrinkFinished(AbstractDecisionElement):
             self.first = False
             return self.push(SayDrinkFinished)
         else:
-            return self.push(CleanUp)
+            return self.push(PutBottleBack)
 
 class PutBottleBack(AbstractDecisionElement):
     """
     Put away last bottle and go back to init via interrupt.
     """
-
     def perform(self, blackboard, reevaluate=False):
-        if blackboard.has_bottle_in_hand:
+        if not blackboard.arrived_at_bottle:
             # TODO put bottle away
-            return self.push(MoveToBottlePose)
-        elif blackboard.arrived_at_bottle:
+            first_iteration = False
+            return self.push_action_sequence(SequenceElement, [LookForward, MoveToBottlePose], [None, None])
+        elif not blackboard.placed_last_bottle:
             return self.push(PlaceBottle)
         else:
-            # we call an interrupt to get completely back to init
-            blackboard.has_customer = False
+            # resetting variables in blackboard and going back to HasCustomer
+            blackboard.reset()
 
 
 class InFrontOfRequiredBottle(AbstractDecisionElement):

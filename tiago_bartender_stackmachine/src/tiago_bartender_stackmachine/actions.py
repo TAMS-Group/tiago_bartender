@@ -3,7 +3,7 @@ from __future__ import print_function
 import rospy
 import actionlib
 from bitbots_stackmachine.abstract_action_element import AbstractActionElement
-from tiago_bartender_msgs.msg import PourGoal, PickGoal, TakeOrderGoal
+from tiago_bartender_msgs.msg import PourGoal, PickGoal, TakeOrderGoal, MoveToTargetGoal
 from random import uniform
 from geometry_msgs.msg import PointStamped
 from move_base_msgs.msg import MoveBaseGoal
@@ -40,10 +40,10 @@ class IdleMoveAround(AbstractActionElement):
 
 
 class WaitForRos(AbstractActionElement):
-    def __init__(self, blackboard, name):
+    def __init__(self, blackboard, args=''):
         super(WaitForRos, self).__init__(blackboard)
         self.first_iteration = True
-        self.name = name
+        self.name = args
     def perform(self):
         rospy.loginfo_throttle(10, "Waiting for server %s", self.name)
         self.pop()
@@ -74,10 +74,10 @@ class MoveToCustomer(AbstractActionElement):
     def perform(self, blackboard, reevaluate=False):
         print("MoveToCustomer")
         if self.first_iteration:
-            blackboard.move_base_client.send_goal(goal)
+            blackboard.move_base_action_client.send_goal(self.goal)
             self.first_iteration = False
 
-        state = blackboard.move_base_client.get_state()
+        state = blackboard.move_base_action_client.get_state()
         # wait till action is completed
         if state == GoalStatus.SUCCEEDED:
             blackboard.arrived_at_customer = True
@@ -229,7 +229,6 @@ class ObserveOrder(AbstractActionElement):
             blackboard.no_menu_found = True
         else:
             blackboard.recipe = blackboard.recipes[result.selection]
-            blackboard.order = True
 
 
 class PickUpBottle(AbstractActionElement):
@@ -265,8 +264,45 @@ class PourLiquid(AbstractActionElement):
         if state == 3:
             #TODO maybe do something with the result
             self.pop()
-            
 
+class PlaceBottle(AbstractActionElement):
+    """
+    Calls the pouring action
+    """
+    def __init__(self, blackboard, _):
+        super(PlaceBottle, self).__init__(blackboard)
+        goal = Place()
+        #TODO specify goal
+        blackboard.place_action_client.send_goal(goal)
+
+    def perform(self, blackboard, reevaluate=False):
+        state = blackboard.place_action_client.get_state()
+        # wait till action is completed
+        if state == 3:
+            #TODO maybe do something with the result
+            self.pop()
+
+class MoveToBottlePose(AbstractActionElement):
+    """
+    Moves to the pose to put down the last bottle of the recipe
+    """
+    def __init__(self, blackboard, _):
+        super(MoveToBottlePose, self).__init__(blackboard)
+        self.first_iteration = True
+        blackboard.arrived_at_bottle = False
+        self.goal = MoveToTargetGoal()
+        self.target = ''
+        self.target_pose = self.last_bottle_pose
+
+    def perform(self, blackboard, reevaluate=False):
+        if self.first_iteration:
+            blackboard.move_action_client.send_goal(self.goal)
+            self.first_iteration = False
+
+        state = blackboard.move_action_client.get_state()
+        # wait till action is completed
+        if state == GoalStatus.SUCCEEDED:
+            blackboard.arrived_at_bottle = True
 
 class Wait(AbstractActionElement):
     """

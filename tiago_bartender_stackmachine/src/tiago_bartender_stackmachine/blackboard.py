@@ -3,29 +3,17 @@ from person_detection.msg import PersonDetections
 class Blackboard:
     def __init__(self):
         # TODO: implement with command cards listener
+
+        # initialize variables
+        self.reset()
         self.was_pause_card_shown = False
 
         self.redo_requested = False
-
-        self.has_customer = False
-        self.person_detected = False
-        self.person_position = None
-
-        self.arrived_at_customer = False
-        self.arrived_at_bottle = False
-        self.arrived_at_pouring_position = False
 
         self.last_redoable = None
         self.TAKE_ORDER = 1
         self.PICK = 2
         self.POUR = 3
-
-        # We tried to find a menu, but failed
-        self.no_menu_found = False
-        self.order = False
-
-        # list of tuples with liquid name and quantity
-        self.recipe = None
 
         # action clients
         self.move_action_client = None
@@ -52,6 +40,9 @@ class Blackboard:
         self.take_order_pose = None
         self.place_bottle_offset = None
 
+        # saved poses
+        self.person_position = None
+        self.last_bottle_pose = None
 
         rospy.loginfo("Load recipes")
         self.recipes = rospy.get_param('~recipes')
@@ -96,5 +87,17 @@ Around
         for p in detections:
             self.person_position = p.position
 
-    def order(self, drink):
-        self.recipe = [("rum", 5), ("tequila", 10)]
+    def reset(self):
+        self.has_customer = False
+        self.person_detected = False
+
+        self.arrived_at_customer = False
+        self.arrived_at_bottle = False
+        self.arrived_at_pouring_position = False
+        self.placed_last_bottle = False
+
+        # We tried to find a menu, but failed
+        self.no_menu_found = False
+
+        # list of tuples with liquid name and quantity
+        self.recipe = None
