@@ -1,0 +1,6 @@
+duration timeout
+# how often does one bottle need to be recognized to be seen as stable
+int32 stability_threshold
+---
+string[] detected_bottles
+---
