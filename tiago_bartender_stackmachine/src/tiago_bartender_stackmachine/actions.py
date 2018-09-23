@@ -141,13 +141,20 @@ class AbstractLookAt(AbstractActionElement):
         raise NotImplementedError
 
 
-class LookAtCustomer(AbstractLookAt):
-    def target(self):
-        return "Customer"
+class LookAtCustomer(AbstractActionElement):
+    def perform(self, blackboard, reevaluate=False):
+        target = "customer"
+        pose = blackboard.customer_position
+        print("Looking at " + target)
+        try:
+            blackboard.look_at_service(target, pose)
+        except rospy.ServiceException, e:
+            print("Service call failed: %s"%e)
+        self.pop()
 
 class LookAtBottle(AbstractLookAt):
     def target(self):
-        return "Bottle"
+        return blackboard.current_bottle
 
 class LookAtMenu(AbstractLookAt):
     def target(self):
@@ -173,7 +180,7 @@ class LookForCustomer(AbstractActionElement):
 
             self.begin = rospy.get_rostime()
 
-            enable = Bool
+            enable = Bool()
             enable.data = True
             blackboard.person_detection_switch_pub.publish(enable)
             self.first_iteration = False
