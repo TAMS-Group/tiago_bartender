@@ -5,6 +5,7 @@
 #include <tiago_bartender_msgs/LookAt.h>
 #include <random>
 #include <chrono>
+#include <person_detection/PersonDetections.h>
 
 class LookAt
 {
@@ -41,6 +42,7 @@ public:
     pn.param("look_around_radius_x", la_radius_x, 0.0);
     pn.param("look_around_radius_y", la_radius_y, 0.0);
     pn.param("look_around_z_value", la_z_value, 1.8);
+    pn.param("customer_distance_threshold", customer_distance_thresh_, 0.25);
 
     unif_x_ = std::uniform_real_distribution<double>(la_center_x - la_radius_x, la_center_x + la_radius_x);
     unif_y_ = std::uniform_real_distribution<double>(la_center_y - la_radius_y, la_center_y + la_radius_y);
@@ -61,6 +63,7 @@ public:
     rng_.seed(ss);
 
     look_at_server = nh_.advertiseService("head_controller/look_at_service", &LookAt::look_at_cb, this);
+    person_detection_sub_ = nh_.subscribe("person_detection/person_detections", 1000, &LookAt::person_detection_cb, this);
   }
 
   void run()
@@ -75,6 +78,10 @@ public:
           current_goal_.target.point.x = unif_x_(rng_);
           current_goal_.target.point.y = unif_y_(rng_);
         }
+      }
+      else if(current_target_name_ == "customer")
+      {
+        current_goal_.target = last_person_point_;
       }
       current_goal_.target.header.stamp = ros::Time::now();
       ac_.sendGoal(current_goal_);
@@ -92,7 +99,13 @@ private:
       current_target_name_ = "";
       return true;
     }
-    if ( named_target_map_.find(req.direction) == named_target_map_.end() )
+    else if(req.direction == "customer")
+    {
+      current_goal_.target = req.target_point;
+      last_person_point_ = current_goal_.target;
+      current_target_name_ = req.direction;
+    }
+    else if ( named_target_map_.find(req.direction) == named_target_map_.end() )
     {
       ROS_ERROR_STREAM("Requested direction not found in look_at_service");
     }
@@ -110,15 +123,32 @@ private:
     return true;
   }
 
+  void person_detection_cb(const person_detection::PersonDetections::ConstPtr& msg)
+  {
+    double min_distance = std::numeric_limits<double>::max();
+    for(auto pd : msg->detections)
+    {
+      double distance = std::sqrt(std::pow(last_person_point_.point.x - pd.position.x, 2.0) +
+                                  std::pow(last_person_point_.point.y - pd.position.y, 2.0) +
+                                  std::pow(last_person_point_.point.z - pd.position.z, 2.0));
+      if(distance < min_distance && distance < customer_distance_thresh_)
+        last_person_point_.point = pd.position;
+    }
+  }
+
   actionlib::SimpleActionClient<control_msgs::PointHeadAction> ac_;
   control_msgs::PointHeadGoal current_goal_;
   std::string current_target_name_;
   std::map<std::string, geometry_msgs::PointStamped> named_target_map_;
   ros::ServiceServer look_at_server;
+  ros::Subscriber person_detection_sub_;
   std::uniform_real_distribution<double> unif_x_;
   std::uniform_real_distribution<double> unif_y_;
   std::mt19937_64 rng_;
   ros::Time look_around_start_;
+  bool look_at_person_;
+  geometry_msgs::PointStamped last_person_point_;
+  double customer_distance_thresh_;
 };
 
 int main(int argc, char** argv)
