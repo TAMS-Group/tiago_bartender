@@ -204,7 +204,7 @@ class AbstractSay(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(AbstractSay, self).__init__(blackboard)
         self.first_iteration = True
-        text = self.text()
+        text = random.choice(self.text())
         print("Saying '" + text + "'")
         self.goal = TtsGoal()
         self.goal.rawtext.text = text
@@ -223,27 +223,35 @@ class AbstractSay(AbstractActionElement):
     def text(self):
         raise NotImplementedError
 
-class SayRepeatOrder(AbstractSay):
+class SayPleaseOrder(AbstractSay):
     def text(self):
-        return "Oh, so you want something different?"
+        return ["Welcome. You can order by pointing at the drink of your choice on the menu card.",
+                "Hello there. Please order by pointing at one of the drinks on the menu card."]
 
 class SayNoMenuFoundRepeat(AbstractSay):
     def text(self):
-        return "No menue found, please repeat"
+        return ["I thought I put the menu card here? Could you help me and put the menu card in front of me.", 
+                "I was sure the menu card was right here. Could you help me by putting it in front of me.", 
+                "Where did I put the menu again? Please help me and put it in front of me, so I can see it."]
 
-class SayPleaseOrder(AbstractSay):
+class SayRepeatOrder(AbstractSay):
     def text(self):
-        return "Please Order"
+        return ["Oh, so you want something different?"]
 
 class SayOrderConfirmed(AbstractSay):
     def text(self):
-        return "Order confirmed"
+        return ["One " + blackboard.current_drink + " coming right up."]
 
 class SayDrinkFinished(AbstractSay):
     def text(self):
-        return "Your drink is finished"
+        return ["Here you go!",
+                "Enjoy your drink!",
+                "Here's your drink!"]
 
-
+class SayBottleNotFound(AbstractSay):
+    def text(self):
+        blackboard.bottle_not_found = False
+        return ["I was sure I put the " + blackboard.current_bottle + " right here. Please help me by putting the bottle in front of me."]
 
 class ObserveOrder(AbstractActionElement):
     def __init__(self, blackboard, _):
