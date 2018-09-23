@@ -83,16 +83,48 @@ class MoveToCustomer(AbstractActionElement):
             blackboard.arrived_at_customer = True
 
 class MoveToBottle(AbstractActionElement):
+    """
+    Moves to the pose to put down the last bottle of the recipe
+    """
+    def __init__(self, blackboard, _):
+        super(MoveToBottle, self).__init__(blackboard)
+        self.first_iteration = True
+        blackboard.arrived_at_bottle = False
+        self.goal = MoveToTargetGoal()
+        self.goal.target = blackboard.current_bottle
+        self.goal.look_at_target = False
+
     def perform(self, blackboard, reevaluate=False):
-        print("MoveToBottle")
-        blackboard.arrived_at_bottle = True
-        #TODO call action
+        if self.first_iteration:
+            blackboard.move_action_client.send_goal(self.goal)
+            self.first_iteration = False
+
+        state = blackboard.move_action_client.get_state()
+        # wait till action is completed
+        if state == GoalStatus.SUCCEEDED:
+            blackboard.arrived_at_bottle = True
 
 class MoveToPouringPosition(AbstractActionElement):
+    """
+    Moves to the pose to put down the last bottle of the recipe
+    """
+    def __init__(self, blackboard, _):
+        super(MoveToPouringPosition, self).__init__(blackboard)
+        self.first_iteration = True
+        blackboard.arrived_at_pouring_position = False
+        self.goal = MoveToTargetGoal()
+        self.goal.target = 'glass'
+        self.goal.look_at_target = False
+
     def perform(self, blackboard, reevaluate=False):
-        print("MoveToPouringPosition")
-        blackboard.arrived_at_pouring_position = True
-        #TODO call action
+        if self.first_iteration:
+            blackboard.move_action_client.send_goal(self.goal)
+            self.first_iteration = False
+
+        state = blackboard.move_action_client.get_state()
+        # wait till action is completed
+        if state == GoalStatus.SUCCEEDED:
+            blackboard.arrived_at_pouring_position = True
 
 class AbstractLookAt(AbstractActionElement):
     def perform(self, blackboard, reevaluate=False):
@@ -291,8 +323,9 @@ class MoveToBottlePose(AbstractActionElement):
         self.first_iteration = True
         blackboard.arrived_at_bottle = False
         self.goal = MoveToTargetGoal()
-        self.target = ''
-        self.target_pose = self.last_bottle_pose
+        self.goal.target = ''
+        self.goal.target_pose = blackboard.last_bottle_pose
+        self.goal.look_at_target = False
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration:
