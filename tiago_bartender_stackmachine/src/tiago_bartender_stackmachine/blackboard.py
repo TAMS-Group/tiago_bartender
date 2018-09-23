@@ -1,4 +1,8 @@
 from person_detection.msg import PersonDetections
+from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction, DetectBottlesAction
+from control_msgs.msg import FollowJointTrajectoryAction
+from pal_interaction_msgs.msg import TtsAction
+from move_base_msgs.msg import MoveBaseAction
 
 class Blackboard:
     def __init__(self):
@@ -23,6 +27,7 @@ class Blackboard:
         self.torso_action_client = None
         self.tts_action_client = None
         self.move_base_action_client = None
+        self.detect_bottles_action_client = None
 
         # service clients
         self.look_at_service = None
@@ -73,6 +78,9 @@ class Blackboard:
         rospy.loginfo("Initilizing pouring action client")
         self.pour_action_client = actionlib.SimpleActionClient('pour', PourAction)
 
+        rospy.loginfo("Initializing detect bottles action client")
+        self.detect_bottles_action_client = actionlib.SimpleActionClient('detect_bottles_action', DetectBottlesAction)
+
         # init LookAtService
         rospy.loginfo("Initializing look_at service client")
         self.look_at_service = rospy.ServiceProxy("head_controller/look_at_service", LookAt)
@@ -95,9 +103,13 @@ Around
         self.arrived_at_bottle = False
         self.arrived_at_pouring_position = False
         self.placed_last_bottle = False
+        self.bottle_not_found = False
 
         # We tried to find a menu, but failed
         self.no_menu_found = False
 
         # list of tuples with liquid name and quantity
         self.recipe = None
+        self.current_drink = None
+        self.current_bottle = None
+        self.current_pour_time = None
