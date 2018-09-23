@@ -3,7 +3,7 @@ from __future__ import print_function
 import rospy
 import actionlib
 from bitbots_stackmachine.abstract_action_element import AbstractActionElement
-from tiago_bartender_msgs.msg import PourGoal, PickGoal, TakeOrderGoal, MoveToTargetGoal
+from tiago_bartender_msgs.msg import PourGoal, PickGoal, TakeOrderGoal, MoveToTargetGoal, DetectBottlesGoal
 from random import uniform
 from geometry_msgs.msg import PointStamped
 from move_base_msgs.msg import MoveBaseGoal
@@ -246,7 +246,7 @@ class ObserveOrder(AbstractActionElement):
         self.goal.timeout = rospy.Duration.from_sec(20)
 
     def perform(self, blackboard, reevaluate=False):
-        if first_iteration:
+        if self.first_iteration:
             blackboard.take_order_action_client.send_goal(self.goal)
             self.first_iteration = False
 
@@ -260,8 +260,35 @@ class ObserveOrder(AbstractActionElement):
         elif result.status == "no_menu_card_detected":
             blackboard.no_menu_found = True
         else:
+            blackboard.current_drink = result.selection
             blackboard.recipe = blackboard.recipes[result.selection]
 
+class UpdateBottlePose(AbstractActionElement):
+    def __init__(self, blackboard, _):
+        super(UpdateBottlePose, self).__init__(blackboard)
+        self.first_iteration = True
+        self.goal = DetectBottlesGoal()
+        self.goal.timeout = rospy.Duration.from_sec(10)
+        self.goal.stability_threshold = 5
+
+    def perform(self, blackboard, reevaluate=False):
+        if self.first_iteration:
+            blackboard.detect_bottles_action_client.send_goal(self.goal)
+            self.first_iteration = False
+        # if no result yet
+        if !blackboard.detect_bottles_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+            return
+
+        blackboard.bottle_located = False
+        result = blackboard.detect_bottles_action_client.get_result()
+        if blackboard.current_bottle in result.detected_bottles:
+            blackboard.bottle_located = True
+            self.pop()
+        elif result.status == "no_menu_card_detected":
+            blackboard.no_menu_found = True
+        else:
+            blackboard.current_drink = result.selection
+            blackboard.recipe = blackboard.recipes[result.selection]
 
 class PickUpBottle(AbstractActionElement):
     """
