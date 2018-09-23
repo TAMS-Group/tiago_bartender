@@ -155,6 +155,9 @@ class MakeCocktail(AbstractDecisionElement):
     def perform(self, blackboard, reevaluate=False):
         if len(blackboard.recipe)>0:
             # add next liquid
+            current_ingredient = blackboard.recipe.pop(0)
+            blackboard.current_bottle = current_ingredient.keys()[0]
+            blackboard.current_pour_time = current_ingredient.values()[0]
             return self.push(InFrontOfRequiredBottle)
         else:
             # we're finished
@@ -165,7 +168,7 @@ class DrinkFinished(AbstractDecisionElement):
     The Drink is finished. Tell it to the costumer and clean up
     """
     def __init__(self, blackboard):
-        super(DrinkFinished, self).__init__(blackboard)
+        super(AbstractDecisionElement, self).__init__(blackboard)
         self.first = True
 
     def perform(self, blackboard, reevaluate=False):
@@ -215,12 +218,18 @@ class BottleLocated(AbstractDecisionElement):
     """
     Locates the position of the bottle to be able to grasp it
     """
+    def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)
+        blackboard.bottle_located = False
+        blackboard.bottle_not_found = False
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.bottle_located:
             return self.push(BottleGrasped)
+        elif blackboard.bottle_not_found:
+            return self.push(SayBottleNotFound)
         else:
-            return self.push(LookAtBottle)
+            return self.push_action_sequence(SequenceElement, [LookAtBottle, UpdateBottlePose], [None, None])
 
 class BottleGrasped(AbstractDecisionElement):
     """
