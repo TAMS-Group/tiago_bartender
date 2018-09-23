@@ -20,6 +20,7 @@ class IdleMoveAround(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(IdleMoveAround, self).__init__(blackboard)
         self.first_iteration = True
+        self.repeat = False
 
         self.goal = MoveBaseGoal()
         self.goal.target_pose.header.frame_id = blackboard.idle_zone['frame']
@@ -31,14 +32,19 @@ class IdleMoveAround(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         print("IdleMoveAround")
-        if self.first_iteration:
+        if self.first_iteration or self.repeat:
             blackboard.move_base_action_client.send_goal(self.goal)
+            self.repeat = False
             self.first_iteration = False
 
-        state = blackboard.move_base_action_client.get_state()
         # wait till action is completed
+        if !blackboard.move_base_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+            return
+        state = blackboard.move_base_action_client.get_state()
         if state == GoalStatus.SUCCEEDED:
             self.pop()
+        else:
+            self.repeat = True
 
 
 class WaitForRos(AbstractActionElement):
@@ -63,6 +69,7 @@ class MoveToCustomer(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(MoveToCustomer, self).__init__(blackboard)
         self.first_iteration = False
+        self.repeat = False
         self.goal = MoveBaseGoal()
         self.goal.target_pose.header.frame_id = blackboard.take_order_pose['frame']
         self.goal.target_pose.pose.position.x = blackboard.take_order_pose['pos_x']
@@ -74,14 +81,19 @@ class MoveToCustomer(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         print("MoveToCustomer")
-        if self.first_iteration:
+        if self.first_iteration or self.repeat:
             blackboard.move_base_action_client.send_goal(self.goal)
             self.first_iteration = False
+            self.repeat = False
 
-        state = blackboard.move_base_action_client.get_state()
         # wait till action is completed
+        if !blackboard.move_base_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+            return
+        state = blackboard.move_base_action_client.get_state()
         if state == GoalStatus.SUCCEEDED:
             blackboard.arrived_at_customer = True
+        else:
+            self.repeat = True
 
 class MoveToBottle(AbstractActionElement):
     """
@@ -90,22 +102,28 @@ class MoveToBottle(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(MoveToBottle, self).__init__(blackboard)
         self.first_iteration = True
+        self.repeat = False
         blackboard.arrived_at_bottle = False
         self.goal = MoveToTargetGoal()
         self.goal.target = blackboard.current_bottle
         self.goal.look_at_target = False
 
     def perform(self, blackboard, reevaluate=False):
-        if self.first_iteration:
+        if self.first_iteration or self.repeat:
             blackboard.move_action_client.send_goal(self.goal)
             self.first_iteration = False
+            self.repeat = False
 
-        state = blackboard.move_action_client.get_state()
         # wait till action is completed
+        if !blackboard.move_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+            return
+        state = blackboard.move_action_client.get_state()
         if state == GoalStatus.SUCCEEDED:
             result = blackboard.move_action_client.get_result()
             blackboard.last_bottle_pose = result.target_pose_result;
             blackboard.arrived_at_bottle = True
+        else:
+            self.repeat = True
 
 class MoveToPouringPosition(AbstractActionElement):
     """
@@ -114,20 +132,26 @@ class MoveToPouringPosition(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(MoveToPouringPosition, self).__init__(blackboard)
         self.first_iteration = True
+        self.repeat = False
         blackboard.arrived_at_pouring_position = False
         self.goal = MoveToTargetGoal()
         self.goal.target = 'glass'
         self.goal.look_at_target = False
 
     def perform(self, blackboard, reevaluate=False):
-        if self.first_iteration:
+        if self.first_iteration or self.repeat:
             blackboard.move_action_client.send_goal(self.goal)
             self.first_iteration = False
+            self.repeat = False
 
-        state = blackboard.move_action_client.get_state()
         # wait till action is completed
+        if !blackboard.move_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+            return
+        state = blackboard.move_action_client.get_state()
         if state == GoalStatus.SUCCEEDED:
             blackboard.arrived_at_pouring_position = True
+        else:
+            self.repeat = True
 
 class AbstractLookAt(AbstractActionElement):
     def __init__(self, blackboard, _):
@@ -374,6 +398,7 @@ class MoveToBottlePose(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(MoveToBottlePose, self).__init__(blackboard)
         self.first_iteration = True
+        self.repeat = False
         blackboard.arrived_at_bottle = False
         self.goal = MoveToTargetGoal()
         self.goal.target = ''
@@ -381,15 +406,20 @@ class MoveToBottlePose(AbstractActionElement):
         self.goal.look_at_target = False
 
     def perform(self, blackboard, reevaluate=False):
-        if self.first_iteration:
+        if self.first_iteration or self.repeat:
             blackboard.move_action_client.send_goal(self.goal)
             self.first_iteration = False
+            self.repeat = False
 
-        state = blackboard.move_action_client.get_state()
         # wait till action is completed
+        if !blackboard.move_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+            return
+        state = blackboard.move_action_client.get_state()
         if state == GoalStatus.SUCCEEDED:
             blackboard.arrived_at_bottle = True
             self.pop()
+        else:
+            self.repeat = True
 
 class GetNextBottle(AbstractActionElement):
     """
