@@ -102,6 +102,8 @@ class MoveToBottle(AbstractActionElement):
         state = blackboard.move_action_client.get_state()
         # wait till action is completed
         if state == GoalStatus.SUCCEEDED:
+            result = blackboard.move_action_client.get_result()
+            blackboard.last_bottle_pose = result.target_pose_result;
             blackboard.arrived_at_bottle = True
 
 class MoveToPouringPosition(AbstractActionElement):
@@ -216,7 +218,7 @@ class AbstractSay(AbstractActionElement):
             self.first_iteration = False
         state = blackboard.tts_action_client.get_state()
         # wait till action is completed
-        if state == 3:
+        if state == GoalStatus.SUCCEEDED:
             #TODO maybe do something with the result
             self.pop()
 
@@ -318,7 +320,7 @@ class PickUpBottle(AbstractActionElement):
     def perform(self, blackboard, reevaluate=False):
         state = blackboard.pick_action_client.get_state()
         # wait till action is completed
-        if state == 3:
+        if state == GoalStatus.SUCCEEDED:
             #TODO maybe do something with the result
             self.pop()
 
@@ -335,7 +337,7 @@ class PourLiquid(AbstractActionElement):
     def perform(self, blackboard, reevaluate=False):
         state = blackboard.pour_action_client.get_state()
         # wait till action is completed
-        if state == 3:
+        if state == GoalStatus.SUCCEEDED:
             #TODO maybe do something with the result
             self.pop()
 
@@ -352,7 +354,7 @@ class PlaceBottle(AbstractActionElement):
     def perform(self, blackboard, reevaluate=False):
         state = blackboard.place_action_client.get_state()
         # wait till action is completed
-        if state == 3:
+        if state == GoalStatus.SUCCEEDED:
             #TODO maybe do something with the result
             self.pop()
 
