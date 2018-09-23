@@ -1,7 +1,7 @@
 import rospy
 import actionlib
 from person_detection.msg import PersonDetections
-from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction, DetectBottlesAction
+from tiago_bartender_msgs.msg import PlaceAction, PourAction, PickAction, MoveToTargetAction, TakeOrderAction, DetectBottlesAction
 from tiago_bartender_msgs.srv import LookAt
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -11,6 +11,7 @@ from std_msgs.msg import Bool
 class Blackboard:
     def __init__(self):
         # TODO: implement with command cards listener
+        self.tf_listener = TransformListener()
 
         # initialize variables
         self.reset()
@@ -77,10 +78,13 @@ class Blackboard:
         self.move_base_action_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
         rospy.loginfo("Initilizing pick action client")
-        self.pick_action_client = actionlib.SimpleActionClient('pick', PickAction)
+        self.pick_action_client = actionlib.SimpleActionClient('tiago_pick', PickAction)
+
+        rospy.loginfo("Initilizing place action client")
+        self.pick_action_client = actionlib.SimpleActionClient('tiago_place', PlaceAction)
 
         rospy.loginfo("Initilizing pouring action client")
-        self.pour_action_client = actionlib.SimpleActionClient('pour', PourAction)
+        self.pour_action_client = actionlib.SimpleActionClient('tiago_pour', PourAction)
 
         rospy.loginfo("Initializing detect bottles action client")
         self.detect_bottles_action_client = actionlib.SimpleActionClient('detect_bottles_action', DetectBottlesAction)
@@ -100,9 +104,7 @@ class Blackboard:
     def reset_for_next_bottle(self):
         self.arrived_at_pouring_position = False
         self.arrived_at_bottle = False
-        self.placed_last_bottle = False
         self.bottle_not_found = False
-        self.bottle_grasped = False
         self.get_next_bottle = True
         self.got_next_bottle = False
         self.no_menu_found = False
@@ -114,7 +116,6 @@ class Blackboard:
         self.arrived_at_customer = False
         self.arrived_at_bottle = False
         self.arrived_at_pouring_position = False
-        self.placed_last_bottle = False
         self.bottle_not_found = False
         self.is_paused = False
         self.bottle_grasped = False

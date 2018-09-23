@@ -5,13 +5,14 @@ import rospy
 import actionlib
 import random
 from bitbots_stackmachine.abstract_action_element import AbstractActionElement
-from tiago_bartender_msgs.msg import PlaceGoal, PourGoal, PickGoal, TakeOrderGoal, MoveToTargetGoal, DetectBottlesGoal
+from tiago_bartender_msgs.msg import PlaceGoal, PourGoal, PickGoal, TakeOrderGoal, MoveToTargetGoal, DetectBottlesGoal, ManipulationResult
 from random import uniform
 from geometry_msgs.msg import PointStamped
 from move_base_msgs.msg import MoveBaseGoal
 from std_msgs.msg import Bool
 from pal_interaction_msgs.msg import TtsGoal
 from actionlib_msgs.msg import GoalStatus
+import tf
 
 class IdleMoveAround(AbstractActionElement):
     """
@@ -38,7 +39,7 @@ class IdleMoveAround(AbstractActionElement):
             self.first_iteration = False
 
         # wait till action is completed
-        if !blackboard.move_base_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+        if not blackboard.move_base_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
         state = blackboard.move_base_action_client.get_state()
         if state == GoalStatus.SUCCEEDED:
@@ -87,7 +88,7 @@ class MoveToCustomer(AbstractActionElement):
             self.repeat = False
 
         # wait till action is completed
-        if !blackboard.move_base_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+        if not blackboard.move_base_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
         state = blackboard.move_base_action_client.get_state()
         if state == GoalStatus.SUCCEEDED:
@@ -115,7 +116,7 @@ class MoveToBottle(AbstractActionElement):
             self.repeat = False
 
         # wait till action is completed
-        if !blackboard.move_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+        if not blackboard.move_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
         state = blackboard.move_action_client.get_state()
         if state == GoalStatus.SUCCEEDED:
@@ -145,7 +146,7 @@ class MoveToPouringPosition(AbstractActionElement):
             self.repeat = False
 
         # wait till action is completed
-        if !blackboard.move_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+        if not blackboard.move_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
         state = blackboard.move_action_client.get_state()
         if state == GoalStatus.SUCCEEDED:
@@ -249,7 +250,6 @@ class AbstractSay(AbstractActionElement):
         state = blackboard.tts_action_client.get_state()
         # wait till action is completed
         if state == GoalStatus.SUCCEEDED:
-            #TODO maybe do something with the result
             self.pop()
 
     def text(self):
@@ -298,7 +298,7 @@ class ObserveOrder(AbstractActionElement):
             self.first_iteration = False
 
         # if no result yet
-        if !blackboard.take_order_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+        if not blackboard.take_order_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
         blackboard.no_menu_found = False
         result = blackboard.take_order_action_client.get_result()
@@ -325,7 +325,7 @@ class UpdateBottlePose(AbstractActionElement):
             blackboard.detect_bottles_action_client.send_goal(self.goal)
             self.first_iteration = False
         # if no result yet
-        if !blackboard.detect_bottles_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+        if not blackboard.detect_bottles_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
 
         blackboard.bottle_located = False
@@ -343,17 +343,31 @@ class PickUpBottle(AbstractActionElement):
     """
     def __init__(self, blackboard, _):
         super(PickUpBottle, self).__init__(blackboard)
-        goal = PickGoal()
-        #TODO specify goal
-        blackboard.pick_action_client.send_goal(goal)
+        self.first_iteration = True
+        self.repeat = False
+        self.goal = PickGoal()
+        self.goal.object_id = self.current_bottle
 
     def perform(self, blackboard, reevaluate=False):
-        state = blackboard.pick_action_client.get_state()
-        # wait till action is completed
-        if state == GoalStatus.SUCCEEDED:
+        if self.first_iteration or self.repeat:
+            blackboard.pick_action_client.send_goal(self.goal)
+            self.first_iteration = False
+            self.repeat  = False
+
+        # if no result yet
+        if not blackboard.pick_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+            return
+
+        result = blackboard.pick_action_client.get_result()
+        if result.result == ManipulationResult.SUCCESS:
             blackboard.bottle_grasped = True
-            #TODO maybe do something with the result
             self.pop()
+        elif result.result == ManipulationResult.UNREACHABLE:
+            self.repeat = True
+        elif result.result == ManipulationResult.NO_PLAN_FOUND:
+            self.repeat = True
+        elif result.result == ManipulationResult.EXECUTION_FAILED:
+            self.repeat = True
 
 class PourLiquid(AbstractActionElement):
     """
@@ -361,17 +375,80 @@ class PourLiquid(AbstractActionElement):
     """
     def __init__(self, blackboard, _):
         super(PourLiquid, self).__init__(blackboard)
-        goal = PourGoal()
-        #TODO specify goal
-        blackboard.pour_action_client.send_goal(goal)
+        self.first_iteration = True
+        self.repeat = False
+        self.goal = PourGoal()
+        self.goal.container_id = 'glass'
 
     def perform(self, blackboard, reevaluate=False):
-        state = blackboard.pour_action_client.get_state()
-        # wait till action is completed
-        if state == GoalStatus.SUCCEEDED:
+        if self.first_iteration or self.repeat:
+            blackboard.pour_action_client.send_goal(self.goal)
+            self.first_iteration = False
+            self.repeat  = False
+
+        # if no result yet
+        if not blackboard.pour_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+            return
+
+        result = blackboard.pour_action_client.get_result()
+        if result.result == ManipulationResult.SUCCESS:
             blackboard.reset_for_next_bottle()
-            #TODO maybe do something with the result
             self.pop()
+        elif result.result == ManipulationResult.UNREACHABLE:
+            self.repeat = True
+        elif result.result == ManipulationResult.NO_PLAN_FOUND:
+            self.repeat = True
+        elif result.result == ManipulationResult.EXECUTION_FAILED:
+            self.repeat = True
+
+
+
+class PlaceBottle(AbstractActionElement):
+    """
+    Calls the placing action
+    """
+    def __init__(self, blackboard, _):
+        super(PlaceBottle, self).__init__(blackboard)
+        self.first_iteration = True
+        self.repeat = False
+        self.goals = []
+
+    def perform(self, blackboard, reevaluate=False):
+        if not self.goals:
+            goal = PlaceGoal()
+            frame = blackboard.place_bottle_offset['frame']
+            goal.place_pose = blackboard.tf_listener_.transformPose(frame, blackboard.last_bottle_pose)
+            left_goal = copy.deepcopy(goal)
+            right_goal = copy.deepcopy(goal)
+            offset_x = blackboard.place_bottle_offset['x']
+            offset_y = blackboard.place_bottle_offset['y']
+            left_goal.place_pose.pose.position.x = left_goal.place_pose.pose.position.x + offset_x
+            left_goal.place_pose.pose.position.y = left_goal.place_pose.pose.position.y + offset_y
+            right_goal.place_pose.pose.position.x = right_goal.place_pose.pose.position.x - offset_x
+            right_goal.place_pose.pose.position.y = right_goal.place_pose.pose.position.y - offset_y
+
+            self.goals = [left_goal, right_goal]
+
+        if self.first_iteration or self.repeat:
+            blackboard.pour_action_client.send_goal(self.goals.pop(0))
+            self.first_iteration = False
+            self.repeat  = False
+
+        # if no result yet
+        if not blackboard.place_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+            return
+
+        result = blackboard.place_action_client.get_result()
+        if result.result == ManipulationResult.SUCCESS:
+            blackboard.bottle_grasped = False
+            self.pop()
+        elif result.result == ManipulationResult.UNREACHABLE:
+            self.repeat = True
+        elif result.result == ManipulationResult.NO_PLAN_FOUND:
+            self.repeat = True
+        elif result.result == ManipulationResult.EXECUTION_FAILED:
+            self.repeat = True
+
 
 class PlaceBottle(AbstractActionElement):
     """
@@ -388,6 +465,7 @@ class PlaceBottle(AbstractActionElement):
         # wait till action is completed
         if state == GoalStatus.SUCCEEDED:
             blackboard.placed_bottle = True
+            blackboard.bottle_grasped = False
             #TODO maybe do something with the result
             self.pop()
 
@@ -412,7 +490,7 @@ class MoveToBottlePose(AbstractActionElement):
             self.repeat = False
 
         # wait till action is completed
-        if !blackboard.move_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+        if not blackboard.move_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
         state = blackboard.move_action_client.get_state()
         if state == GoalStatus.SUCCEEDED:

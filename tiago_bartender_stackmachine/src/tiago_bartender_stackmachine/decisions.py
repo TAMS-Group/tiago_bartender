@@ -75,7 +75,6 @@ class HasCustomer(AbstractDecisionElement):
     """
     def perform(self, blackboard, reevaluate=False):
         if blackboard.has_customer:
-            #TODO maybe the blackboard.has_customer has to be resettet to False
             return self.push(InFrontOfCustomer)
         else:
             return self.push(Idle)
@@ -161,7 +160,10 @@ class MakeCocktail(AbstractDecisionElement):
             return self.push(InFrontOfRequiredBottle)
         else:
             # we're finished
-            return self.push(DrinkFinished) #TODO: say something & place bottle back
+            return self.push(DrinkFinished)
+
+    def get_reevaluate(self):
+        return True
 
 class DrinkFinished(AbstractDecisionElement):
     """
@@ -184,10 +186,9 @@ class PutBottleBack(AbstractDecisionElement):
     """
     def perform(self, blackboard, reevaluate=False):
         if not blackboard.arrived_at_bottle:
-            # TODO put bottle away
             first_iteration = False
             return self.push_action_sequence(SequenceElement, [LookForward, MoveToBottlePose], [None, None])
-        elif not blackboard.placed_last_bottle:
+        elif blackboard.bottle_grasped:
             return self.push(PlaceBottle)
         else:
             # resetting variables in blackboard and going back to HasCustomer
@@ -225,17 +226,26 @@ class BottleLocated(AbstractDecisionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.bottle_located:
-            return self.push(BottleGrasped)
+            return self.push(BottlePlaced)
         elif blackboard.bottle_not_found:
             return self.push(SayBottleNotFound)
         else:
             return self.push_action_sequence(SequenceElement, [LookAtBottle, UpdateBottlePose], [None, None])
 
+class BottlePlaced(AbstractDecisionElement):
+    """
+    Places the old bottle
+    """
+    def perform(self, blackboard, reevaluate=False):
+        if blackboard.bottle_grasped:
+            return self.push(PlaceBottle)
+        else:
+            return self.push(BottleGrasped)
+
 class BottleGrasped(AbstractDecisionElement):
     """
-    Graps the Bottle
+    Graps the bottle
     """
-
     def perform(self, blackboard, reevaluate=False):
         if blackboard.bottle_grasped:
             return self.push(InPouringPosition)
