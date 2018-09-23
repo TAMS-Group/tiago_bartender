@@ -2,7 +2,7 @@ import rospy
 import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
-from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -90,7 +90,7 @@ class Idle(AbstractDecisionElement):
     """
     def perform(self, blackboard, reevaluate=False):
         # TODO: implement alternatives
-        return self.push_action_sequence(SequenceElement, [LookForward, IdleMoveAround, LookForCustomer], [None, None])
+        return self.push_action_sequence(SequenceElement, [LookForward, IdleMoveAround, LookForCustomer], [None, None, None])
 
 
 
@@ -137,6 +137,7 @@ class TakeOrder(AbstractDecisionElement):
     def perform(self, blackboard, reevaluate=False):
         if blackboard.recipe:
             if self.order_confirmed:
+                blackboard.get_next_bottle = True
                 return self.push(MakeCocktail)
             else:
                 self.order_confirmed = True
@@ -153,11 +154,10 @@ class MakeCocktail(AbstractDecisionElement):
     Make a cocktail out of multiple ingrediances
     """
     def perform(self, blackboard, reevaluate=False):
-        if len(blackboard.recipe)>0:
+        if blackboard.get_next_bottle and len(blackboard.recipe)>0:
             # add next liquid
-            current_ingredient = blackboard.recipe.pop(0)
-            blackboard.current_bottle = current_ingredient.keys()[0]
-            blackboard.current_pour_time = current_ingredient.values()[0]
+            return self.push(GetNextBottle)
+        if blackboard.got_next_bottle:
             return self.push(InFrontOfRequiredBottle)
         else:
             # we're finished
@@ -237,7 +237,7 @@ class BottleGrasped(AbstractDecisionElement):
     """
 
     def perform(self, blackboard, reevaluate=False):
-        if blackboard.bottle_grapsed:
+        if blackboard.bottle_grasped:
             return self.push(InPouringPosition)
         else:
             return self.push(PickUpBottle)
@@ -255,7 +255,7 @@ class InPouringPosition(AbstractDecisionElement):
         if blackboard.redo_requested and blackboard.last_redoable == blackboard.POUR:
             return self.push(MoveToPouringPosition)
 
-        if blackboard.in_pouring_position:
+        if blackboard.arrived_at_pouring_position:
             # fill in liquid and wait a moment to see if redo card was shown
             return self.push_action_sequence(SequenceElement, [PourLiquid, Wait], [None, 5])
         else:

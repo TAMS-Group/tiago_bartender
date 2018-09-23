@@ -1,9 +1,11 @@
 from __future__ import print_function
 
+import copy
 import rospy
 import actionlib
+import random
 from bitbots_stackmachine.abstract_action_element import AbstractActionElement
-from tiago_bartender_msgs.msg import PourGoal, PickGoal, TakeOrderGoal, MoveToTargetGoal, DetectBottlesGoal
+from tiago_bartender_msgs.msg import PlaceGoal, PourGoal, PickGoal, TakeOrderGoal, MoveToTargetGoal, DetectBottlesGoal
 from random import uniform
 from geometry_msgs.msg import PointStamped
 from move_base_msgs.msg import MoveBaseGoal
@@ -23,17 +25,17 @@ class IdleMoveAround(AbstractActionElement):
         self.goal.target_pose.header.frame_id = blackboard.idle_zone['frame']
         self.goal_x = uniform(blackboard.idle_zone['center_x'] - blackboard.idle_zone['radius_x'], blackboard.idle_zone['center_x'] + blackboard.idle_zone['radius_x'])
         self.goal_y = uniform(blackboard.idle_zone['center_y'] - blackboard.idle_zone['radius_y'], blackboard.idle_zone['center_y'] + blackboard.idle_zone['radius_y'])
-        self.goal.target_pose.pose.position.x = goal_x
-        self.goal.target_pose.pose.position.y = goal_y
+        self.goal.target_pose.pose.position.x = self.goal_x
+        self.goal.target_pose.pose.position.y = self.goal_y
         self.goal.target_pose.pose.orientation.z = 1.0
 
     def perform(self, blackboard, reevaluate=False):
         print("IdleMoveAround")
         if self.first_iteration:
-            blackboard.move_base_client.send_goal(self.goal)
+            blackboard.move_base_action_client.send_goal(self.goal)
             self.first_iteration = False
 
-        state = blackboard.move_base_client.get_state()
+        state = blackboard.move_base_action_client.get_state()
         # wait till action is completed
         if state == GoalStatus.SUCCEEDED:
             self.pop()
@@ -58,9 +60,8 @@ class WaitingToResume(AbstractActionElement):
 
 
 class MoveToCustomer(AbstractActionElement):
-    #TODO: update customer position for look at service
     def __init__(self, blackboard, _):
-        super(IdleMoveAround, self).__init__(blackboard)
+        super(MoveToCustomer, self).__init__(blackboard)
         self.first_iteration = False
         self.goal = MoveBaseGoal()
         self.goal.target_pose.header.frame_id = blackboard.take_order_pose['frame']
@@ -129,6 +130,10 @@ class MoveToPouringPosition(AbstractActionElement):
             blackboard.arrived_at_pouring_position = True
 
 class AbstractLookAt(AbstractActionElement):
+    def __init__(self, blackboard, _):
+        super(LookForCustomer, self).__init__(blackboard)
+        self.blackboard = blackboard
+
     def perform(self, blackboard, reevaluate=False):
         target = self.target()
         pose = PointStamped()
@@ -156,7 +161,7 @@ class LookAtCustomer(AbstractActionElement):
 
 class LookAtBottle(AbstractLookAt):
     def target(self):
-        return blackboard.current_bottle
+        return self.blackboard.current_bottle
 
 class LookAtMenu(AbstractLookAt):
     def target(self):
@@ -172,7 +177,7 @@ class LookForCustomer(AbstractActionElement):
         self.first_iteration = True
 
     def perform(self, blackboard, reevaluate=False):
-        if first_iteration:
+        if self.first_iteration:
             target = 'look_around'
             pose = PointStamped()
             try:
@@ -205,6 +210,7 @@ class LookForCustomer(AbstractActionElement):
 class AbstractSay(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(AbstractSay, self).__init__(blackboard)
+        self.blackboard = blackboard
         self.first_iteration = True
         text = random.choice(self.text())
         print("Saying '" + text + "'")
@@ -242,7 +248,7 @@ class SayRepeatOrder(AbstractSay):
 
 class SayOrderConfirmed(AbstractSay):
     def text(self):
-        return ["One " + blackboard.current_drink + " coming right up."]
+        return ["One " + self.blackboard.current_drink + " coming right up."]
 
 class SayDrinkFinished(AbstractSay):
     def text(self):
@@ -252,8 +258,8 @@ class SayDrinkFinished(AbstractSay):
 
 class SayBottleNotFound(AbstractSay):
     def text(self):
-        blackboard.bottle_not_found = False
-        return ["I was sure I put the " + blackboard.current_bottle + " right here. Please help me by putting the bottle in front of me."]
+        self.blackboard.bottle_not_found = False
+        return ["I was sure I put the " + self.blackboard.current_bottle + " right here. Please help me by putting the bottle in front of me."]
 
 class ObserveOrder(AbstractActionElement):
     def __init__(self, blackboard, _):
@@ -276,9 +282,11 @@ class ObserveOrder(AbstractActionElement):
             self.pop()
         elif result.status == "no_menu_card_detected":
             blackboard.no_menu_found = True
+            self.pop()
         else:
             blackboard.current_drink = result.selection
-            blackboard.recipe = blackboard.recipes[result.selection]
+            blackboard.recipe = copy.deepcopy(blackboard.recipes[result.selection])
+            self.pop()
 
 class UpdateBottlePose(AbstractActionElement):
     def __init__(self, blackboard, _):
@@ -301,11 +309,9 @@ class UpdateBottlePose(AbstractActionElement):
         if blackboard.current_bottle in result.detected_bottles:
             blackboard.bottle_located = True
             self.pop()
-        elif result.status == "no_menu_card_detected":
-            blackboard.no_menu_found = True
         else:
-            blackboard.current_drink = result.selection
-            blackboard.recipe = blackboard.recipes[result.selection]
+            blackboard.bottle_not_found = True
+            self.pop()
 
 class PickUpBottle(AbstractActionElement):
     """
@@ -313,7 +319,7 @@ class PickUpBottle(AbstractActionElement):
     """
     def __init__(self, blackboard, _):
         super(PickUpBottle, self).__init__(blackboard)
-        goal = Pick()
+        goal = PickGoal()
         #TODO specify goal
         blackboard.pick_action_client.send_goal(goal)
 
@@ -321,6 +327,7 @@ class PickUpBottle(AbstractActionElement):
         state = blackboard.pick_action_client.get_state()
         # wait till action is completed
         if state == GoalStatus.SUCCEEDED:
+            blackboard.bottle_grasped = True
             #TODO maybe do something with the result
             self.pop()
 
@@ -330,7 +337,7 @@ class PourLiquid(AbstractActionElement):
     """
     def __init__(self, blackboard, _):
         super(PourLiquid, self).__init__(blackboard)
-        goal = Pour()
+        goal = PourGoal()
         #TODO specify goal
         blackboard.pour_action_client.send_goal(goal)
 
@@ -338,6 +345,7 @@ class PourLiquid(AbstractActionElement):
         state = blackboard.pour_action_client.get_state()
         # wait till action is completed
         if state == GoalStatus.SUCCEEDED:
+            blackboard.reset_for_next_bottle()
             #TODO maybe do something with the result
             self.pop()
 
@@ -347,7 +355,7 @@ class PlaceBottle(AbstractActionElement):
     """
     def __init__(self, blackboard, _):
         super(PlaceBottle, self).__init__(blackboard)
-        goal = Place()
+        goal = PlaceGoal()
         #TODO specify goal
         blackboard.place_action_client.send_goal(goal)
 
@@ -355,6 +363,7 @@ class PlaceBottle(AbstractActionElement):
         state = blackboard.place_action_client.get_state()
         # wait till action is completed
         if state == GoalStatus.SUCCEEDED:
+            blackboard.placed_bottle = True
             #TODO maybe do something with the result
             self.pop()
 
@@ -380,6 +389,19 @@ class MoveToBottlePose(AbstractActionElement):
         # wait till action is completed
         if state == GoalStatus.SUCCEEDED:
             blackboard.arrived_at_bottle = True
+            self.pop()
+
+class GetNextBottle(AbstractActionElement):
+    """
+    Gets only pushed on the stack temporarily by the MakeCocktail decision.
+    Only to signal that the next bottle is supposed to be brought and the stack to be emptied.
+    """
+    def perform(self, blackboard, reevaluate=False):
+        current_ingredient = blackboard.recipe.pop(0)
+        blackboard.current_bottle = current_ingredient.keys()[0]
+        blackboard.current_pour_time = current_ingredient.values()[0]
+        blackboard.get_next_bottle = False
+        blackboard.got_next_bottle = True
 
 class Wait(AbstractActionElement):
     """

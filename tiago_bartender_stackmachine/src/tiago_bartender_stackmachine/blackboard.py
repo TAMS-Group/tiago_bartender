@@ -1,8 +1,12 @@
+import rospy
+import actionlib
 from person_detection.msg import PersonDetections
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction, DetectBottlesAction
+from tiago_bartender_msgs.srv import LookAt
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
 from move_base_msgs.msg import MoveBaseAction
+from std_msgs.msg import Bool
 
 class Blackboard:
     def __init__(self):
@@ -84,9 +88,7 @@ class Blackboard:
         # init LookAtService
         rospy.loginfo("Initializing look_at service client")
         self.look_at_service = rospy.ServiceProxy("head_controller/look_at_service", LookAt)
-Around
-
-        self.person_detection_switch_pub = rospy.Publisher("person_detection/set_enabled", std_msgs.msg.Bool)
+        self.person_detection_switch_pub = rospy.Publisher("person_detection/set_enabled", Bool, queue_size=10)
 
     def person_detections_cb(self, detections):
         #TODO: Check if customer in front of bar
@@ -94,6 +96,16 @@ Around
             self.person_detected = True
         for p in detections:
             self.person_position = p.position
+
+    def reset_for_next_bottle(self):
+        self.arrived_at_pouring_position = False
+        self.arrived_at_bottle = False
+        self.placed_last_bottle = False
+        self.bottle_not_found = False
+        self.bottle_grasped = False
+        self.get_next_bottle = True
+        self.got_next_bottle = False
+        self.no_menu_found = False
 
     def reset(self):
         self.has_customer = False
@@ -104,6 +116,11 @@ Around
         self.arrived_at_pouring_position = False
         self.placed_last_bottle = False
         self.bottle_not_found = False
+        self.is_paused = False
+        self.bottle_grasped = False
+        self.arrived_at_pouring_position = False
+        self.get_next_bottle = False
+        self.got_next_bottle = False
 
         # We tried to find a menu, but failed
         self.no_menu_found = False
