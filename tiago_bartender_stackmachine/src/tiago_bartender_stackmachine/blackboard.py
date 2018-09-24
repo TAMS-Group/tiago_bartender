@@ -7,6 +7,12 @@ from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
 from move_base_msgs.msg import MoveBaseAction
 from std_msgs.msg import Bool
+from moveit_msgs.srv import ApplyPlanningScene
+from moveit_msgs.msg import PlanningScene, PlanningSceneWorld, CollisionObject
+from shape_msgs.msg import SolidPrimitive
+from geometry_msgs.msg import Pose
+from moveit_msgs.msg import ObjectColor
+from tf import TransformListener
 
 class Blackboard:
     def __init__(self):
@@ -36,6 +42,7 @@ class Blackboard:
 
         # service clients
         self.look_at_service = None
+        self.planning_scene_service = None
 
         # publishers
         self.person_detection_switch_pub = None
@@ -92,6 +99,7 @@ class Blackboard:
         # init LookAtService
         rospy.loginfo("Initializing look_at service client")
         self.look_at_service = rospy.ServiceProxy("head_controller/look_at_service", LookAt)
+        self.planning_scene_service = rospy.ServiceProxy("apply_planning_scene", ApplyPlanningScene)
         self.person_detection_switch_pub = rospy.Publisher("person_detection/set_enabled", Bool, queue_size=10)
 
     def person_detections_cb(self, detections):
@@ -131,3 +139,47 @@ class Blackboard:
         self.current_drink = None
         self.current_bottle = None
         self.current_pour_time = None
+
+    def add_invisible_collision_object(self):
+        co_box = CollisionObject()
+        co_box.header.frame_id = 'base_footprint'
+        co_box.id = 'invisible_box'
+        box = SolidPrimitive()
+        box.type = SolidPrimitive.BOX
+        box_height = 0.77
+        box.dimensions.append(0.80)
+        box.dimensions.append(1.60)
+        box.dimensions.append(box_height)
+        co_box.primitives.append(box)
+        box_pose = Pose()
+        box_pose.position.x = 0.80
+        box_pose.position.y = 0.0
+        box_pose.position.z = box_height/2.0
+        box_pose.orientation.w = 1.0
+        co_box.primitive_poses.append(box_pose)
+        co_box.operation = CollisionObject.ADD
+        color = ObjectColor()
+        color.id = 'invisible_box'
+        color.color.a = 1.0
+
+        ps = PlanningScene()
+        ps.world.collision_objects.append(co_box)
+        ps.object_colors.append(color)
+        ps.is_diff = True
+        try:
+            self.planning_scene_service(ps)
+        except rospy.ServiceException, e:
+            print("Service call failed: %s"%e)
+
+    def remove_invisible_collision_object(self):
+        co_box = CollisionObject()
+        co_box.id = 'invisible_box'
+        co_box.operation = CollisionObject.REMOVE
+
+        ps = PlanningScene()
+        ps.world.collision_objects.append(co_box)
+        ps.is_diff = True
+        try:
+            self.planning_scene_service(ps)
+        except rospy.ServiceException, e:
+            print("Service call failed: %s"%e)
