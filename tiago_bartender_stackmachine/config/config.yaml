@@ -1,22 +1,24 @@
 recipes:
   tequila_sunrise:
     - tequila: 1.0
-    - orange_juice: 1.0
-    - grenadine: 1.0
+    - orange: 1.0
+    - cherry: 1.0
   cuba_libre:
     - rum: 1.0
     - coke: 1.0
   sunrise:
-    - orange_juice: 1.0
-    - grenadine: 1.0
+    - orange: 1.0
+    - cherry: 1.0
   driver:
-    - orange_juice: 1.0
-    - grenadine: 1.0
+    - orange: 1.0
+    - cherry: 1.0
     - lime: 1.0
   orange_juice:
-    - orange_juice: 1.0
+    - orange: 1.0
   coke:
     - coke: 1.0
+  water:
+    - water: 1.0
 
 idle_zone:
   center_x: -0.4
