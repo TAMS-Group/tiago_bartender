@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <launch>
+  <!-- bartender-specific head control -->
   <include file="$(find tiago_bartender_behavior)/launch/look_at.launch"/>
-  <include file="$(find tiago_bartender_menu)/launch/menu.launch"/>
+  <!-- move in front of target objects in the planning scene -->
   <include file="$(find tiago_bartender_navigation)/launch/move_to_target.launch"/>
-  <include file="$(find apriltag_command_cards)/launch/apriltag_command_cards.launch"/>
+
+  <!-- Person detection -->
   <include file="$(find person_detection)/launch/person_detection.launch"/>
+
+  <!-- Menu detection and action to detect indicated orders  -->
+  <include file="$(find tiago_bartender_menu)/launch/menu.launch"/>
+
+  <!-- Tabletop object recognition -->
   <include file="$(find tams_bartender_recognition)/launch/bringup.launch"/>
+
+  <!-- visual operator control through apriltags -->
+  <include file="$(find apriltag_command_cards)/launch/apriltag_command_cards.launch"/>
+
 </launch>
