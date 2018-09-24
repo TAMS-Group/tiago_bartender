@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <launch>
+  <!-- override factory robot description to include world link -->
+  <include file="$(find tiago_description)/robots/upload_tiago.launch"/>
+  <!-- replace factory moveit configuration -->
+  <include file="$(find tiago_moveit_config)/launch/move_group.launch"/>
+
   <!-- bartender-specific head control -->
   <include file="$(find tiago_bartender_behavior)/launch/look_at.launch"/>
   <!-- move in front of target objects in the planning scene -->
