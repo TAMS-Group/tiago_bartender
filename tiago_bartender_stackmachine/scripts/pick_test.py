@@ -3,7 +3,7 @@
 import rospy
 
 from bitbots_stackmachine.stack_machine import StackMachine
-from tiago_bartender_stackmachine.pickdecisions import Init
+from tiago_bartender_stackmachine.pick_decisions import Init
 from tiago_bartender_stackmachine.blackboard import Blackboard
 
 class TiagoBartender:
