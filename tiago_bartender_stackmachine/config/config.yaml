@@ -21,14 +21,14 @@ recipes:
     - water: 1.0
 
 idle_zone:
-  center_x: -0.4
-  center_y: 0.25
-  radius_x: 0.4
-  radius_y: 1.25
+  center_x: 0.0
+  center_y: 0.0
+  radius_x: 0.2
+  radius_y: 0.5
   frame: 'map'
 
 home_pose:
-  pos_x: -0.5
+  pos_x: 0.0
   pos_y: 0.0
   ori_x: 0.0
   ori_y: 0.0
@@ -37,13 +37,13 @@ home_pose:
   frame: 'map'
 
 take_order_pose:
-  pos_x: 0.5
-  pos_y: 0.3
+  pos_x: 0.4
+  pos_y: 0.0
   ori_x: 0.0
   ori_y: 0.0
   ori_z: 1.0
   ori_w: 0.0
-  frame: 'world'
+  frame: 'map'
 
 place_bottle_offset:
   x: 0.15

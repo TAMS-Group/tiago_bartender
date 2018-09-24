@@ -1,9 +1,9 @@
 <launch>
   <node name="look_at_node" type="look_at_node" pkg="tiago_bartender_behavior">
-    <param name="look_around_center_x" value="-1.0"/>
+    <param name="look_around_center_x" value="1.9"/>
     <param name="look_around_center_y" value="0.0"/>
-    <param name="look_around_radius_x" value="1.25"/>
-    <param name="look_around_radius_y" value="0.0"/>
-    <param name="look_around_z_value" value="1.8"/>
+    <param name="look_around_radius_x" value="0.0"/>
+    <param name="look_around_radius_y" value="1.0"/>
+    <param name="look_around_z_value" value="1.2"/>
   </node>
 </launch>
