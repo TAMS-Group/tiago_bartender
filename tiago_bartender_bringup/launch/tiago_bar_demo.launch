@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <include file="$(find tiago_bartender_behavior)/launch/look_at.launch"/>
+  <include file="$(find tiago_bartender_menu)/launch/menu.launch"/>
+  <include file="$(find tiago_bartender_navigation)/launch/move_to_target.launch"/>
+  <include file="$(find apriltag_command_cards)/launch/apriltag_command_cards.launch"/>
+  <include file="$(find person_detection)/launch/person_detection.launch"/>
+  <include file="$(find tams_bartender_recognition)/launch/bringup.launch"/>
+</launch>
