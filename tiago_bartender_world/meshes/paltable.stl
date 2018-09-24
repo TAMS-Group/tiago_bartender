@@ -1,0 +1,310 @@
+solid OpenSCAD_Model
+  facet normal -1 0 0
+    outer loop
+      vertex -400 -1000 -15
+      vertex -400 1000 15
+      vertex -400 1000 -15
+    endloop
+  endfacet
+  facet normal -1 -0 0
+    outer loop
+      vertex -400 1000 15
+      vertex -400 -1000 -15
+      vertex -400 -1000 15
+    endloop
+  endfacet
+  facet normal -0 0 1
+    outer loop
+      vertex -400 1000 15
+      vertex 400 -1000 15
+      vertex 400 1000 15
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 400 -1000 15
+      vertex -400 1000 15
+      vertex -400 -1000 15
+    endloop
+  endfacet
+  facet normal 1 -0 0
+    outer loop
+      vertex 400 -1000 15
+      vertex 400 1000 -15
+      vertex 400 1000 15
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 400 1000 -15
+      vertex 400 -1000 15
+      vertex 400 -1000 -15
+    endloop
+  endfacet
+  facet normal 0 1 -0
+    outer loop
+      vertex 400 1000 -15
+      vertex -400 1000 15
+      vertex 400 1000 15
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex -400 1000 15
+      vertex 400 1000 -15
+      vertex -400 1000 -15
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex -386 -968 -15
+      vertex 294 968 -15
+      vertex 294 -968 -15
+    endloop
+  endfacet
+  facet normal -0 0 -1
+    outer loop
+      vertex 294 968 -15
+      vertex -386 -968 -15
+      vertex -386 968 -15
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 294 -968 -15
+      vertex 400 -1000 -15
+      vertex 294 -998 -15
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex -400 -1000 -15
+      vertex 294 -998 -15
+      vertex 400 -1000 -15
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex -400 -1000 -15
+      vertex -386 -968 -15
+      vertex -386 -998 -15
+    endloop
+  endfacet
+  facet normal -0 0 -1
+    outer loop
+      vertex -386 -968 -15
+      vertex -400 -1000 -15
+      vertex -386 968 -15
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex -400 1000 -15
+      vertex -386 968 -15
+      vertex -400 -1000 -15
+    endloop
+  endfacet
+  facet normal -0 0 -1
+    outer loop
+      vertex 294 -998 -15
+      vertex -400 -1000 -15
+      vertex -386 -998 -15
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 400 -1000 -15
+      vertex 294 -968 -15
+      vertex 400 1000 -15
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 294 968 -15
+      vertex 400 1000 -15
+      vertex 294 -968 -15
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 294 998 -15
+      vertex 400 1000 -15
+      vertex 294 968 -15
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex -400 1000 -15
+      vertex 294 998 -15
+      vertex -386 998 -15
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 294 998 -15
+      vertex -400 1000 -15
+      vertex 400 1000 -15
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex -386 968 -15
+      vertex -400 1000 -15
+      vertex -386 998 -15
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex -400 -1000 -15
+      vertex 400 -1000 15
+      vertex -400 -1000 15
+    endloop
+  endfacet
+  facet normal 0 -1 -0
+    outer loop
+      vertex 400 -1000 15
+      vertex -400 -1000 -15
+      vertex 400 -1000 -15
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -386 968 -730
+      vertex -386 998 -15
+      vertex -386 998 -730
+    endloop
+  endfacet
+  facet normal -1 -0 0
+    outer loop
+      vertex -386 998 -15
+      vertex -386 968 -730
+      vertex -386 968 -15
+    endloop
+  endfacet
+  facet normal 1 -0 0
+    outer loop
+      vertex 294 968 -15
+      vertex 294 998 -730
+      vertex 294 998 -15
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 294 998 -730
+      vertex 294 968 -15
+      vertex 294 968 -730
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex -386 968 -730
+      vertex 294 998 -730
+      vertex 294 968 -730
+    endloop
+  endfacet
+  facet normal -0 0 -1
+    outer loop
+      vertex 294 998 -730
+      vertex -386 968 -730
+      vertex -386 998 -730
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex -386 968 -730
+      vertex 294 968 -15
+      vertex -386 968 -15
+    endloop
+  endfacet
+  facet normal 0 -1 -0
+    outer loop
+      vertex 294 968 -15
+      vertex -386 968 -730
+      vertex 294 968 -730
+    endloop
+  endfacet
+  facet normal 0 1 -0
+    outer loop
+      vertex 294 998 -730
+      vertex -386 998 -15
+      vertex 294 998 -15
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex -386 998 -15
+      vertex 294 998 -730
+      vertex -386 998 -730
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex -386 -998 -730
+      vertex -386 -968 -15
+      vertex -386 -968 -730
+    endloop
+  endfacet
+  facet normal -1 -0 0
+    outer loop
+      vertex -386 -968 -15
+      vertex -386 -998 -730
+      vertex -386 -998 -15
+    endloop
+  endfacet
+  facet normal 1 -0 0
+    outer loop
+      vertex 294 -998 -15
+      vertex 294 -968 -730
+      vertex 294 -968 -15
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 294 -968 -730
+      vertex 294 -998 -15
+      vertex 294 -998 -730
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex -386 -998 -730
+      vertex 294 -968 -730
+      vertex 294 -998 -730
+    endloop
+  endfacet
+  facet normal -0 0 -1
+    outer loop
+      vertex 294 -968 -730
+      vertex -386 -998 -730
+      vertex -386 -968 -730
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex -386 -998 -730
+      vertex 294 -998 -15
+      vertex -386 -998 -15
+    endloop
+  endfacet
+  facet normal 0 -1 -0
+    outer loop
+      vertex 294 -998 -15
+      vertex -386 -998 -730
+      vertex 294 -998 -730
+    endloop
+  endfacet
+  facet normal 0 1 -0
+    outer loop
+      vertex 294 -968 -730
+      vertex -386 -968 -15
+      vertex 294 -968 -15
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex -386 -968 -15
+      vertex 294 -968 -730
+      vertex -386 -968 -730
+    endloop
+  endfacet
+endsolid OpenSCAD_Model
