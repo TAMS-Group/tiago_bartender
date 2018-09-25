@@ -2,7 +2,7 @@ import rospy
 import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
-from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -89,7 +89,7 @@ class Idle(AbstractDecisionElement):
     """
     def perform(self, blackboard, reevaluate=False):
         # TODO: implement alternatives
-        return self.push_action_sequence(SequenceElement, [LookForward, IdleMoveAround, LookForCustomer], [None, None, None])
+        return self.push_action_sequence(SequenceElement, [LookDefault, IdleMoveAround, LookForCustomer], [None, None, None])
 
 
 
@@ -187,7 +187,7 @@ class PutBottleBack(AbstractDecisionElement):
     def perform(self, blackboard, reevaluate=False):
         if not blackboard.arrived_at_bottle:
             first_iteration = False
-            return self.push_action_sequence(SequenceElement, [LookForward, MoveToBottlePose], [None, None])
+            return self.push_action_sequence(SequenceElement, [LookDefault, MoveToBottlePose], [None, None])
         elif blackboard.bottle_grasped:
             return self.push(PlaceBottle)
         else:
