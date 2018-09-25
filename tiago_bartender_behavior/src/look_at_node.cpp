@@ -60,11 +60,6 @@ public:
     current_goal_.max_velocity = 5.0;
     current_goal_.target = named_target_map_["forward"];
 
-    tiago_bartender_msgs::LookAt::Request req;
-    tiago_bartender_msgs::LookAt::Response res;
-    req.direction = "forward";
-    look_at_cb(req, res);
-
     disable_hm_.duration = 0.0;
 
     uint64_t time_seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
@@ -80,6 +75,11 @@ public:
 
   void run()
   {
+    tiago_bartender_msgs::LookAt::Request req;
+    tiago_bartender_msgs::LookAt::Response res;
+    req.direction = "forward";
+    look_at_cb(req, res);
+
     while(ros::ok())
     {
       if(current_target_name_ == "default")
