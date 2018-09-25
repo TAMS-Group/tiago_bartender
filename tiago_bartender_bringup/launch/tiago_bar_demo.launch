@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <launch>
+  <!-- override factory robot description to include world link -->
+  <include file="$(find tiago_description)/robots/upload_tiago.launch"/>
+  <!-- replace factory moveit configuration -->
+  <include file="$(find tiago_moveit_config)/launch/move_group.launch"/>
+  <!-- create a "world" link for MoveIt that coincides with amcl's map -->
+  <node name="world_map_transformer" pkg="tf" type="static_transform_publisher"
+    args="0 0 0 0 0 0 world map 100"/>
+
+  <!-- bartender-specific head control -->
   <include file="$(find tiago_bartender_behavior)/launch/look_at.launch"/>
-  <include file="$(find tiago_bartender_menu)/launch/menu.launch"/>
+  <!-- move in front of target objects in the planning scene -->
   <include file="$(find tiago_bartender_navigation)/launch/move_to_target.launch"/>
-  <include file="$(find apriltag_command_cards)/launch/apriltag_command_cards.launch"/>
+
+  <!-- Person detection -->
   <include file="$(find person_detection)/launch/person_detection.launch"/>
+
+  <!-- Menu detection and action to detect indicated orders  -->
+  <include file="$(find tiago_bartender_menu)/launch/menu.launch"/>
+
+  <!-- Tabletop object recognition -->
   <include file="$(find tams_bartender_recognition)/launch/bringup.launch"/>
+
+  <!-- visual operator control through apriltags -->
+  <include file="$(find apriltag_command_cards)/launch/apriltag_command_cards.launch"/>
+
 </launch>

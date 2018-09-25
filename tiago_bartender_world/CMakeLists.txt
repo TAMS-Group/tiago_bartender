@@ -28,3 +28,7 @@ include_directories(
 add_executable(dummy_planning_scene_init src/dummy_planning_scene_init.cpp)
 target_link_libraries(dummy_planning_scene_init ${catkin_LIBRARIES})
 add_dependencies(dummy_planning_scene_init ${catkin_EXPORTED_TARGETS})
+
+add_executable(planning_scene_init src/planning_scene_init.cpp)
+target_link_libraries(planning_scene_init ${catkin_LIBRARIES})
+add_dependencies(planning_scene_init ${catkin_EXPORTED_TARGETS})

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <node name="planning_scene_init" pkg="tiago_bartender_world" type="planning_scene_init" output="screen">
+    <rosparam param="object_ids"> [table1, table2, coke, tequila, water, orange, rum, glass]</rosparam>
+    <rosparam param="object_types">[small_table, large_table, bottle, bottle, bottle, bottle, bottle, glass]</rosparam>
+    <rosparam param="pos_x"> [-1.25, 1.25, -1.25, -1.25, -1.25, -1.25, -1.25, 1.25]</rosparam>
+    <rosparam param="pos_y"> [-0.1, 0.0, -0.1, 0.1, -0.3, 0.3, -0.5, 0.0]</rosparam>
+    <rosparam param="pos_z"> [0.0, 0.0, 0.875, 0.875, 0.875, 0.875, 0.875, 0.8]</rosparam>
+  </node>
+</launch>

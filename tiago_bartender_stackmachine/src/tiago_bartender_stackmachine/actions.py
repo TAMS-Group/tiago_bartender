@@ -350,6 +350,7 @@ class PickUpBottle(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
+            blackboard.add_invisible_collision_object()
             blackboard.pick_action_client.send_goal(self.goal)
             self.first_iteration = False
             self.repeat  = False
@@ -358,6 +359,7 @@ class PickUpBottle(AbstractActionElement):
         if not blackboard.pick_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
 
+        blackboard.remove_invisible_collision_object()
         result = blackboard.pick_action_client.get_result()
         if result.result == ManipulationResult.SUCCESS:
             blackboard.bottle_grasped = True
@@ -382,6 +384,7 @@ class PourLiquid(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
+            blackboard.add_invisible_collision_object()
             blackboard.pour_action_client.send_goal(self.goal)
             self.first_iteration = False
             self.repeat  = False
@@ -390,6 +393,7 @@ class PourLiquid(AbstractActionElement):
         if not blackboard.pour_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
 
+        blackboard.remove_invisible_collision_object()
         result = blackboard.pour_action_client.get_result()
         if result.result == ManipulationResult.SUCCESS:
             blackboard.reset_for_next_bottle()
@@ -430,6 +434,7 @@ class PlaceBottle(AbstractActionElement):
             self.goals = [left_goal, right_goal]
 
         if self.first_iteration or self.repeat:
+            blackboard.add_invisible_collision_object()
             blackboard.pour_action_client.send_goal(self.goals.pop(0))
             self.first_iteration = False
             self.repeat  = False
@@ -438,6 +443,7 @@ class PlaceBottle(AbstractActionElement):
         if not blackboard.place_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
 
+        blackboard.remove_invisible_collision_object()
         result = blackboard.place_action_client.get_result()
         if result.result == ManipulationResult.SUCCESS:
             blackboard.bottle_grasped = False
