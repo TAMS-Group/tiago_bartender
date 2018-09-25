@@ -279,6 +279,8 @@ int main(int argc, char **argv) {
 
       // usleep(500000);
 
+      usleep(100000);
+
       if (!takeOrderAction.isActive()) {
 
         {

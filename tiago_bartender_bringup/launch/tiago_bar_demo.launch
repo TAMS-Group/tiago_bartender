@@ -15,6 +15,9 @@
   <node name="world_map_transformer" pkg="tf" type="static_transform_publisher"
     args="0 0 0 0 0 0 world map 100"/>
 
+  <!-- MTC action servers for manipulation -->
+  <include file="$(find tiago_bartender_mtc)/launch/pick.launch"/>
+
   <!-- bartender-specific head control -->
   <include file="$(find tiago_bartender_behavior)/launch/look_at.launch"/>
 
