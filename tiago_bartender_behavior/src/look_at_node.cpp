@@ -8,6 +8,8 @@
 #include <person_detection/PersonDetections.h>
 #include <pal_common_msgs/DisableAction.h>
 
+#include <moveit/planning_scene_interface/planning_scene_interface.h>
+
 class LookAt
 {
 protected:
@@ -133,7 +135,23 @@ private:
     }
     else if ( named_target_map_.find(req.direction) == named_target_map_.end() )
     {
-      ROS_ERROR_STREAM("Requested direction '" << req.direction << "'  not found in look_at_service");
+      std::map<std::string, moveit_msgs::CollisionObject> lookup= psi_.getObjects({req.direction});
+      if(lookup.count(req.direction) == 0)
+        ROS_ERROR_STREAM("Requested direction '" << req.direction << "'  not found in look_at_service");
+      else {
+        moveit_msgs::CollisionObject& co = lookup[req.direction];
+        current_target_name_ = req.direction;
+        current_goal_.target.header = co.header;
+        if(co.primitive_poses.size() > 0){
+          current_goal_.target.point = co.primitive_poses[0].position;
+        }
+        else if(co.mesh_poses.size() > 0){
+          current_goal_.target.point = co.mesh_poses[0].position;
+        }
+        else {
+          ROS_ERROR_STREAM("invalid collision object specified in look_at_service");
+        }
+      }
     }
     else
     {
@@ -164,6 +182,7 @@ private:
 
   actionlib::SimpleActionClient<control_msgs::PointHeadAction> ac_;
   actionlib::SimpleActionClient<pal_common_msgs::DisableAction> hm_ac_;
+  moveit::planning_interface::PlanningSceneInterface psi_;
   control_msgs::PointHeadGoal current_goal_;
   pal_common_msgs::DisableGoal disable_hm_;
   std::string current_target_name_;
