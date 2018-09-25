@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <launch>
+  <rosparam ns="tiago_bartender" command="load" file="$(find tiago_bartender_bringup)/config/config.yaml" />
   <node name="planning_scene_init" pkg="tiago_bartender_world" type="planning_scene_init" output="screen">
   </node>
 </launch>

@@ -16,13 +16,45 @@ public:
   PlanningSceneInit() : psi_()
   {
     init_server_ = nh_.advertiseService("planning_scene/init_planning_scene", &PlanningSceneInit::init_service, this);
-    ros::NodeHandle pn("~");
-    pn.getParam("object_ids", object_ids_);
-    pn.getParam("object_types", object_types_);
-    pn.getParam("pos_x", pos_x_);
-    pn.getParam("pos_y", pos_y_);
-    pn.getParam("pos_z", pos_z_);
-    pn.getParam("frames", frames_);
+    ros::NodeHandle bn("tiago_bartender");
+    XmlRpc::XmlRpcValue objects;
+    bn.getParam("scene_objects", objects);
+
+    ROS_ASSERT(objects.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+
+    for(XmlRpc::XmlRpcValue::iterator i=objects.begin(); i!=objects.end(); i++)
+    {
+      ROS_ASSERT(i->second.getType()==XmlRpc::XmlRpcValue::TypeArray);
+      std::string param_type = static_cast<std::string>(i->first);
+      for(int j=0; j<i->second.size(); ++j)
+      {
+        XmlRpc::XmlRpcValue value = i->second[j];
+        if(param_type == "ids")
+        {
+          object_ids_.push_back(static_cast<std::string>(value));
+        }
+        else if(param_type == "types")
+        {
+          object_types_.push_back(static_cast<std::string>(value));
+        }
+        else if(param_type == "pos_x")
+        {
+          pos_x_.push_back(static_cast<double>(value));
+        }
+        else if(param_type == "pos_y")
+        {
+          pos_y_.push_back(static_cast<double>(value));
+        }
+        else if(param_type == "pos_z")
+        {
+          pos_z_.push_back(static_cast<double>(value));
+        }
+        else if(param_type == "frame")
+        {
+          frames_.push_back(static_cast<std::string>(value));
+        }
+      }
+    }
   }
 
   void init_scene()
