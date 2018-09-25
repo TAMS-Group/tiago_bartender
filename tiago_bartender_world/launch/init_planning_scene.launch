@@ -7,5 +7,6 @@
     <rosparam param="pos_x"> [-1.25, 1.25, -1.25, -1.25, -1.25, -1.25, -1.25, 1.25]</rosparam>
     <rosparam param="pos_y"> [-0.1, 0.0, -0.1, 0.1, -0.3, 0.3, -0.5, 0.0]</rosparam>
     <rosparam param="pos_z"> [0.0, 0.0, 0.875, 0.875, 0.875, 0.875, 0.875, 0.8]</rosparam>
+    <rosparam param="frames"> [map, map, map, map, map, map, map, map]</rosparam>
   </node>
 </launch>

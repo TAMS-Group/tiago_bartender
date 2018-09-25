@@ -22,6 +22,7 @@ public:
     pn.getParam("pos_x", pos_x_);
     pn.getParam("pos_y", pos_y_);
     pn.getParam("pos_z", pos_z_);
+    pn.getParam("frames", frames_);
   }
 
   void init_scene()
@@ -33,7 +34,7 @@ public:
     {
       moveit_msgs::CollisionObject collision_object;
       moveit_msgs::ObjectColor object_color;
-      collision_object.header.frame_id = "map";
+      collision_object.header.frame_id = frames_[i];
       collision_object.id = object_ids_[i];
       object_color.id = object_ids_[i];
       ROS_INFO_STREAM("add " << collision_object.id << " of type " << object_types_[i] << " to planning scene.");
@@ -149,7 +150,6 @@ private:
   bool init_service(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
   {
     init_scene();
-    //update_scene();
     return true;
   }
 
@@ -159,6 +159,7 @@ private:
   std::vector<double> pos_x_;
   std::vector<double> pos_y_;
   std::vector<double> pos_z_;
+  std::vector<std::string> frames_;
 
   ros::ServiceServer init_server_;
 
