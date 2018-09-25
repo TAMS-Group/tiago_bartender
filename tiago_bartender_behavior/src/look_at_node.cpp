@@ -83,7 +83,10 @@ public:
     while(ros::ok())
     {
       if(current_target_name_ == "default")
-        return;
+      {
+        ros::Duration(0.1).sleep();
+        continue;
+      }
       else if(current_target_name_ == "look_around")
       {
         if(ros::Duration(20.0) < (ros::Time::now() - look_around_start_))
