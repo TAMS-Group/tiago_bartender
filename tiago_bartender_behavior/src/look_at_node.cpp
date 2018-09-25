@@ -133,7 +133,7 @@ private:
     }
     else if ( named_target_map_.find(req.direction) == named_target_map_.end() )
     {
-      ROS_ERROR_STREAM("Requested direction not found in look_at_service");
+      ROS_ERROR_STREAM("Requested direction '" << req.direction << "'  not found in look_at_service");
     }
     else
     {
