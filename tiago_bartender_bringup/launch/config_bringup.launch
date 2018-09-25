@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <rosparam ns="tiago_bartender" command="load" file="$(find tiago_bartender_bringup)/config/config.yaml" />
+</launch>

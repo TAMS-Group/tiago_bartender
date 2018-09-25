@@ -59,3 +59,59 @@ customer_zone:
   size_x: 2.0
   size_y: 2.20
   size_z: 1.2
+
+scene_objects:
+  ids: 
+    - 'table1'
+    - 'table2'
+    - 'coke'
+    - 'tequila'
+    - 'water'
+    - 'orange'
+    - 'rum'
+    - 'glass'
+  types:
+    - 'small_table'
+    - 'large_table'
+    - 'bottle'
+    - 'bottle'
+    - 'bottle'
+    - 'bottle'
+    - 'bottle'
+    - 'glass'
+  pos_x:
+    - -1.25
+    - 1.25
+    - -1.25
+    - -1.25
+    - -1.25
+    - -1.25
+    - -1.25
+    - 1.25
+  pos_y:
+    - -0.1
+    - 0.0
+    - -0.1
+    - 0.1
+    - -0.3
+    - 0.3
+    - -0.5
+    - 0.0
+  pos_z:
+    - 0.0
+    - 0.0
+    - 0.875
+    - 0.875
+    - 0.875
+    - 0.875
+    - 0.875
+    - 0.8
+  frame:
+    - 'map'
+    - 'map'
+    - 'map'
+    - 'map'
+    - 'map'
+    - 'map'
+    - 'map'
+    - 'map'
