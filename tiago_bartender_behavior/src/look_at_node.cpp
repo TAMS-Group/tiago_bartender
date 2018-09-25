@@ -62,7 +62,7 @@ public:
     current_goal_.pointing_frame = "xtion_optical_frame";
     current_goal_.pointing_axis.z = 1.0;
     current_goal_.min_duration = ros::Duration(0.5);
-    current_goal_.max_velocity = 5.0;
+    current_goal_.max_velocity = 1.0;
     current_goal_.target = named_target_map_["forward"];
 
     disable_hm_.duration = 0.0;
