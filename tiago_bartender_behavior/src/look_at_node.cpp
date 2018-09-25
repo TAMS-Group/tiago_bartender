@@ -6,6 +6,7 @@
 #include <random>
 #include <chrono>
 #include <person_detection/PersonDetections.h>
+#include <pal_common_msgs/DisableAction.h>
 
 class LookAt
 {
@@ -13,7 +14,8 @@ protected:
   ros::NodeHandle nh_;
 
 public:
-  LookAt() : ac_("/head_controller/point_head_action", true)
+  LookAt() : ac_("/head_controller/point_head_action", true),
+             hm_ac_("pal_head_manager/disable", true)
   {
     geometry_msgs::PointStamped named_target;
     named_target.header.frame_id = "torso_lift_link";
@@ -58,19 +60,34 @@ public:
     current_goal_.max_velocity = 5.0;
     current_goal_.target = named_target_map_["forward"];
 
+    tiago_bartender_msgs::LookAt::Request req;
+    tiago_bartender_msgs::LookAt::Response res;
+    req.direction = "forward";
+    look_at_cb(req, res);
+
+    disable_hm_.duration = 0.0;
+
     uint64_t time_seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     std::seed_seq ss{uint32_t(time_seed & 0xffffffff), uint32_t(time_seed>>32)};
     rng_.seed(ss);
 
     look_at_server = nh_.advertiseService("head_controller/look_at_service", &LookAt::look_at_cb, this);
     person_detection_sub_ = nh_.subscribe("person_detection/person_detections", 1000, &LookAt::person_detection_cb, this);
+
+    ac_.waitForServer();
+    hm_ac_.waitForServer();
   }
 
   void run()
   {
     while(ros::ok())
     {
-      if(current_target_name_ == "look_around")
+      if(current_target_name_ == "default")
+      {
+        ros::Duration(0.1).sleep();
+        continue;
+      }
+      else if(current_target_name_ == "look_around")
       {
         if(ros::Duration(20.0) < (ros::Time::now() - look_around_start_))
         {
@@ -93,11 +110,20 @@ public:
 private:
   bool look_at_cb(tiago_bartender_msgs::LookAt::Request& req, tiago_bartender_msgs::LookAt::Response& res)
   {
+    if(req.direction == "default")
+    {
+      current_target_name_ = req.direction;
+      ac_.cancelGoal();
+      hm_ac_.cancelGoal();
+      return true;
+    }
+    else
+      hm_ac_.sendGoal(disable_hm_);
+
     if(req.direction.empty())
     {
       current_goal_.target = req.target_point;
       current_target_name_ = "";
-      return true;
     }
     else if(req.direction == "customer")
     {
@@ -137,7 +163,9 @@ private:
   }
 
   actionlib::SimpleActionClient<control_msgs::PointHeadAction> ac_;
+  actionlib::SimpleActionClient<pal_common_msgs::DisableAction> hm_ac_;
   control_msgs::PointHeadGoal current_goal_;
+  pal_common_msgs::DisableGoal disable_hm_;
   std::string current_target_name_;
   std::map<std::string, geometry_msgs::PointStamped> named_target_map_;
   ros::ServiceServer look_at_server;

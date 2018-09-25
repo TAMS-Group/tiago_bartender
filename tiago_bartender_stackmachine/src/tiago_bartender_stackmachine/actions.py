@@ -196,6 +196,10 @@ class LookForward(AbstractLookAt):
     def target(self):
         return "forward"
 
+class LookDefault(AbstractLookAt):
+    def target(self):
+        return "default"
+
 class LookForCustomer(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(LookForCustomer, self).__init__(blackboard)

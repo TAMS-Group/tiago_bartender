@@ -49,7 +49,7 @@ class BottleLocated(AbstractDecisionElement):
         super(AbstractDecisionElement, self).__init__(blackboard)
         blackboard.bottle_located = False
         blackboard.bottle_not_found = False
-        blackboard.current_bottle = 'orange'
+        blackboard.current_bottle = 'rum'
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.bottle_located:

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <node name="planning_scene_init" pkg="tiago_bartender_world" type="planning_scene_init" output="screen">
+    <rosparam param="object_ids"> [rum]</rosparam>
+    <rosparam param="object_types">[bottle]</rosparam>
+    <rosparam param="pos_x"> [0.50]</rosparam>
+    <rosparam param="pos_y"> [0.0]</rosparam>
+    <rosparam param="pos_z"> [0.875]</rosparam>
+    <rosparam param="frames"> [base_footprint]</rosparam>
+  </node>
+</launch>

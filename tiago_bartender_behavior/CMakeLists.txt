@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   control_msgs
   actionlib
   move_base_msgs
+  pal_common_msgs
 )
 
 catkin_package(
