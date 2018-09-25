@@ -12,8 +12,8 @@ from move_base_msgs.msg import MoveBaseGoal
 from std_msgs.msg import Bool
 from pal_interaction_msgs.msg import TtsGoal
 from actionlib_msgs.msg import GoalStatus
-from control_msgs.msg import FolloJointTrajectoryGoal
-from trajectory_msgs.msg import JointTrajectory JointTrajectoryPoint
+from control_msgs.msg import FollowJointTrajectoryGoal
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 import tf
 
 class IdleMoveAround(AbstractActionElement):
@@ -36,7 +36,7 @@ class IdleMoveAround(AbstractActionElement):
         self.goal_x, self.goal_y = blackboard.rotate_point(origin, point, angle)
         self.goal.target_pose.pose.position.x = self.goal_x
         self.goal.target_pose.pose.position.y = self.goal_y
-        self.goal.target_pose.pose.orientation.z = 1.0
+        self.goal.target_pose.pose.orientation.w = 1.0
 
     def perform(self, blackboard, reevaluate=False):
         print("IdleMoveAround")
@@ -60,8 +60,8 @@ class WaitForRos(AbstractActionElement):
         super(WaitForRos, self).__init__(blackboard)
         self.first_iteration = True
         self.name = args
-    def perform(self):
-        rospy.loginfo_throttle(10, "Waiting for server %s", self.name)
+    def perform(self, blackboard, reevaluate=False):
+        rospy.loginfo_throttle(10, "Waiting for server %s"% self.name)
         self.pop()
 
 
@@ -76,7 +76,7 @@ class WaitingToResume(AbstractActionElement):
 class MoveToCustomer(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(MoveToCustomer, self).__init__(blackboard)
-        self.first_iteration = False
+        self.first_iteration = True
         self.repeat = False
         self.goal = MoveBaseGoal()
         self.goal.target_pose.header.frame_id = blackboard.take_order_pose['frame']
@@ -183,10 +183,12 @@ class AbstractLookAt(AbstractActionElement):
 class LookAtCustomer(AbstractActionElement):
     def perform(self, blackboard, reevaluate=False):
         target = "customer"
-        pose = blackboard.customer_position
+	point = PointStamped()
+	point.header.frame_id = 'xtion_optical_frame'
+	point.point = blackboard.customer_position
         print("Looking at " + target)
         try:
-            blackboard.look_at_service(target, pose)
+            blackboard.look_at_service(target, point)
         except rospy.ServiceException, e:
             print("Service call failed: %s"%e)
         self.pop()
@@ -236,7 +238,7 @@ class LookForCustomer(AbstractActionElement):
             blackboard.customer_position = blackboard.person_position
             blackboard.has_customer = True
             blackboard.person_detected = False
-        elif rospy.get_rostime() - self.begin >= rospy.Duration.from_sec(10.0):
+        elif rospy.get_rostime() - self.begin >= rospy.Duration.from_sec(60.0):
             disable = Bool()
             disable.data = False
             blackboard.person_detection_switch_pub.publish(disable)
@@ -543,6 +545,7 @@ class Wait(AbstractActionElement):
     """
     def __init__(self, blackboard, args=10):
         super(Wait, self).__init__(blackboard)
+	print('Waiting for %s seconds.'% args)
         self.resume_time = rospy.get_time() + args
 
     def perform(self, connector, reevaluate=False):       

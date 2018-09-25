@@ -13,6 +13,8 @@ from shape_msgs.msg import SolidPrimitive
 from geometry_msgs.msg import Pose
 from moveit_msgs.msg import ObjectColor
 from tf import TransformListener
+import math
+
 
 class Blackboard:
     def __init__(self):
@@ -184,7 +186,7 @@ class Blackboard:
         except rospy.ServiceException, e:
             print("Service call failed: %s"%e)
 
-    def rotate_point(origin, point, angle):
+    def rotate_point(self, origin, point, angle):
         """
         Rotate a point counterclockwise by a given angle around a given origin.
         The angle should be given in radians.
