@@ -156,7 +156,7 @@ class MoveToPouringPosition(AbstractActionElement):
 
 class AbstractLookAt(AbstractActionElement):
     def __init__(self, blackboard, _):
-        super(LookForCustomer, self).__init__(blackboard)
+        super(AbstractLookAt, self).__init__(blackboard)
         self.blackboard = blackboard
 
     def perform(self, blackboard, reevaluate=False):
