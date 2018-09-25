@@ -359,6 +359,7 @@ class PickUpBottle(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
+            print("Trying to pick " + self.goal.object_id)
             blackboard.add_invisible_collision_object()
             blackboard.pick_action_client.send_goal(self.goal)
             self.first_iteration = False

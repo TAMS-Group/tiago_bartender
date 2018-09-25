@@ -61,10 +61,11 @@ class BottleLocated(AbstractDecisionElement):
 
 class BottleGrasped(AbstractDecisionElement):
     """
-    Graps the bottle
+    Grasp the bottle
     """
     def perform(self, blackboard, reevaluate=False):
         if blackboard.bottle_grasped:
-            return self.push(Wait)
+            print("picked bottle succeeded")
+            rospy.signal_shutdown("done")
         else:
             return self.push(PickUpBottle)
