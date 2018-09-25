@@ -15,7 +15,6 @@ class PlanningSceneInit
 public:
   PlanningSceneInit() : psi_()
   {
-    init_server_ = nh_.advertiseService("planning_scene/init_planning_scene", &PlanningSceneInit::init_service, this);
     ros::NodeHandle bn("tiago_bartender");
     XmlRpc::XmlRpcValue objects;
     bn.getParam("scene_objects", objects);
@@ -55,9 +54,14 @@ public:
         }
       }
     }
+
   }
 
-  void init_scene()
+  void start_service(){
+    init_server_ = nh_.advertiseService("planning_scene/init_planning_scene", &PlanningSceneInit::init_service, this);
+  }
+
+  bool init_scene()
   {
     std::vector<moveit_msgs::CollisionObject> collision_objects;
     std::vector<moveit_msgs::ObjectColor> object_colors;
@@ -176,7 +180,7 @@ public:
       }
     }
 
-    psi_.applyCollisionObjects(collision_objects, object_colors);
+    return psi_.applyCollisionObjects(collision_objects, object_colors);
   }
 private:
   bool init_service(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
@@ -202,6 +206,10 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "planning_scene_init");
   PlanningSceneInit psinit;
-  psinit.init_scene();
+
+  while(!psinit.init_scene())
+    ros::Duration(5.0).sleep();
+
+  psinit.start_service();
   ros::spin();
 }
