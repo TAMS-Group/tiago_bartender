@@ -57,7 +57,7 @@ class BottleLocated(AbstractDecisionElement):
         elif blackboard.bottle_not_found:
             return self.push(SayBottleNotFound)
         else:
-            return self.push_action_sequence(SequenceElement, [LookAtBottle, UpdateBottlePose], [None, None])
+            return self.push_action_sequence(SequenceElement, [LookAtBottle, Wait, UpdateBottlePose], [None, 2, None])
 
 class BottleGrasped(AbstractDecisionElement):
     """
