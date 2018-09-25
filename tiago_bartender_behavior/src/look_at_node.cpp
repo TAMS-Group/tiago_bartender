@@ -73,6 +73,9 @@ public:
 
     look_at_server = nh_.advertiseService("head_controller/look_at_service", &LookAt::look_at_cb, this);
     person_detection_sub_ = nh_.subscribe("person_detection/person_detections", 1000, &LookAt::person_detection_cb, this);
+
+    ac_.waitForServer();
+    hm_ac_.waitForServer();
   }
 
   void run()
