@@ -1,11 +1,12 @@
 %YAML:1.0
-template: tiagobar-03.png
-areas: tiagobar-4.png
+template: tiagobar-76.png
+areas: tiagobar-76-mask.png
 labels:
-    FF0000: coke
+    FF0000: tequila_sunrise
     00FF00: cuba_libre
     0000FF: sunrise
-    FFFF00: orange_juice
-    FF00FF: tequila_sunrise
-min_feature_matches: 15
+    FFFF00: driver
+    00FFFF: water
+    FF00FF: sulfuric_acid
+min_feature_matches: 5
 max_detection_failures: 4

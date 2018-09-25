@@ -102,9 +102,11 @@ int main(int argc, char **argv) {
   static cv_bridge::CvImagePtr image_ptr;
   image_transport::ImageTransport it(node);
   image_transport::Subscriber sub =
-      it.subscribe("/camera/rgb/image_raw", 1,
+      it.subscribe("/xtion/rgb/image_rect_color", 1,
                    (void (*)(const sensor_msgs::ImageConstPtr &))[](
                        const sensor_msgs::ImageConstPtr &msg) {
+                     // ROS_INFO("image received");
+
                      if (!takeOrderAction.isActive()) {
                        return;
                      }
@@ -132,7 +134,10 @@ int main(int argc, char **argv) {
                          image_denoise_div++;
                        }
                      }
-                   });
+                   },
+                   image_transport::TransportHints("compressed"));
+
+  ROS_INFO("...");
 
   image_transport::Publisher image_publisher_areas =
       it.advertise("menu/image_areas", 1);
@@ -193,7 +198,7 @@ int main(int argc, char **argv) {
   // cv::imshow("areas", image_areas);
   publishImage(image_publisher_areas, image_areas);
 
-  cv::GaussianBlur(image_object, image_object, cv::Size(15, 15), 0, 0);
+  cv::GaussianBlur(image_object, image_object, cv::Size(5, 5), 0, 0);
 
   auto image_object0 = image_object;
 
@@ -253,7 +258,7 @@ int main(int argc, char **argv) {
 
   std::atomic<int> feature_matches;
 
-  cv::waitKey(1);
+  // cv::waitKey(1);
 
   static int detection_failures = 0;
 
@@ -270,9 +275,9 @@ int main(int argc, char **argv) {
     };
 
     while (true) {
-      // cv::waitKey(1);
+      cv::waitKey(1);
 
-      usleep(500000);
+      // usleep(500000);
 
       if (!takeOrderAction.isActive()) {
 
@@ -343,7 +348,9 @@ int main(int argc, char **argv) {
       std::vector<cv::DMatch> matches;
       for (size_t i = 0; i < knn_matches.size(); i++) {
         if (knn_matches[i].size() > 1 &&
-            knn_matches[i][0].distance / knn_matches[i][1].distance <= 0.7f) {
+            // knn_matches[i][0].distance / knn_matches[i][1].distance <= 0.7f)
+            // {
+            knn_matches[i][0].distance / knn_matches[i][1].distance <= 0.8f) {
           matches.push_back(knn_matches[i][0]);
         }
       }
@@ -352,16 +359,17 @@ int main(int argc, char **argv) {
 
       // std::cout << "matches " << matches.size() << std::endl;
       // ROS_INFO("matches %i", (int)matches.size());
-      if (matches.size() < minMatches) {
-        cancelOrderAction();
-        continue;
-      }
 
       {
         cv::Mat img_matches;
         cv::drawMatches(image_object, keypoints_object, image_scene,
                         keypoints_scene, matches, img_matches);
-        // cv::imshow("matches", img_matches);
+        cv::imshow("matches", img_matches);
+      }
+
+      if (matches.size() < minMatches) {
+        cancelOrderAction();
+        continue;
       }
 
       std::vector<cv::Point2f> points_object;
@@ -376,7 +384,7 @@ int main(int argc, char **argv) {
       cv::Mat transform =
           cv::findHomography(points_scene, points_object, CV_RANSAC);
 
-      try {
+      /*try {
         transform.convertTo(transform, CV_32FC1);
         cv::findTransformECC(
             image_scene, image_object, transform, cv::MOTION_HOMOGRAPHY,
@@ -386,7 +394,7 @@ int main(int argc, char **argv) {
         ROS_INFO("ERROR %s", e.what());
         cancelOrderAction();
         continue;
-      }
+      }*/
 
       if (transform.empty()) {
         // std::cout << "no transform" << std::endl;
