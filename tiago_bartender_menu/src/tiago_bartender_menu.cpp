@@ -90,13 +90,13 @@ int main(int argc, char **argv) {
   // listener_count = 0;
 
   static actionlib::SimpleActionServer<tiago_bartender_msgs::TakeOrderAction>
-      takeOrderAction(
-          node, "menu/take_order" /*,
-          [](const tiago_bartender_msgs::TakeOrderPtr &action) {
-            listener_count++;
+      takeOrderAction(node,
+                      "menu/take_order" /*,
+                [](const tiago_bartender_msgs::TakeOrderPtr &action) {
+                  listener_count++;
 
-            listener_count--;
-          }*/);
+                  listener_count--;
+                }*/, false);
   takeOrderAction.start();
 
   static cv_bridge::CvImagePtr image_ptr;
