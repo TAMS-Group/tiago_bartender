@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <launch>
+  <rosparam ns="tiago_bartender" command="load" file="$(find tiago_bartender_bringup)/config/config.yaml" />
+
   <!-- override factory robot description to include world link -->
   <include file="$(find tiago_description)/robots/upload_tiago.launch"/>
 
