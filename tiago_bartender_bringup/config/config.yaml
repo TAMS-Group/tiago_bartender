@@ -13,12 +13,10 @@ recipes:
     - orange: 1.0
     - cherry: 1.0
     - lime: 1.0
-  orange_juice:
-    - orange: 1.0
-  coke:
-    - coke: 1.0
   water:
     - water: 1.0
+  sulfuric_acid:
+    - acid: 1.0
 
 idle_zone:
   center_x: 0.0
@@ -42,8 +40,8 @@ take_order_pose:
   pos_y: 0.0
   ori_x: 0.0
   ori_y: 0.0
-  ori_z: 1.0
-  ori_w: 0.0
+  ori_z: 0.0
+  ori_w: 1.0
   frame: 'map'
 
 place_bottle_offset:
