@@ -25,6 +25,7 @@ idle_zone:
   center_y: 0.0
   radius_x: 0.2
   radius_y: 0.5
+  euler_z: 0.0
   frame: 'map'
 
 home_pose:

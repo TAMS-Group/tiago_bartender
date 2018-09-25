@@ -27,6 +27,11 @@ class IdleMoveAround(AbstractActionElement):
         self.goal.target_pose.header.frame_id = blackboard.idle_zone['frame']
         self.goal_x = uniform(blackboard.idle_zone['center_x'] - blackboard.idle_zone['radius_x'], blackboard.idle_zone['center_x'] + blackboard.idle_zone['radius_x'])
         self.goal_y = uniform(blackboard.idle_zone['center_y'] - blackboard.idle_zone['radius_y'], blackboard.idle_zone['center_y'] + blackboard.idle_zone['radius_y'])
+
+        origin = (blackboard.idle_zone['center_x'], blackboard.idle_zone['center_y'])
+        point = (self.goal_x, self.goal_y)
+        angle = blackboard.idle_zone['euler_z']
+        self.goal_x, self.goal_y = blackboard.rotate_point(origin, point, angle)
         self.goal.target_pose.pose.position.x = self.goal_x
         self.goal.target_pose.pose.position.y = self.goal_y
         self.goal.target_pose.pose.orientation.z = 1.0
