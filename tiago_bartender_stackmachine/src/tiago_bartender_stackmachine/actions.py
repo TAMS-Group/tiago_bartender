@@ -12,6 +12,8 @@ from move_base_msgs.msg import MoveBaseGoal
 from std_msgs.msg import Bool
 from pal_interaction_msgs.msg import TtsGoal
 from actionlib_msgs.msg import GoalStatus
+from control_msgs.msg import FolloJointTrajectoryGoal
+from trajectory_msgs.msg import JointTrajectory JointTrajectoryPoint
 import tf
 
 class IdleMoveAround(AbstractActionElement):
@@ -346,6 +348,31 @@ class UpdateBottlePose(AbstractActionElement):
             blackboard.bottle_not_found = True
             self.pop()
 
+class ExtendTorso(AbstractActionElement):
+    """
+    Extend the torso to maximum height
+    """
+    def __init__(self, blackboard, _):
+        super(ExtendTorso, self).__init__(blackboard)
+        self.first_iteration = True
+        self.goal = FolloJointTrajectoryGoal()
+        torso_command = JointTrajectory()
+        torso_command.joint_names.append("torso_lift_joint")
+        jtp = JointTrajectoryPoint()
+        jtp.positions.append(0.35)
+        jtp.time_from_start = rospy.Duration.from_sec(5.0)
+        torso_command.points.append(jtp)
+        self.goal.trajectory = torso_command
+
+    def perform(self, blackboard, reevaluate=False):
+        if self.first_iteration:
+            blackboard.torso_action_client.send_goal(self.goal)
+
+        state = blackboard.torso_action_client.get_state()
+        # wait till action is completed
+        if state == GoalStatus.SUCCEEDED:
+            self.pop()
+
 class PickUpBottle(AbstractActionElement):
     """
     Calls the pick action
@@ -467,26 +494,6 @@ class PlaceBottle(AbstractActionElement):
             self.repeat = True
         elif result.result == ManipulationResult.EXECUTION_FAILED:
             self.repeat = True
-
-
-class PlaceBottle(AbstractActionElement):
-    """
-    Calls the pouring action
-    """
-    def __init__(self, blackboard, _):
-        super(PlaceBottle, self).__init__(blackboard)
-        goal = PlaceGoal()
-        #TODO specify goal
-        blackboard.place_action_client.send_goal(goal)
-
-    def perform(self, blackboard, reevaluate=False):
-        state = blackboard.place_action_client.get_state()
-        # wait till action is completed
-        if state == GoalStatus.SUCCEEDED:
-            blackboard.placed_bottle = True
-            blackboard.bottle_grasped = False
-            #TODO maybe do something with the result
-            self.pop()
 
 class MoveToBottlePose(AbstractActionElement):
     """
