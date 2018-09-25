@@ -88,7 +88,7 @@ class Blackboard:
         self.pick_action_client = actionlib.SimpleActionClient('tiago_pick', PickAction)
 
         rospy.loginfo("Initilizing place action client")
-        self.pick_action_client = actionlib.SimpleActionClient('tiago_place', PlaceAction)
+        self.place_action_client = actionlib.SimpleActionClient('tiago_place', PlaceAction)
 
         rospy.loginfo("Initilizing pouring action client")
         self.pour_action_client = actionlib.SimpleActionClient('tiago_pour', PourAction)
