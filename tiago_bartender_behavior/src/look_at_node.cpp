@@ -82,7 +82,7 @@ public:
   {
     tiago_bartender_msgs::LookAt::Request req;
     tiago_bartender_msgs::LookAt::Response res;
-    req.direction = "forward";
+    req.direction = "default";
     look_at_cb(req, res);
 
     while(ros::ok())
