@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   move_base_msgs
   pal_common_msgs
+  moveit_ros_planning_interface
 )
 
 catkin_package(

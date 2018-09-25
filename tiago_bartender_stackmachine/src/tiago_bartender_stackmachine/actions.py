@@ -156,7 +156,7 @@ class MoveToPouringPosition(AbstractActionElement):
 
 class AbstractLookAt(AbstractActionElement):
     def __init__(self, blackboard, _):
-        super(LookForCustomer, self).__init__(blackboard)
+        super(AbstractLookAt, self).__init__(blackboard)
         self.blackboard = blackboard
 
     def perform(self, blackboard, reevaluate=False):
@@ -350,7 +350,7 @@ class PickUpBottle(AbstractActionElement):
         self.first_iteration = True
         self.repeat = False
         self.goal = PickGoal()
-        self.goal.object_id = self.current_bottle
+        self.goal.object_id = blackboard.current_bottle
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
