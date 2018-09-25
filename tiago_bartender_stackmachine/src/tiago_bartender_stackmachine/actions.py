@@ -249,7 +249,7 @@ class AbstractSay(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration:
-            blackboard.tts_action_client.send_goal(goal)
+            blackboard.tts_action_client.send_goal(self.goal)
             self.first_iteration = False
         state = blackboard.tts_action_client.get_state()
         # wait till action is completed
