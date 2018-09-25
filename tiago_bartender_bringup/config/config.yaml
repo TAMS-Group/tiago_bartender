@@ -56,6 +56,6 @@ customer_zone:
   center_y: 0.0
   center_z: 1.5
   euler_z: 0.0
-  size_x: 2.0
+  size_x: 3.0
   size_y: 2.20
   size_z: 1.2
