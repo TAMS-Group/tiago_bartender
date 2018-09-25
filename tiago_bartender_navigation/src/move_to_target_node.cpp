@@ -336,13 +336,7 @@ private:
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "move_to_target_node");
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
-
   ros::NodeHandle nh;
   MoveToTarget mtb("move_to_target", "find_closest_target");
-  while(ros::ok())
-  {
-
-  }
+  ros::spin();
 }

@@ -28,6 +28,9 @@
   <!-- Person detection -->
   <include file="$(find person_detection)/launch/person_detection.launch"/>
 
+  <!-- usb camera for menu card detection  -->
+  <include file="$(find tiago_bartender_bringup)/launch/usb_camera.launch"/>
+
   <!-- Menu detection and action to detect indicated orders  -->
   <include file="$(find tiago_bartender_menu)/launch/menu.launch"/>
 
