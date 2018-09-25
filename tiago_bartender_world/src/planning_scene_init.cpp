@@ -201,12 +201,7 @@ private:
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "planning_scene_init");
-  ros::AsyncSpinner spinner(1);
-  spinner.start();
   PlanningSceneInit psinit;
   psinit.init_scene();
-  while(ros::ok())
-  {
-
-  }
+  ros::spin();
 }
