@@ -370,15 +370,18 @@ class PickUpBottle(AbstractActionElement):
             return
 
         blackboard.remove_invisible_collision_object()
-        result = blackboard.pick_action_client.get_result()
-        if result.result == ManipulationResult.SUCCESS:
+        result = blackboard.pick_action_client.get_result().result.result
+        if result == ManipulationResult.SUCCESS:
             blackboard.bottle_grasped = True
             self.pop()
-        elif result.result == ManipulationResult.UNREACHABLE:
+        elif result == ManipulationResult.UNREACHABLE:
+            print("Bottle " + self.goal.object_id + " appears to be out of reach")
             self.repeat = True
-        elif result.result == ManipulationResult.NO_PLAN_FOUND:
+        elif result == ManipulationResult.NO_PLAN_FOUND:
+            print("Failed to plan pick for " + self.goal.object_id)
             self.repeat = True
-        elif result.result == ManipulationResult.EXECUTION_FAILED:
+        elif result == ManipulationResult.EXECUTION_FAILED:
+            print("Execution of pick failed for " + self.goal.object_id)
             self.repeat = True
 
 class PourLiquid(AbstractActionElement):
