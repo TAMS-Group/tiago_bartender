@@ -125,6 +125,5 @@ int main(int argc, char** argv)
   ros::AsyncSpinner spinner(2);
   spinner.start();
   TiagoSpeech tiago_speech("bartender_speech_action");
-  while(ros::ok())
-  {}
+  ros::waitForShutdown();
 }
