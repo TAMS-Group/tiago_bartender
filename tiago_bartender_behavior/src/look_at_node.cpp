@@ -35,25 +35,28 @@ public:
     named_target.point.z = -0.3;
     named_target_map_["down"] = named_target;
 
-    ros::NodeHandle pn("~");
-    double la_center_x;
-    double la_center_y;
+    ros::NodeHandle bn("tiago_bartender/customer_zone");
     double la_radius_x;
     double la_radius_y;
-    double la_z_value;
-    pn.param("look_around_center_x", la_center_x, 0.0);
-    pn.param("look_around_center_y", la_center_y, 0.0);
-    pn.param("look_around_radius_x", la_radius_x, 0.0);
-    pn.param("look_around_radius_y", la_radius_y, 0.0);
-    pn.param("look_around_z_value", la_z_value, 1.8);
-    pn.param("customer_distance_threshold", customer_distance_thresh_, 0.25);
+    double la_radius_z;
 
-    unif_x_ = std::uniform_real_distribution<double>(la_center_x - la_radius_x, la_center_x + la_radius_x);
-    unif_y_ = std::uniform_real_distribution<double>(la_center_y - la_radius_y, la_center_y + la_radius_y);
+    bn.param("frame", look_around_frame_, std::string("map"));
+    bn.param("center_x", la_center_x_, 0.0);
+    bn.param("center_y", la_center_y_, 0.0);
+    bn.param("center_z", la_center_z_, 0.0);
+    bn.param("size_x", la_radius_x, 0.0);
+    bn.param("size_y", la_radius_y, 0.0);
+    bn.param("size_z", la_radius_z, 0.0);
+    bn.param("euler_z", look_around_rotation_, 0.0);
+    bn.param("customer_distance_threshold", customer_distance_thresh_, 0.25);
+
+    unif_x_ = std::uniform_real_distribution<double>(la_center_x_ - la_radius_x, la_center_x_ + la_radius_x);
+    unif_y_ = std::uniform_real_distribution<double>(la_center_y_ - la_radius_y, la_center_y_ + la_radius_y);
+    unif_z_ = std::uniform_real_distribution<double>(la_center_z_ - la_radius_z, la_center_z_ + la_radius_z);
     named_target.header.frame_id = "world";
-    named_target.point.x = la_center_x;
-    named_target.point.y = la_center_y;
-    named_target.point.z = la_z_value;
+    named_target.point.x = la_center_x_;
+    named_target.point.y = la_center_y_;
+    named_target.point.z = la_center_z_;
     named_target_map_["look_around"] = named_target;
 
     current_goal_.pointing_frame = "xtion_optical_frame";
@@ -94,8 +97,18 @@ public:
         if(ros::Duration(20.0) < (ros::Time::now() - look_around_start_))
         {
           look_around_start_ = ros::Time::now();
-          current_goal_.target.point.x = unif_x_(rng_);
-          current_goal_.target.point.y = unif_y_(rng_);
+          Eigen::AngleAxis<double> aa(look_around_rotation_, Eigen::Vector3d(0,0,1));
+          Eigen::Translation<double,3> origin(-la_center_x_, -la_center_y_, -la_center_z_);
+          Eigen::Translation<double,3> back(la_center_x_, la_center_y_, la_center_z_);
+
+          Eigen::Vector3d p1 = {unif_x_(rng_), unif_y_(rng_), unif_z_(rng_)};
+          p1 = origin * p1;
+          p1 = aa * p1;
+          p1 = back * p1;
+          current_goal_.target.point.x = p1(0);
+          current_goal_.target.point.y = p1(1);
+          current_goal_.target.point.z = p1(2);
+          current_goal_.target.header.frame_id = look_around_frame_;
         }
       }
       else if(current_target_name_ == "customer")
@@ -162,6 +175,8 @@ private:
         look_around_start_ = ros::Time::now();
         current_goal_.target.point.x = unif_x_(rng_);
         current_goal_.target.point.y = unif_y_(rng_);
+        current_goal_.target.point.z = unif_z_(rng_);
+        current_goal_.target.header.frame_id = look_around_frame_;
       }
     }
     return true;
@@ -191,11 +206,17 @@ private:
   ros::Subscriber person_detection_sub_;
   std::uniform_real_distribution<double> unif_x_;
   std::uniform_real_distribution<double> unif_y_;
+  std::uniform_real_distribution<double> unif_z_;
+  double la_center_x_;
+  double la_center_y_;
+  double la_center_z_;
   std::mt19937_64 rng_;
   ros::Time look_around_start_;
   bool look_at_person_;
   geometry_msgs::PointStamped last_person_point_;
   double customer_distance_thresh_;
+  std::string look_around_frame_;
+  double look_around_rotation_;
 };
 
 int main(int argc, char** argv)
