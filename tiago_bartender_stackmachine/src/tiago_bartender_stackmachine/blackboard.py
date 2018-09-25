@@ -62,11 +62,11 @@ class Blackboard:
         self.last_bottle_pose = None
 
         rospy.loginfo("Load recipes")
-        self.recipes = rospy.get_param('~recipes')
-        self.idle_zone = rospy.get_param('~idle_zone')
-        self.home_pose = rospy.get_param('~home_pose')
-        self.take_order_pose = rospy.get_param('~take_order_pose')
-        self.place_bottle_offset = rospy.get_param('~place_bottle_offset')
+        self.recipes = rospy.get_param('tiago_bartender/recipes')
+        self.idle_zone = rospy.get_param('tiago_bartender/idle_zone')
+        self.home_pose = rospy.get_param('tiago_bartender/home_pose')
+        self.take_order_pose = rospy.get_param('tiago_bartender/take_order_pose')
+        self.place_bottle_offset = rospy.get_param('tiago_bartender/place_bottle_offset')
 
         # we initlizie all the action clients
         rospy.loginfo("Initilizing move to target action client")
@@ -146,7 +146,7 @@ class Blackboard:
         co_box.id = 'invisible_box'
         box = SolidPrimitive()
         box.type = SolidPrimitive.BOX
-        box_height = 0.77
+        box_height = 0.76
         box.dimensions.append(0.80)
         box.dimensions.append(1.60)
         box.dimensions.append(box_height)
@@ -160,7 +160,8 @@ class Blackboard:
         co_box.operation = CollisionObject.ADD
         color = ObjectColor()
         color.id = 'invisible_box'
-        color.color.a = 1.0
+        color.color.g = 1.0
+        color.color.a = 0.15
 
         ps = PlanningScene()
         ps.world.collision_objects.append(co_box)
