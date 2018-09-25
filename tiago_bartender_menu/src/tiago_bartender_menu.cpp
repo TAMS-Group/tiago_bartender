@@ -350,9 +350,8 @@ int main(int argc, char **argv) {
       std::vector<cv::DMatch> matches;
       for (size_t i = 0; i < knn_matches.size(); i++) {
         if (knn_matches[i].size() > 1 &&
-            // knn_matches[i][0].distance / knn_matches[i][1].distance <= 0.7f)
-            // {
-            knn_matches[i][0].distance / knn_matches[i][1].distance <= 0.8f) {
+            knn_matches[i][0].distance / knn_matches[i][1].distance <= 0.7f) {
+          // knn_matches[i][0].distance / knn_matches[i][1].distance <= 0.8f) {
           matches.push_back(knn_matches[i][0]);
         }
       }
@@ -386,7 +385,7 @@ int main(int argc, char **argv) {
       cv::Mat transform =
           cv::findHomography(points_scene, points_object, CV_RANSAC);
 
-      /*try {
+      try {
         transform.convertTo(transform, CV_32FC1);
         cv::findTransformECC(
             image_scene, image_object, transform, cv::MOTION_HOMOGRAPHY,
@@ -396,7 +395,7 @@ int main(int argc, char **argv) {
         ROS_INFO("ERROR %s", e.what());
         cancelOrderAction();
         continue;
-      }*/
+      }
 
       if (transform.empty()) {
         // std::cout << "no transform" << std::endl;
