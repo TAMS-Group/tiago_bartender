@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_action_files(FILES
 	Pick.action
 	Pour.action
+	PlacePick.action
 	Place.action
 	TakeOrder.action
 	MoveToTarget.action
