@@ -111,9 +111,9 @@ scene_objects:
 
 move_to_target_lines:
   in_front_of_bottles:
-    start_point_x: -0.4
+    start_point_x: -0.55
     start_point_y: 1.0
-    end_point_x: -0.4
+    end_point_x: -0.55
     end_point_y: -1.0
     orientation_x: 0.0
     orientation_y: 0.0
