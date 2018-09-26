@@ -50,9 +50,9 @@ public:
     bn.param("euler_z", look_around_rotation_, 0.0);
     bn.param("customer_distance_threshold", customer_distance_thresh_, 0.25);
 
-    unif_x_ = std::uniform_real_distribution<double>(la_center_x_ - la_radius_x, la_center_x_ + la_radius_x);
-    unif_y_ = std::uniform_real_distribution<double>(la_center_y_ - la_radius_y, la_center_y_ + la_radius_y);
-    unif_z_ = std::uniform_real_distribution<double>(la_center_z_ - la_radius_z, la_center_z_ + la_radius_z);
+    unif_x_ = std::uniform_real_distribution<double>(la_center_x_ - la_radius_x/2.0, la_center_x_ + la_radius_x/2.0);
+    unif_y_ = std::uniform_real_distribution<double>(la_center_y_ - la_radius_y/2.0, la_center_y_ + la_radius_y/2.0);
+    unif_z_ = std::uniform_real_distribution<double>(la_center_z_ - la_radius_z/2.0, la_center_z_ + la_radius_z/2.0);
     named_target.header.frame_id = "world";
     named_target.point.x = la_center_x_;
     named_target.point.y = la_center_y_;
