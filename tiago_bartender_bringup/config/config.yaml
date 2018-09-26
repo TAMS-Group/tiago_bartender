@@ -60,14 +60,14 @@ customer_zone:
   size_z: 1.2
 
 scene_objects:
-  ids: 
+  ids:
     - 'table1'
     - 'table2'
+    - 'rum'
+    - 'water'
     - 'coke'
     - 'tequila'
-    - 'water'
     - 'orange'
-    - 'rum'
     - 'glass'
   types:
     - 'small_table'
@@ -81,21 +81,21 @@ scene_objects:
   pos_x:
     - -1.25
     - 1.25
-    - -1.25
-    - -1.25
-    - -1.25
-    - -1.25
-    - -1.25
+    - -1.20
+    - -1.20
+    - -1.20
+    - -1.20
+    - -1.20
     - 1.25
   pos_y:
     - -0.1
     - 0.0
+    - -0.7
+    - -0.4
     - -0.1
-    - 0.1
+    - 0.2
+    - 0.5
     - -0.3
-    - 0.3
-    - -0.5
-    - 0.0
   pos_z:
     - 0.0
     - 0.0
