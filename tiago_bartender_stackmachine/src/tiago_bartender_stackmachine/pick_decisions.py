@@ -50,14 +50,18 @@ class InFrontOfRequiredBottle(AbstractDecisionElement):
     """
     def __init__(self, blackboard, _):
         super(AbstractDecisionElement, self).__init__(blackboard)
+	print('in front of bottle decision')
         blackboard.last_redoable = blackboard.PICK
 
     def perform(self, blackboard, reevaluate=False):
-        if blackbaord.redo_requested and blackboard.last_redoable == blackboard.PICK:
+        if blackboard.redo_requested and blackboard.last_redoable == blackboard.PICK:
+            print('move to bottle')
             return self.push(MoveToBottle)
         elif blackboard.arrived_at_bottle:
+            print('bottle located')
             return self.push(BottleLocated)
         else:
+            print('move to bottle')
             return self.push(MoveToBottle)
 
 class BottleLocated(AbstractDecisionElement):
@@ -68,14 +72,18 @@ class BottleLocated(AbstractDecisionElement):
         super(AbstractDecisionElement, self).__init__(blackboard)
         blackboard.bottle_located = False
         blackboard.bottle_not_found = False
+	print('bottle located decision')
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.bottle_located:
+            print('go to bottle grasped')
             return self.push(BottleGrasped)
         elif blackboard.bottle_not_found:
+            print('no bottle found')
             return self.push(SayBottleNotFound)
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtBottle, Wait, UpdateBottlePose], [None, 2, None])
+            print('recognition')
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtBottle, Wait, UpdateBottlePose], [None, None, 2, None])
 
 class BottleGrasped(AbstractDecisionElement):
     """
