@@ -2,7 +2,7 @@ import rospy
 import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
-from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, ExtendTorso
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, ExtendTorso, LookDefault, LookAtGlass, UpdateGlassPose, SayGlassNotFound
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -58,9 +58,11 @@ class InPouringPosition(AbstractDecisionElement):
             return self.push(MoveToPouringPosition)
 
         if blackboard.arrived_at_pouring_position:
+            print('glass was located')
             return self.push(GlassLocated)
         else:
-            return self.push(MoveToPouringPosition)
+            print('Move to pouring position')
+            return self.push_action_sequence(SequenceElement, [LookDefault, MoveToPouringPosition], [None, None])
 
         def get_reevaluate(self):
             return True
@@ -73,11 +75,13 @@ class GlassLocated(AbstractDecisionElement):
         super(AbstractDecisionElement, self).__init__(blackboard)
         blackboard.glass_located = False
         blackboard.glass_not_found = False
+        print('in glass located')
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.glass_located:
+            print('pour liquid')
             return self.push_action_sequence(SequenceElement, [PourLiquid, Wait], [None, 5])
         if blackboard.glass_not_found:
             return self.push(SayGlassNotFound)
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose], [None, None, 2, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose], [None, None, 5, None])

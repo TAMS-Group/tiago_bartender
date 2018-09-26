@@ -146,6 +146,7 @@ class MoveToPouringPosition(AbstractActionElement):
         self.goal = MoveToTargetGoal()
         self.goal.target = 'glass'
         self.goal.look_at_target = False
+        print('MoveToPouringPosition')
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
@@ -155,10 +156,12 @@ class MoveToPouringPosition(AbstractActionElement):
 
         # wait till action is completed
         if not blackboard.move_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+            print('not succeeded')
             return
         state = blackboard.move_action_client.get_state()
         if state == GoalStatus.SUCCEEDED:
             blackboard.arrived_at_pouring_position = True
+            self.pop()
         else:
             self.repeat = True
 
@@ -404,7 +407,7 @@ class ExtendTorso(AbstractActionElement):
         torso_command = JointTrajectory()
         torso_command.joint_names.append("torso_lift_joint")
         jtp = JointTrajectoryPoint()
-        jtp.positions.append(0.30)
+        jtp.positions.append(0.35)
         jtp.time_from_start = rospy.Duration.from_sec(2.0)
         torso_command.points.append(jtp)
         self.goal.trajectory = torso_command
@@ -476,6 +479,7 @@ class PourLiquid(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
+            print('send pour liquid goal')
             blackboard.add_invisible_collision_object()
             blackboard.pour_action_client.send_goal(self.goal)
             self.first_iteration = False
@@ -486,15 +490,19 @@ class PourLiquid(AbstractActionElement):
             return
 
         blackboard.remove_invisible_collision_object()
-        result = blackboard.pour_action_client.get_result()
-        if result.result == ManipulationResult.SUCCESS:
+        result = blackboard.pour_action_client.get_result().result.result
+        if result == ManipulationResult.SUCCESS:
+            print('pour liquid success')
             blackboard.reset_for_next_bottle()
             self.pop()
-        elif result.result == ManipulationResult.UNREACHABLE:
+        elif result == ManipulationResult.UNREACHABLE:
+            print('unreachable')
             self.repeat = True
-        elif result.result == ManipulationResult.NO_PLAN_FOUND:
+        elif result == ManipulationResult.NO_PLAN_FOUND:
+            print('no plan found')
             self.repeat = True
-        elif result.result == ManipulationResult.EXECUTION_FAILED:
+        elif result == ManipulationResult.EXECUTION_FAILED:
+            print('execution failed')
             self.repeat = True
 
 
