@@ -108,3 +108,23 @@ scene_objects:
       pos_x: 1.25
       pos_y: -0.3
       pos_z: 0.8
+
+move_to_target_lines:
+  in_front_of_bottles:
+    start_point_x: -0.4
+    start_point_y: 1.0
+    end_point_x: -0.4
+    end_point_y: -1.0
+    orientation_x: 0.0
+    orientation_y: 0.0
+    orientation_z: 1.0
+    orientation_w: 0.0
+  in_front_of_glass:
+    start_point_x: 0.4
+    start_point_y: 1.0
+    end_point_x: 0.4
+    end_point_y: -1.0
+    orientation_x: 0.0
+    orientation_y: 0.0
+    orientation_z: 0.0
+    orientation_w: 1.0

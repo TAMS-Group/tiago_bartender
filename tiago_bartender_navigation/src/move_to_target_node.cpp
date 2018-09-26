@@ -31,18 +31,26 @@ public:
                                                  ac_("move_base", true),
                                                  psi_()
   {
-    ros::NodeHandle pn("~");
+    ros::NodeHandle bn("tiago_bartender");
+    XmlRpc::XmlRpcValue lines;
+    bn.getParam("move_to_target_lines", lines);
+    ROS_ASSERT(lines.getType() == XmlRpc::XmlRpcValue::TypeStruct);
 
-    pn.param("default_frame", default_frame_, std::string("map"));
+    for(XmlRpc::XmlRpcValue::iterator i = lines.begin(); i != lines.end(); i++)
+    {
+      ROS_ASSERT(i->second.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+      line_segment_a_x_.push_back(static_cast<double>(i->second["start_point_x"]));
+      line_segment_a_y_.push_back(static_cast<double>(i->second["start_point_y"]));
+      line_segment_b_x_.push_back(static_cast<double>(i->second["end_point_x"]));
+      line_segment_b_y_.push_back(static_cast<double>(i->second["end_point_y"]));
 
-    pn.param("line_segment_a_x", line_segment_a_x_, {});
-    pn.param("line_segment_a_y", line_segment_a_y_, {});
-    pn.param("line_segment_b_x", line_segment_b_x_, {});
-    pn.param("line_segment_b_y", line_segment_b_y_, {});
-    pn.param("ori_x", ori_x_, {});
-    pn.param("ori_y", ori_y_, {});
-    pn.param("ori_z", ori_z_, {});
-    pn.param("ori_w", ori_w_, {});
+      ori_x_.push_back(static_cast<double>(i->second["orientation_x"]));
+      ori_y_.push_back(static_cast<double>(i->second["orientation_y"]));
+      ori_z_.push_back(static_cast<double>(i->second["orientation_z"]));
+      ori_w_.push_back(static_cast<double>(i->second["orientation_w"]));
+    }
+
+    default_frame_ = "map";
 
     if(line_segment_a_x_.size() != line_segment_a_y_.size() || line_segment_a_y_.size() != line_segment_b_x_.size() || line_segment_b_x_.size() != line_segment_b_y_.size() || line_segment_b_y_.size() != ori_x_.size() || ori_y_.size() != ori_z_.size() || ori_z_.size() != ori_w_.size())
     {
