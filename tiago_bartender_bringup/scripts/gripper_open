@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+
+import trajectory_msgs.msg
+import rospy
+
+rospy.init_node("gripper_open")
+
+trajectory = trajectory_msgs.msg.JointTrajectory()
+trajectory.joint_names = [
+    "gripper_left_finger_joint",
+    "gripper_right_finger_joint",
+    ]
+goal = trajectory_msgs.msg.JointTrajectoryPoint()
+goal.positions = [
+    0.04,
+    0.04,
+    ]
+goal.time_from_start.secs = 1
+trajectory.points.append(goal)
+
+pub = rospy.Publisher("/gripper_controller/command", trajectory_msgs.msg.JointTrajectory, queue_size=1, latch=True)
+pub.publish(trajectory)
+
+rospy.sleep(1)

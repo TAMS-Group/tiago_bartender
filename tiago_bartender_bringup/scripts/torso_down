@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+import trajectory_msgs.msg
+import rospy
+
+rospy.init_node("gripper_open")
+
+trajectory = trajectory_msgs.msg.JointTrajectory()
+trajectory.joint_names = [ "torso_lift_joint" ]
+goal = trajectory_msgs.msg.JointTrajectoryPoint()
+goal.positions = [ 0.0 ]
+goal.time_from_start.secs = 5
+trajectory.points.append(goal)
+
+pub = rospy.Publisher("/torso_controller/safe_command", trajectory_msgs.msg.JointTrajectory, queue_size=1, latch=True)
+pub.publish(trajectory)
+
+rospy.sleep(1)
