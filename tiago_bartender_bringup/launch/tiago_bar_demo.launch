@@ -16,7 +16,7 @@
   <include file="$(find tiago_bartender_bringup)/launch/world_link.launch"/>
 
   <!-- MTC action servers for manipulation -->
-  <include file="$(find tiago_bartender_mtc)/launch/pick.launch"/>
+  <include file="$(find tiago_bartender_mtc)/launch/manipulation_server.launch"/>
 
   <!-- bartender-specific head control -->
   <include file="$(find tiago_bartender_behavior)/launch/look_at.launch"/>
