@@ -36,6 +36,9 @@
   <!-- Tabletop object recognition -->
   <include file="$(find tams_bartender_recognition)/launch/bringup.launch"/>
 
+  <!-- Recognize transparent glasses in the camera's IR image -->
+  <include file="$(find tams_bartender_glass_recognition)/launch/glass_recognition.launch"/>
+
   <!-- visual operator control through apriltags -->
   <include file="$(find apriltag_command_cards)/launch/apriltag_command_cards.launch"/>
 
