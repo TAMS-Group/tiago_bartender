@@ -13,12 +13,10 @@ recipes:
     - orange: 1.0
     - cherry: 1.0
     - lime: 1.0
-  orange_juice:
-    - orange: 1.0
-  coke:
-    - coke: 1.0
   water:
     - water: 1.0
+  sulfuric_acid:
+    - acid: 1.0
 
 idle_zone:
   center_x: 0.0
@@ -42,8 +40,8 @@ take_order_pose:
   pos_y: 0.0
   ori_x: 0.0
   ori_y: 0.0
-  ori_z: 1.0
-  ori_w: 0.0
+  ori_z: 0.0
+  ori_w: 1.0
   frame: 'map'
 
 place_bottle_offset:
@@ -62,14 +60,14 @@ customer_zone:
   size_z: 1.2
 
 scene_objects:
-  ids: 
+  ids:
     - 'table1'
     - 'table2'
+    - 'rum'
+    - 'water'
     - 'coke'
     - 'tequila'
-    - 'water'
     - 'orange'
-    - 'rum'
     - 'glass'
   types:
     - 'small_table'
@@ -83,21 +81,21 @@ scene_objects:
   pos_x:
     - -1.25
     - 1.25
-    - -1.25
-    - -1.25
-    - -1.25
-    - -1.25
-    - -1.25
+    - -1.20
+    - -1.20
+    - -1.20
+    - -1.20
+    - -1.20
     - 1.25
   pos_y:
     - -0.1
     - 0.0
+    - -0.7
+    - -0.4
     - -0.1
-    - 0.1
+    - 0.2
+    - 0.5
     - -0.3
-    - 0.3
-    - -0.5
-    - 0.0
   pos_z:
     - 0.0
     - 0.0

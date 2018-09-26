@@ -23,6 +23,7 @@ class TiagoBartender:
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             self.stackmachine.update()
+        print("exit stackmachine")
 
     def pause_card_cb(self, msg):
         self.blackboard.was_pause_card_shown = True

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+  <node name="world_map_transformer" pkg="tf" type="static_transform_publisher"
+    args="0 0 0 0 0 0 world map 100"/>
+</launch>

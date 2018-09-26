@@ -17,7 +17,9 @@ protected:
 
 public:
   LookAt() : ac_("/head_controller/point_head_action", true),
-             hm_ac_("pal_head_manager/disable", true)
+             hm_ac_("pal_head_manager/disable", true),
+             hm_has_goal_(false),
+             ph_has_goal_(false)
   {
     geometry_msgs::PointStamped named_target;
     named_target.header.frame_id = "torso_lift_link";
@@ -50,9 +52,9 @@ public:
     bn.param("euler_z", look_around_rotation_, 0.0);
     bn.param("customer_distance_threshold", customer_distance_thresh_, 0.25);
 
-    unif_x_ = std::uniform_real_distribution<double>(la_center_x_ - la_radius_x, la_center_x_ + la_radius_x);
-    unif_y_ = std::uniform_real_distribution<double>(la_center_y_ - la_radius_y, la_center_y_ + la_radius_y);
-    unif_z_ = std::uniform_real_distribution<double>(la_center_z_ - la_radius_z, la_center_z_ + la_radius_z);
+    unif_x_ = std::uniform_real_distribution<double>(la_center_x_ - la_radius_x/2.0, la_center_x_ + la_radius_x/2.0);
+    unif_y_ = std::uniform_real_distribution<double>(la_center_y_ - la_radius_y/2.0, la_center_y_ + la_radius_y/2.0);
+    unif_z_ = std::uniform_real_distribution<double>(la_center_z_ - la_radius_z/2.0, la_center_z_ + la_radius_z/2.0);
     named_target.header.frame_id = "world";
     named_target.point.x = la_center_x_;
     named_target.point.y = la_center_y_;
@@ -62,7 +64,7 @@ public:
     current_goal_.pointing_frame = "xtion_optical_frame";
     current_goal_.pointing_axis.z = 1.0;
     current_goal_.min_duration = ros::Duration(0.5);
-    current_goal_.max_velocity = 5.0;
+    current_goal_.max_velocity = 1.0;
     current_goal_.target = named_target_map_["forward"];
 
     disable_hm_.duration = 0.0;
@@ -82,7 +84,7 @@ public:
   {
     tiago_bartender_msgs::LookAt::Request req;
     tiago_bartender_msgs::LookAt::Response res;
-    req.direction = "forward";
+    req.direction = "default";
     look_at_cb(req, res);
 
     while(ros::ok())
@@ -117,9 +119,17 @@ public:
       }
       current_goal_.target.header.stamp = ros::Time::now();
       ac_.sendGoal(current_goal_);
+      ph_has_goal_ = true;
       ros::Duration(0.1).sleep();
     }
-    ac_.cancelGoal();
+    if(ph_has_goal_)
+    {
+      ac_.cancelGoal();
+    }
+    if(hm_has_goal_)
+    {
+      hm_ac_.cancelGoal();
+    }
   }
 
 private:
@@ -128,12 +138,23 @@ private:
     if(req.direction == "default")
     {
       current_target_name_ = req.direction;
-      ac_.cancelGoal();
-      hm_ac_.cancelGoal();
+      if(ph_has_goal_)
+      {
+        ac_.cancelGoal();
+        ph_has_goal_ = false;
+      }
+      if(hm_has_goal_)
+      {
+        hm_ac_.cancelGoal();
+        hm_has_goal_ = false;
+      }
       return true;
     }
     else
+    {
       hm_ac_.sendGoal(disable_hm_);
+      hm_has_goal_ = true;
+    }
 
     if(req.direction.empty())
     {
@@ -217,6 +238,8 @@ private:
   double customer_distance_thresh_;
   std::string look_around_frame_;
   double look_around_rotation_;
+  bool hm_has_goal_;
+  bool ph_has_goal_;
 };
 
 int main(int argc, char** argv)

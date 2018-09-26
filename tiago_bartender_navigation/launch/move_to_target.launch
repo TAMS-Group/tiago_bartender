@@ -2,14 +2,14 @@
 <launch>
   <node name="move_to_target_node" pkg="tiago_bartender_navigation" type="move_to_target_node" output="screen">
     <!-- line segments are defined by start point a and end point b. -->
-    <rosparam param="line_segment_a_x">[0.1, -0.95]</rosparam>
-    <rosparam param="line_segment_a_y">[-1.5, -1.5]</rosparam>
-    <rosparam param="line_segment_b_x">[0.1, -0.95]</rosparam>
-    <rosparam param="line_segment_b_y">[1.5, 1.5]</rosparam>
+    <rosparam param="line_segment_a_x">[-0.4, 0.4]</rosparam>
+    <rosparam param="line_segment_a_y">[1.0, 1.0]</rosparam>
+    <rosparam param="line_segment_b_x">[-0.4, 0.4]</rosparam>
+    <rosparam param="line_segment_b_y">[-1.0, -1.0]</rosparam>
     <!-- orientation of the robot for each line segment -->
     <rosparam param="ori_x">[0.0, 0.0]</rosparam>
     <rosparam param="ori_y">[0.0, 0.0]</rosparam>
-    <rosparam param="ori_z">[0.0, 1.0]</rosparam>
-    <rosparam param="ori_w">[1.0, 0.0]</rosparam>
+    <rosparam param="ori_z">[1.0, 0.0]</rosparam>
+    <rosparam param="ori_w">[0.0, 1.0]</rosparam>
   </node>
 </launch>

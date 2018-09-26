@@ -12,6 +12,8 @@ from move_base_msgs.msg import MoveBaseGoal
 from std_msgs.msg import Bool
 from pal_interaction_msgs.msg import TtsGoal
 from actionlib_msgs.msg import GoalStatus
+from control_msgs.msg import FollowJointTrajectoryGoal
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 import tf
 
 class IdleMoveAround(AbstractActionElement):
@@ -34,7 +36,7 @@ class IdleMoveAround(AbstractActionElement):
         self.goal_x, self.goal_y = blackboard.rotate_point(origin, point, angle)
         self.goal.target_pose.pose.position.x = self.goal_x
         self.goal.target_pose.pose.position.y = self.goal_y
-        self.goal.target_pose.pose.orientation.z = 1.0
+        self.goal.target_pose.pose.orientation.w = 1.0
 
     def perform(self, blackboard, reevaluate=False):
         print("IdleMoveAround")
@@ -58,8 +60,8 @@ class WaitForRos(AbstractActionElement):
         super(WaitForRos, self).__init__(blackboard)
         self.first_iteration = True
         self.name = args
-    def perform(self):
-        rospy.loginfo_throttle(10, "Waiting for server %s", self.name)
+    def perform(self, blackboard, reevaluate=False):
+        rospy.loginfo_throttle(10, "Waiting for server %s"% self.name)
         self.pop()
 
 
@@ -74,7 +76,7 @@ class WaitingToResume(AbstractActionElement):
 class MoveToCustomer(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(MoveToCustomer, self).__init__(blackboard)
-        self.first_iteration = False
+        self.first_iteration = True
         self.repeat = False
         self.goal = MoveBaseGoal()
         self.goal.target_pose.header.frame_id = blackboard.take_order_pose['frame']
@@ -181,10 +183,12 @@ class AbstractLookAt(AbstractActionElement):
 class LookAtCustomer(AbstractActionElement):
     def perform(self, blackboard, reevaluate=False):
         target = "customer"
-        pose = blackboard.customer_position
+	point = PointStamped()
+	point.header.frame_id = 'xtion_optical_frame'
+	point.point = blackboard.customer_position
         print("Looking at " + target)
         try:
-            blackboard.look_at_service(target, pose)
+            blackboard.look_at_service(target, point)
         except rospy.ServiceException, e:
             print("Service call failed: %s"%e)
         self.pop()
@@ -234,7 +238,7 @@ class LookForCustomer(AbstractActionElement):
             blackboard.customer_position = blackboard.person_position
             blackboard.has_customer = True
             blackboard.person_detected = False
-        elif rospy.get_rostime() - self.begin >= rospy.Duration.from_sec(10.0):
+        elif rospy.get_rostime() - self.begin >= rospy.Duration.from_sec(60.0):
             disable = Bool()
             disable.data = False
             blackboard.person_detection_switch_pub.publish(disable)
@@ -346,6 +350,31 @@ class UpdateBottlePose(AbstractActionElement):
             blackboard.bottle_not_found = True
             self.pop()
 
+class ExtendTorso(AbstractActionElement):
+    """
+    Extend the torso to maximum height
+    """
+    def __init__(self, blackboard, _):
+        super(ExtendTorso, self).__init__(blackboard)
+        self.first_iteration = True
+        self.goal = FolloJointTrajectoryGoal()
+        torso_command = JointTrajectory()
+        torso_command.joint_names.append("torso_lift_joint")
+        jtp = JointTrajectoryPoint()
+        jtp.positions.append(0.35)
+        jtp.time_from_start = rospy.Duration.from_sec(5.0)
+        torso_command.points.append(jtp)
+        self.goal.trajectory = torso_command
+
+    def perform(self, blackboard, reevaluate=False):
+        if self.first_iteration:
+            blackboard.torso_action_client.send_goal(self.goal)
+
+        state = blackboard.torso_action_client.get_state()
+        # wait till action is completed
+        if state == GoalStatus.SUCCEEDED:
+            self.pop()
+
 class PickUpBottle(AbstractActionElement):
     """
     Calls the pick action
@@ -359,6 +388,7 @@ class PickUpBottle(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
+            print("Trying to pick " + self.goal.object_id)
             blackboard.add_invisible_collision_object()
             blackboard.pick_action_client.send_goal(self.goal)
             self.first_iteration = False
@@ -369,15 +399,18 @@ class PickUpBottle(AbstractActionElement):
             return
 
         blackboard.remove_invisible_collision_object()
-        result = blackboard.pick_action_client.get_result()
-        if result.result == ManipulationResult.SUCCESS:
+        result = blackboard.pick_action_client.get_result().result.result
+        if result == ManipulationResult.SUCCESS:
             blackboard.bottle_grasped = True
             self.pop()
-        elif result.result == ManipulationResult.UNREACHABLE:
+        elif result == ManipulationResult.UNREACHABLE:
+            print("Bottle " + self.goal.object_id + " appears to be out of reach")
             self.repeat = True
-        elif result.result == ManipulationResult.NO_PLAN_FOUND:
+        elif result == ManipulationResult.NO_PLAN_FOUND:
+            print("Failed to plan pick for " + self.goal.object_id)
             self.repeat = True
-        elif result.result == ManipulationResult.EXECUTION_FAILED:
+        elif result == ManipulationResult.EXECUTION_FAILED:
+            print("Execution of pick failed for " + self.goal.object_id)
             self.repeat = True
 
 class PourLiquid(AbstractActionElement):
@@ -464,26 +497,6 @@ class PlaceBottle(AbstractActionElement):
         elif result.result == ManipulationResult.EXECUTION_FAILED:
             self.repeat = True
 
-
-class PlaceBottle(AbstractActionElement):
-    """
-    Calls the pouring action
-    """
-    def __init__(self, blackboard, _):
-        super(PlaceBottle, self).__init__(blackboard)
-        goal = PlaceGoal()
-        #TODO specify goal
-        blackboard.place_action_client.send_goal(goal)
-
-    def perform(self, blackboard, reevaluate=False):
-        state = blackboard.place_action_client.get_state()
-        # wait till action is completed
-        if state == GoalStatus.SUCCEEDED:
-            blackboard.placed_bottle = True
-            blackboard.bottle_grasped = False
-            #TODO maybe do something with the result
-            self.pop()
-
 class MoveToBottlePose(AbstractActionElement):
     """
     Moves to the pose to put down the last bottle of the recipe
@@ -532,6 +545,7 @@ class Wait(AbstractActionElement):
     """
     def __init__(self, blackboard, args=10):
         super(Wait, self).__init__(blackboard)
+	print('Waiting for %s seconds.'% args)
         self.resume_time = rospy.get_time() + args
 
     def perform(self, connector, reevaluate=False):       
