@@ -2,7 +2,7 @@ import rospy
 import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
-from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, ExtendTorso
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -20,6 +20,9 @@ class Init(AbstractDecisionElement):
     """
     def __init__(self, blackboard, _):
         super(AbstractDecisionElement, self).__init__(blackboard)
+        # set variables needed for the test
+        blackboard.current_bottle = 'coke'
+
         self.initilized = False
 
     def perform(self, blackboard, reevaluate=False):
@@ -39,7 +42,23 @@ class Init(AbstractDecisionElement):
         #    return self.push(WaitForRos, 'pour')
         #if not rospy.wait_for_service('head_controller/look_at_service', 0.01):
         #    return self.push(WaitForRos, 'head_controller/look_at_service')
-        return self.push(BottleLocated)
+        return self.push(InFrontOfRequiredBottle)
+
+class InFrontOfRequiredBottle(AbstractDecisionElement):
+    """
+    Decides if the robot is in front of the bottle
+    """
+    def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)
+        blackboard.last_redoable = blackboard.PICK
+
+    def perform(self, blackboard, reevaluate=False):
+        if blackbaord.redo_requested and blackboard.last_redoable == blackboard.PICK:
+            return self.push(MoveToBottle)
+        elif blackboard.arrived_at_bottle:
+            return self.push(BottleLocated)
+        else:
+            return self.push(MoveToBottle)
 
 class BottleLocated(AbstractDecisionElement):
     """
@@ -49,7 +68,6 @@ class BottleLocated(AbstractDecisionElement):
         super(AbstractDecisionElement, self).__init__(blackboard)
         blackboard.bottle_located = False
         blackboard.bottle_not_found = False
-        blackboard.current_bottle = 'coke'
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.bottle_located:
@@ -57,7 +75,7 @@ class BottleLocated(AbstractDecisionElement):
         elif blackboard.bottle_not_found:
             return self.push(SayBottleNotFound)
         else:
-            return self.push_action_sequence(SequenceElement, [LookAtBottle, Wait, UpdateBottlePose], [None, 2, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtBottle, Wait, UpdateBottlePose], [None, 2, None])
 
 class BottleGrasped(AbstractDecisionElement):
     """
@@ -65,7 +83,27 @@ class BottleGrasped(AbstractDecisionElement):
     """
     def perform(self, blackboard, reevaluate=False):
         if blackboard.bottle_grasped:
-            print("picked bottle succeeded")
+            print("pick bottle succeeded")
             rospy.signal_shutdown("done")
         else:
             return self.push(PickUpBottle)
+
+# not used yet. For later testing
+class InPouringPosition(AbstractDecisionElement):
+    """
+    Goes to pouring position
+    """
+    def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)
+        blackboard.last_redoable = blackboard.POUR
+
+    def perform(self, blackboard, reevaluate=False):
+        if blackboard.redo_requested and blackboard.last_redoable == blackboard.POUR:
+            return self.push(MoveToPouringPosition)
+
+        if blackboard.arrived_at_pouring_position:
+            # return self.push_action_sequence(SequenceElement, [ExtendTorso, PourLiquid, Wait], [None, 5])
+            print("pouring succeeded")
+            rospy.signal_shutdown("done")
+        else:
+            self.push(MoveToPouringPosition)
