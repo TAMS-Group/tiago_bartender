@@ -2,7 +2,7 @@ import rospy
 import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
-from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -234,9 +234,9 @@ class BottleLocated(AbstractDecisionElement):
         if blackboard.bottle_located:
             return self.push(BottlePlaced)
         elif blackboard.bottle_not_found:
-            return self.push(SayBottleNotFound)
+            return self.push_action_sequence(SequenceElement, [SearchBottleLeft, Wait, SearchBottleRight, SayBottleNotFound], [None, 2, None, None])
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtBottle, UpdateBottlePose], [None, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtBottle, UpdateBottlePose], [None, None, None])
 
 class BottlePlaced(AbstractDecisionElement):
     """

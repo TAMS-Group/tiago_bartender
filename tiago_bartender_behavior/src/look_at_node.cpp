@@ -37,6 +37,14 @@ public:
     named_target.point.z = -0.3;
     named_target_map_["down"] = named_target;
 
+    named_target.header.frame_id = "base_footprint";
+    named_target.point.x = 1.0;
+    named_target.point.y = 0.5;
+    named_target.point.z = 0.9;
+    named_target_map_["search_bottle_left"] = named_target;
+    named_target.point.y = -0.5;
+    named_target_map_["search_bottle_right"] = named_target;
+
     ros::NodeHandle bn("tiago_bartender/customer_zone");
     double la_radius_x;
     double la_radius_y;
@@ -76,8 +84,14 @@ public:
     look_at_server = nh_.advertiseService("head_controller/look_at_service", &LookAt::look_at_cb, this);
     person_detection_sub_ = nh_.subscribe("person_detection/person_detections", 1000, &LookAt::person_detection_cb, this);
 
-    ac_.waitForServer();
-    hm_ac_.waitForServer();
+    while(!ac_.waitForServer(ros::Duration(5.0)))
+    {
+      ROS_ERROR_STREAM("Waiting for point_head action server.");
+    }
+    while(!hm_ac_.waitForServer(ros::Duration(5.0)))
+    {
+      ROS_ERROR_STREAM("Waiting for head_manager action server.");
+    }
   }
 
   void run()

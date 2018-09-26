@@ -198,6 +198,14 @@ class LookAtBottle(AbstractLookAt):
     def target(self):
         return self.blackboard.current_bottle
 
+class SearchBottleLeft(AbstractLookAt):
+    def target(self):
+        return 'search_bottle_left'
+
+class SearchBottleRight(AbstractLookAt):
+    def target(self):
+        return 'search_bottle_right'
+
 class LookAtGlass(AbstractLookAt):
     def target(self):
         return "glass"
