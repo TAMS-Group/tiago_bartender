@@ -1,7 +1,7 @@
 import rospy
 import actionlib
 from person_detection.msg import PersonDetections
-from tiago_bartender_msgs.msg import PlaceAction, PourAction, PickAction, MoveToTargetAction, TakeOrderAction, DetectBottlesAction
+from tiago_bartender_msgs.msg import PlaceAction, PourAction, PickAction, MoveToTargetAction, TakeOrderAction, DetectBottlesAction, DetectGlassAction
 from tiago_bartender_msgs.srv import LookAt
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -41,6 +41,7 @@ class Blackboard:
         self.tts_action_client = None
         self.move_base_action_client = None
         self.detect_bottles_action_client = None
+        self.detect_glass_action_client = None
 
         # service clients
         self.look_at_service = None
@@ -98,6 +99,9 @@ class Blackboard:
         rospy.loginfo("Initializing detect bottles action client")
         self.detect_bottles_action_client = actionlib.SimpleActionClient('detect_bottles_action', DetectBottlesAction)
 
+        rospy.loginfo("Initializing detect bottles action client")
+        self.detect_glass_action_client = actionlib.SimpleActionClient('detect_glass_action', DetectGlassAction)
+
         # init LookAtService
         rospy.loginfo("Initializing look_at service client")
         self.look_at_service = rospy.ServiceProxy("head_controller/look_at_service", LookAt)
@@ -114,6 +118,9 @@ class Blackboard:
         self.arrived_at_pouring_position = False
         self.arrived_at_bottle = False
         self.bottle_not_found = False
+        self.bottle_located = False
+        self.glass_not_found = False
+        self.glass_located = False
         self.get_next_bottle = True
         self.got_next_bottle = False
         self.no_menu_found = False
@@ -126,6 +133,9 @@ class Blackboard:
         self.arrived_at_bottle = False
         self.arrived_at_pouring_position = False
         self.bottle_not_found = False
+        self.bottle_located = False
+        self.glass_not_found = False
+        self.glass_located = False
         self.is_paused = False
         self.bottle_grasped = False
         self.arrived_at_pouring_position = False

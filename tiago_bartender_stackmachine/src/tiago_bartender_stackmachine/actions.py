@@ -5,7 +5,7 @@ import rospy
 import actionlib
 import random
 from bitbots_stackmachine.abstract_action_element import AbstractActionElement
-from tiago_bartender_msgs.msg import PlaceGoal, PourGoal, PickGoal, TakeOrderGoal, MoveToTargetGoal, DetectBottlesGoal, ManipulationResult
+from tiago_bartender_msgs.msg import PlaceGoal, PourGoal, PickGoal, TakeOrderGoal, MoveToTargetGoal, DetectBottlesGoal, ManipulationResult, DetectGlassGoal
 from random import uniform
 from geometry_msgs.msg import PointStamped
 from move_base_msgs.msg import MoveBaseGoal
@@ -196,9 +196,11 @@ class LookAtCustomer(AbstractActionElement):
 
 class LookAtBottle(AbstractLookAt):
     def target(self):
-        print('looking at: ')
-        print(self.blackboard.current_bottle)
         return self.blackboard.current_bottle
+
+class LookAtGlass(AbstractLookAt):
+    def target(self):
+        return "glass"
 
 class LookAtMenu(AbstractLookAt):
     def target(self):
@@ -301,6 +303,12 @@ class SayBottleNotFound(AbstractSay):
         self.blackboard.bottle_not_found = False
         return ["I was sure I put the " + self.blackboard.current_bottle + " right here. Please help me by putting the bottle in front of me."]
 
+
+class SayGlassNotFound(AbstractSay):
+    def text(self):
+        self.blackboard.glass_not_found = False
+        return ["I was sure I put the glass right here. Please help me by putting the it in front of me."]
+
 class ObserveOrder(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(ObserveOrder, self).__init__(blackboard)
@@ -351,6 +359,30 @@ class UpdateBottlePose(AbstractActionElement):
             self.pop()
         else:
             blackboard.bottle_not_found = True
+            self.pop()
+
+class UpdateGlassPose(AbstractActionElement):
+    def __init__(self, blackboard, _):
+        super(UpdateGlassPose, self).__init__(blackboard)
+        self.first_iteration = True
+        self.goal = DetectGlassGoal()
+        self.goal.timeout = rospy.Duration.from_sec(10)
+
+    def perform(self, blackboard, reevaluate=False):
+        if self.first_iteration:
+            blackboard.detect_glass_action_client.send_goal(self.goal)
+            self.first_iteration = False
+        # if no result yet
+        if not blackboard.detect_glass_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+            return
+
+        blackboard.glass_located = False
+        result = blackboard.detect_glass_action_client.get_result()
+        if result.detected_glass == 'glass':
+            blackboard.glass_located = True
+            self.pop()
+        else:
+            blackboard.glass_not_found = True
             self.pop()
 
 class ExtendTorso(AbstractActionElement):

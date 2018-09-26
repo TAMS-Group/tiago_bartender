@@ -57,14 +57,27 @@ class InPouringPosition(AbstractDecisionElement):
         if blackboard.redo_requested and blackboard.last_redoable == blackboard.POUR:
             return self.push(MoveToPouringPosition)
 
-        if blackboard.get_next_bottle:
-            print('pouring succeeded')
-            rospy.signal_shutdown('done')
-
         if blackboard.arrived_at_pouring_position:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, PourLiquid, Wait], [None, None, 5])
+            return self.push(GlassLocated)
         else:
             return self.push(MoveToPouringPosition)
 
         def get_reevaluate(self):
             return True
+
+class GlassLocated(AbstractDecisionElement):
+    """
+    Locates the position of the glass to be able to pour
+    """
+    def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)
+        blackboard.glass_located = False
+        blackboard.glass_not_found = False
+
+    def perform(self, blackboard, reevaluate=False):
+        if blackboard.glass_located:
+            return self.push_action_sequence(SequenceElement, [PourLiquid, Wait], [None, 5])
+        if blackboard.glass_not_found:
+            return self.push(SayGlassNotFound)
+        else:
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose], [None, None, 2, None])

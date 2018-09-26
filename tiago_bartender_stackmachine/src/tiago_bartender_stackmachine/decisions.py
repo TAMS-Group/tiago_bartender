@@ -2,7 +2,7 @@ import rospy
 import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
-from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -37,6 +37,10 @@ class Init(AbstractDecisionElement):
             return self.push(WaitForRos, 'pick')
         #if not blackboard.pour_action_client.wait_for_server(rospy.Duration(0.01)):
         #    return self.push(WaitForRos, 'pour')
+        if not blackboard.detect_bottles_action_client.wait_for_server(rospy.Duration(0.01)):
+            return self.push(WaitForRos, 'detect_bottles_action')
+        if not blackboard.detect_glass_action_client.wait_for_server(rospy.Duration(0.01)):
+            return self.push(WaitForRos, 'detect_glass_action')
 	try:
             rospy.wait_for_service('head_controller/look_at_service', 0.1)
 	except rospy.ROSException:
@@ -262,16 +266,32 @@ class InPouringPosition(AbstractDecisionElement):
         super(AbstractDecisionElement, self).__init__(blackboard)        
         blackboard.last_redoable = blackboard.POUR
 
-
     def perform(self, blackboard, reevaluate=False):
         if blackboard.redo_requested and blackboard.last_redoable == blackboard.POUR:
             return self.push(MoveToPouringPosition)
 
         if blackboard.arrived_at_pouring_position:
             # fill in liquid and wait a moment to see if redo card was shown
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, PourLiquid, Wait], [None, 5])
+            return self.push(GlassLocated)
         else:
             return self.push(MoveToPouringPosition)
 
     def get_reevaluate(self):
         return True
+
+class GlassLocated(AbstraceDecisionElement):
+    """
+    Locates the position of the glass to be able to pour
+    """
+    def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)
+        blackboard.glass_located = False
+        blackboard.glass_not_found = False
+
+    def perform(self, blackboard, reevaluate=False):
+        if blackboard.glass_located:
+            return self.push_action_sequence(SequenceElement, [PourLiquid, Wait], [None, 5])
+        if blackboard.glass_not_found:
+            return self.push(SayGlassNotFound)
+        else:
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose], [None, None, 2, None])
