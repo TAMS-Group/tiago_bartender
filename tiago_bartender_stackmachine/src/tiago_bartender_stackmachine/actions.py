@@ -12,7 +12,7 @@ from move_base_msgs.msg import MoveBaseGoal
 from std_msgs.msg import Bool
 from pal_interaction_msgs.msg import TtsGoal
 from actionlib_msgs.msg import GoalStatus
-from control_msgs.msg import FollowJointTrajectoryGoal
+from control_msgs.msg import FollowJointTrajectoryGoal, JointTolerance, FollowJointTrajectoryResult
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 import tf
 
@@ -130,6 +130,7 @@ class MoveToBottle(AbstractActionElement):
             result = blackboard.move_action_client.get_result()
             blackboard.last_bottle_pose = result.target_pose_result;
             blackboard.arrived_at_bottle = True
+            self.pop()
         else:
             self.repeat = True
 
@@ -195,6 +196,8 @@ class LookAtCustomer(AbstractActionElement):
 
 class LookAtBottle(AbstractLookAt):
     def target(self):
+        print('looking at: ')
+        print(self.blackboard.current_bottle)
         return self.blackboard.current_bottle
 
 class LookAtMenu(AbstractLookAt):
@@ -357,22 +360,29 @@ class ExtendTorso(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(ExtendTorso, self).__init__(blackboard)
         self.first_iteration = True
-        self.goal = FolloJointTrajectoryGoal()
+        self.goal = FollowJointTrajectoryGoal()
         torso_command = JointTrajectory()
         torso_command.joint_names.append("torso_lift_joint")
         jtp = JointTrajectoryPoint()
-        jtp.positions.append(0.35)
-        jtp.time_from_start = rospy.Duration.from_sec(5.0)
+        jtp.positions.append(0.30)
+        jtp.time_from_start = rospy.Duration.from_sec(2.0)
         torso_command.points.append(jtp)
         self.goal.trajectory = torso_command
+	jt = JointTolerance()
+	jt.name = 'torso_lift_joint'
+        jt.position = 0.01
+        self.goal.goal_tolerance.append(jt)
+        self.goal.goal_tolerance
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration:
             blackboard.torso_action_client.send_goal(self.goal)
+            self.first_iteration = False
 
-        state = blackboard.torso_action_client.get_state()
-        # wait till action is completed
-        if state == GoalStatus.SUCCEEDED:
+        if not blackboard.torso_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
+            return
+        result = blackboard.torso_action_client.get_result().error_code
+        if result == FollowJointTrajectoryResult.SUCCESSFUL:
             self.pop()
 
 class PickUpBottle(AbstractActionElement):
