@@ -1,4 +1,9 @@
 duration timeout
 ---
 string detected_glass
+int32 error_code
+int32 SUCCESSFUL = 0
+int32 TIMEOUT_NO_GLASS_DETECTED = -1
+int32 TIMEOUT_NO_IR_IMAGE_RECEIVED = -2
+int32 PREEMPTED = -3
 ---
