@@ -39,8 +39,8 @@ class IdleMoveAround(AbstractActionElement):
         self.goal.target_pose.pose.orientation.w = 1.0
 
     def perform(self, blackboard, reevaluate=False):
-        print("IdleMoveAround")
         if self.first_iteration or self.repeat:
+            print("IdleMoveAround")
             blackboard.move_base_action_client.send_goal(self.goal)
             self.repeat = False
             self.first_iteration = False
@@ -88,8 +88,8 @@ class MoveToCustomer(AbstractActionElement):
         self.goal.target_pose.pose.orientation.w = blackboard.take_order_pose['ori_w']
 
     def perform(self, blackboard, reevaluate=False):
-        print("MoveToCustomer")
         if self.first_iteration or self.repeat:
+            print("MoveToCustomer")
             blackboard.move_base_action_client.send_goal(self.goal)
             self.first_iteration = False
             self.repeat = False
@@ -118,6 +118,7 @@ class MoveToBottle(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
+            print('MoveToBottle')
             blackboard.move_action_client.send_goal(self.goal)
             self.first_iteration = False
             self.repeat = False
@@ -146,17 +147,16 @@ class MoveToPouringPosition(AbstractActionElement):
         self.goal = MoveToTargetGoal()
         self.goal.target = 'glass'
         self.goal.look_at_target = False
-        print('MoveToPouringPosition')
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
+            print('MoveToPouringPosition')
             blackboard.move_action_client.send_goal(self.goal)
             self.first_iteration = False
             self.repeat = False
 
         # wait till action is completed
         if not blackboard.move_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
-            print('not succeeded')
             return
         state = blackboard.move_action_client.get_state()
         if state == GoalStatus.SUCCEEDED:
@@ -232,6 +232,7 @@ class LookForCustomer(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration:
+            print('LookForCustomer')
             target = 'look_around'
             pose = PointStamped()
             try:
@@ -267,13 +268,13 @@ class AbstractSay(AbstractActionElement):
         self.blackboard = blackboard
         self.first_iteration = True
         text = random.choice(self.text())
-        print("Saying '" + text + "'")
         self.goal = TtsGoal()
         self.goal.rawtext.text = text
         self.goal.rawtext.lang_id = "en_GB"
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration:
+            print("Saying '" + self.goal.rawtext.text + "'")
             blackboard.tts_action_client.send_goal(self.goal)
             self.first_iteration = False
         state = blackboard.tts_action_client.get_state()
@@ -329,6 +330,7 @@ class ObserveOrder(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration:
+            print('ObserveOrder')
             blackboard.take_order_action_client.send_goal(self.goal)
             self.first_iteration = False
 
@@ -357,6 +359,7 @@ class UpdateBottlePose(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration:
+            print('UpdateBottlePose')
             blackboard.detect_bottles_action_client.send_goal(self.goal)
             self.first_iteration = False
         # if no result yet
@@ -381,6 +384,7 @@ class UpdateGlassPose(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration:
+            print('UpdateGlassPose')
             blackboard.detect_glass_action_client.send_goal(self.goal)
             self.first_iteration = False
         # if no result yet
@@ -419,6 +423,7 @@ class ExtendTorso(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration:
+            print('ExtendTorso')
             blackboard.torso_action_client.send_goal(self.goal)
             self.first_iteration = False
 
@@ -479,7 +484,7 @@ class PourLiquid(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
-            print('send pour liquid goal')
+            print('PourLiquid')
             blackboard.add_invisible_collision_object()
             blackboard.pour_action_client.send_goal(self.goal)
             self.first_iteration = False
@@ -534,6 +539,7 @@ class PlaceBottle(AbstractActionElement):
             self.goals = [left_goal, right_goal]
 
         if self.first_iteration or self.repeat:
+            print('PlaceBottle')
             blackboard.add_invisible_collision_object()
             blackboard.pour_action_client.send_goal(self.goals.pop(0))
             self.first_iteration = False
@@ -571,6 +577,7 @@ class MoveToBottlePose(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
+            print('MoveToBottlePose')
             blackboard.move_action_client.send_goal(self.goal)
             self.first_iteration = False
             self.repeat = False
@@ -591,6 +598,7 @@ class GetNextBottle(AbstractActionElement):
     Only to signal that the next bottle is supposed to be brought and the stack to be emptied.
     """
     def perform(self, blackboard, reevaluate=False):
+        print('getting next bottle')
         current_ingredient = blackboard.recipe.pop(0)
         blackboard.current_bottle = current_ingredient.keys()[0]
         blackboard.current_pour_time = current_ingredient.values()[0]
@@ -603,8 +611,8 @@ class Wait(AbstractActionElement):
     """
     def __init__(self, blackboard, args=10):
         super(Wait, self).__init__(blackboard)
-	print('Waiting for %s seconds.'% args)
         self.resume_time = rospy.get_time() + args
+	print('Waiting for %s seconds.'% args)
 
     def perform(self, connector, reevaluate=False):       
         if self.resume_time < rospy.get_time():
