@@ -225,6 +225,19 @@ class LookDefault(AbstractLookAt):
     def target(self):
         return "default"
 
+class LookAtPlacePose(AbstractActionElement):
+    def perform(self, blackboard, reevaluate=False):
+        target = ""
+	point = PointStamped()
+	point.header.frame_id = 'xtion_optical_frame'
+	point.point = blackboard.last_bottle_pose
+        print("Looking at place pose")
+        try:
+            blackboard.look_at_service(target, point)
+        except rospy.ServiceException, e:
+            print("Service call failed: %s"%e)
+        self.pop()
+
 class LookForCustomer(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(LookForCustomer, self).__init__(blackboard)
@@ -449,22 +462,21 @@ class PickUpBottle(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(PickUpBottle, self).__init__(blackboard)
         self.first_iteration = True
-        self.repeat = False
         self.goal = PickGoal()
         self.goal.object_id = blackboard.current_bottle
 
     def perform(self, blackboard, reevaluate=False):
-        if self.first_iteration or self.repeat:
+        if self.first_iteration:
             print("Trying to pick " + self.goal.object_id)
             blackboard.add_invisible_collision_object()
             blackboard.pick_action_client.send_goal(self.goal)
             self.first_iteration = False
-            self.repeat  = False
 
         # if no result yet
         if not blackboard.pick_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
 
+        self.manipulation_iteration = self.manipulation_iteration + 1
         blackboard.remove_invisible_collision_object()
         result = blackboard.pick_action_client.get_result().result.result
         if result == ManipulationResult.SUCCESS:
@@ -472,13 +484,13 @@ class PickUpBottle(AbstractActionElement):
             self.pop()
         elif result == ManipulationResult.UNREACHABLE:
             print("Bottle " + self.goal.object_id + " appears to be out of reach")
-            self.repeat = True
+            self.pop()
         elif result == ManipulationResult.NO_PLAN_FOUND:
             print("Failed to plan pick for " + self.goal.object_id)
-            self.repeat = True
+            self.pop()
         elif result == ManipulationResult.EXECUTION_FAILED:
             print("Execution of pick failed for " + self.goal.object_id)
-            self.repeat = True
+            self.pop()
 
 class PourLiquid(AbstractActionElement):
     """
@@ -487,22 +499,21 @@ class PourLiquid(AbstractActionElement):
     def __init__(self, blackboard, _):
         super(PourLiquid, self).__init__(blackboard)
         self.first_iteration = True
-        self.repeat = False
         self.goal = PourGoal()
         self.goal.container_id = 'glass'
 
     def perform(self, blackboard, reevaluate=False):
-        if self.first_iteration or self.repeat:
+        if self.first_iteration:
             print('PourLiquid')
             blackboard.add_invisible_collision_object()
             blackboard.pour_action_client.send_goal(self.goal)
             self.first_iteration = False
-            self.repeat  = False
 
         # if no result yet
         if not blackboard.pour_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
 
+        self.manipulation_iteration = self.manipulation_iteration + 1
         blackboard.remove_invisible_collision_object()
         result = blackboard.pour_action_client.get_result().result.result
         if result == ManipulationResult.SUCCESS:
@@ -511,13 +522,13 @@ class PourLiquid(AbstractActionElement):
             self.pop()
         elif result == ManipulationResult.UNREACHABLE:
             print('unreachable')
-            self.repeat = True
+            self.pop()
         elif result == ManipulationResult.NO_PLAN_FOUND:
             print('no plan found')
-            self.repeat = True
+            self.pop()
         elif result == ManipulationResult.EXECUTION_FAILED:
             print('execution failed')
-            self.repeat = True
+            self.pop()
 
 class PlaceBottle(AbstractActionElement):
     """

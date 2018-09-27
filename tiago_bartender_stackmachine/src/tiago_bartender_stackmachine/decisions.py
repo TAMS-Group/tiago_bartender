@@ -190,12 +190,16 @@ class PutLastBottleBack(AbstractDecisionElement):
     """
     Put away last bottle and go back to init via interrupt.
     """
+    def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)
+        blackboard.arrived_at_bottle = False
+
     def perform(self, blackboard, reevaluate=False):
         if not blackboard.arrived_at_bottle:
             first_iteration = False
             return self.push_action_sequence(SequenceElement, [LookDefault, MoveToBottlePose], [None, None])
         elif blackboard.bottle_grasped:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, PlaceBottle], [None, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtBottlePose, Wait, UpdateBottlePose, PlaceBottle], [None, None, 2, None, None])
         else:
             # resetting variables in blackboard and going back to HasCustomer
             blackboard.reset()
@@ -212,7 +216,7 @@ class PutBottleBack(AbstractDecisionElement):
         if not blackboard.arrived_at_bottle and blackboard.bottle_grasped:
             return self.push_action_sequence(SequenceElement, [LookDefault, MoveToBottlePose], [None, None])
         elif blackboard.bottle_grasped:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, PlaceBottle], [None, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtBottlePose, Wait, UpdateBottlePose, PlaceBottle], [None, None, 2, None, None])
         else:
             return self.push(InFrontOfRequiredBottle)
 
@@ -252,15 +256,21 @@ class BottleLocated(AbstractDecisionElement):
         elif blackboard.bottle_not_found:
             return self.push_action_sequence(SequenceElement, [SearchBottleLeft, Wait, SearchBottleRight, SayBottleNotFound], [None, 2, None, None])
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtBottle, UpdateBottlePose], [None, None, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtBottle, Wait, UpdateBottlePose], [None, None, 2, None])
 
 class BottleGrasped(AbstractDecisionElement):
     """
     Graps the bottle
     """
+    def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)        
+        self.manipulation_iteration = 0
+
     def perform(self, blackboard, reevaluate=False):
         if blackboard.bottle_grasped:
             return self.push(InPouringPosition)
+        if self.manipulation_iteration > 3:
+            return self.push_action_sequence(SequenceElement, [LookAtBottle, Wait, UpdateBottlePose, PickUpBottle], [None, 2, None, None])
         else:
             return self.push(PickUpBottle)
 
@@ -293,10 +303,13 @@ class GlassLocated(AbstractDecisionElement):
         super(AbstractDecisionElement, self).__init__(blackboard)
         blackboard.glass_located = False
         blackboard.glass_not_found = False
+        self.manipulation_iteration = 0
 
     def perform(self, blackboard, reevaluate=False):
+        if self.manipulation_iteration > 3:
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose ,PourLiquid], [None, None, 2, None ,None])
         if blackboard.glass_located:
-            return self.push_action_sequence(SequenceElement, [PourLiquid, Wait], [None, 5])
+            return self.push_action_sequence(SequenceElement, [PourLiquid], [None])
         if blackboard.glass_not_found:
             return self.push(SayGlassNotFound)
         else:
