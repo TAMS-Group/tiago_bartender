@@ -113,6 +113,7 @@ class MoveToBottle(AbstractActionElement):
         self.repeat = False
         blackboard.arrived_at_bottle = False
         self.goal = MoveToTargetGoal()
+        print('moving to target: ' + str(blackboard.current_bottle))
         self.goal.target = blackboard.current_bottle
         self.goal.look_at_target = False
 
@@ -229,8 +230,8 @@ class LookAtPlacePose(AbstractActionElement):
     def perform(self, blackboard, reevaluate=False):
         target = ""
 	point = PointStamped()
-	point.header.frame_id = 'xtion_optical_frame'
-	point.point = blackboard.last_bottle_pose
+	point.header = blackboard.last_bottle_pose.header
+	point.point = blackboard.last_bottle_pose.pose.position
         print("Looking at place pose")
         try:
             blackboard.look_at_service(target, point)
