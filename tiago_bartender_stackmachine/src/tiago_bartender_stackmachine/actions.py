@@ -64,6 +64,13 @@ class WaitForRos(AbstractActionElement):
         rospy.loginfo_throttle(10, "Waiting for server %s"% self.name)
         self.pop()
 
+class HomePose(AbstractActionElement):
+    def perform(self, blackboard, reevaluate=False):
+        mg = moveit_commander.MoveGroupCommander("arm_torso")
+        mg.set_named_target("home")
+        mg.go()
+        blackboard.in_home_pose = True
+        self.pop()
 
 class WaitingToResume(AbstractActionElement):
     """

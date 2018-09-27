@@ -2,7 +2,7 @@ import rospy
 import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
-from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight, SayAcid, LookAtGlass, LookAtPlacePose
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight, SayAcid, LookAtGlass, LookAtPlacePose, HomePose
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -24,10 +24,6 @@ class Init(AbstractDecisionElement):
         self.initilized = False
 
     def perform(self, blackboard, reevaluate=False):
-        mg = moveit_commander.MoveGroupCommander("arm_torso")
-        mg.set_named_target("home")
-        mg.go()
-
         if not blackboard.move_action_client.wait_for_server(rospy.Duration(0.01)):
             return self.push(WaitForRos, 'move_to_target')
         if not blackboard.torso_action_client.wait_for_server(rospy.Duration(0.01)):
@@ -85,6 +81,8 @@ class HasCustomer(AbstractDecisionElement):
     Decide what to do based on whether we currently have a customer
     """
     def perform(self, blackboard, reevaluate=False):
+        if not blackboard.in_home_pose:
+            return self.push(HomePose)
         if blackboard.has_customer:
             return self.push(InFrontOfCustomer)
         else:

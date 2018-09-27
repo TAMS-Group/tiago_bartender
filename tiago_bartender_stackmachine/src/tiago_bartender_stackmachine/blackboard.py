@@ -139,6 +139,7 @@ class Blackboard:
     def reset(self):
         self.has_customer = False
         self.person_detected = False
+        self.in_home_pose = False
 
         self.arrived_at_customer = False
         self.arrived_at_bottle = False
