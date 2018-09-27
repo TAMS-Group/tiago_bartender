@@ -133,6 +133,8 @@ class MoveToBottle(AbstractActionElement):
             blackboard.last_bottle_pose = result.target_pose_result;
             blackboard.arrived_at_bottle = True
             self.pop()
+        if state == GoalStatus.ABORTED:
+            rospy.logerr("Target '%s' not found in scene!", self.goal.target)
         else:
             self.repeat = True
 
