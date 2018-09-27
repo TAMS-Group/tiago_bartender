@@ -264,12 +264,12 @@ class BottleGrasped(AbstractDecisionElement):
     """
     def __init__(self, blackboard, _):
         super(AbstractDecisionElement, self).__init__(blackboard)        
-        self.manipulation_iteration = 0
+        blackboard.manipulation_iteration = 0
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.bottle_grasped:
             return self.push(InPouringPosition)
-        if self.manipulation_iteration > 3:
+        if blackboard.manipulation_iteration > 3:
             return self.push_action_sequence(SequenceElement, [LookAtBottle, Wait, UpdateBottlePose, PickUpBottle], [None, 2, None, None])
         else:
             return self.push(PickUpBottle)
@@ -303,10 +303,10 @@ class GlassLocated(AbstractDecisionElement):
         super(AbstractDecisionElement, self).__init__(blackboard)
         blackboard.glass_located = False
         blackboard.glass_not_found = False
-        self.manipulation_iteration = 0
+        blackboard.manipulation_iteration = 0
 
     def perform(self, blackboard, reevaluate=False):
-        if self.manipulation_iteration > 3:
+        if blackboard.manipulation_iteration > 3:
             return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose ,PourLiquid], [None, None, 2, None ,None])
         if blackboard.glass_located:
             return self.push_action_sequence(SequenceElement, [PourLiquid], [None])

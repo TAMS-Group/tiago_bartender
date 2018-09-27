@@ -476,7 +476,7 @@ class PickUpBottle(AbstractActionElement):
         if not blackboard.pick_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
 
-        self.manipulation_iteration = self.manipulation_iteration + 1
+        blackboard.manipulation_iteration = blackboard.manipulation_iteration + 1
         blackboard.remove_invisible_collision_object()
         result = blackboard.pick_action_client.get_result().result.result
         if result == ManipulationResult.SUCCESS:
@@ -513,7 +513,7 @@ class PourLiquid(AbstractActionElement):
         if not blackboard.pour_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
 
-        self.manipulation_iteration = self.manipulation_iteration + 1
+        blackboard.manipulation_iteration = blackboard.manipulation_iteration + 1
         blackboard.remove_invisible_collision_object()
         result = blackboard.pour_action_client.get_result().result.result
         if result == ManipulationResult.SUCCESS:

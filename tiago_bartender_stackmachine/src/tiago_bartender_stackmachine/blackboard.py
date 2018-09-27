@@ -27,6 +27,8 @@ class Blackboard:
 
         self.redo_requested = False
 
+        self.manipulation_iteration = 0
+
         self.last_redoable = None
         self.TAKE_ORDER = 1
         self.PICK = 2
