@@ -97,8 +97,6 @@ class Idle(AbstractDecisionElement):
         # TODO: implement alternatives
         return self.push_action_sequence(SequenceElement, [LookDefault, IdleMoveAround, LookForCustomer], [None, None, None])
 
-
-
 class InFrontOfCustomer(AbstractDecisionElement):
     """
     Decide whether to take order or move to customer first
@@ -153,7 +151,7 @@ class TakeOrder(AbstractDecisionElement):
             blackboard.no_menu_found = False
             return self.push_action_sequence(SequenceElement, [SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer], [None, None, None, None])
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer], [None, None, None, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer], [None, None, None, None, None])
 
 
 class MakeCocktail(AbstractDecisionElement):
@@ -287,7 +285,7 @@ class InPouringPosition(AbstractDecisionElement):
     def get_reevaluate(self):
         return True
 
-class GlassLocated(AbstraceDecisionElement):
+class GlassLocated(AbstractDecisionElement):
     """
     Locates the position of the glass to be able to pour
     """
