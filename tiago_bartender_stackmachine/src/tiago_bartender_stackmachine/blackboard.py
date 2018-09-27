@@ -6,7 +6,7 @@ from tiago_bartender_msgs.srv import LookAt
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
 from move_base_msgs.msg import MoveBaseAction
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, String
 from moveit_msgs.srv import ApplyPlanningScene
 from moveit_msgs.msg import PlanningScene, PlanningSceneWorld, CollisionObject
 from shape_msgs.msg import SolidPrimitive
@@ -52,6 +52,9 @@ class Blackboard:
 
         # subscribers
         self.person_detections_sub = rospy.Subscriber('person_detection/person_detections', PersonDetections, self.person_detections_cb)
+        self.command_cards_sub = rospy.Subscriber('/command_cards/commands', String, self.command_cards_cb)
+
+        self.last_pause_detection = rospy.Time.now()
 
         # parameters
         self.recipes = None
@@ -113,6 +116,12 @@ class Blackboard:
         if len(detections.detections) > 0:
             self.person_detected = True
             self.person_position = detections.detections[0].position
+
+    def command_cards_cb(self, command):
+        if command.data == 'pause':
+            if (rospy.Time.now() - self.last_pause_detection) > rospy.Duration.from_sec(10.0):
+                self.last_pause_detection = rospy.Time.now()
+                self.is_paused = not self.is_paused
 
     def reset_for_next_bottle(self):
         self.arrived_at_pouring_position = False
