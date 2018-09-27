@@ -361,12 +361,12 @@ int main(int argc, char **argv) {
       // std::cout << "matches " << matches.size() << std::endl;
       // ROS_INFO("matches %i", (int)matches.size());
 
-      {
+      /*{
         cv::Mat img_matches;
         cv::drawMatches(image_object, keypoints_object, image_scene,
                         keypoints_scene, matches, img_matches);
         cv::imshow("matches", img_matches);
-      }
+      }*/
 
       if (matches.size() < minMatches) {
         cancelOrderAction();
