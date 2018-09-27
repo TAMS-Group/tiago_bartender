@@ -180,7 +180,7 @@ class DrinkFinished(AbstractDecisionElement):
     """
     The Drink is finished. Tell it to the costumer and clean up
     """
-    def __init__(self, blackboard):
+    def __init__(self, blackboard, _):
         super(AbstractDecisionElement, self).__init__(blackboard)
         self.first = True
 
