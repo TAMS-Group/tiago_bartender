@@ -510,38 +510,22 @@ class PourLiquid(AbstractActionElement):
             print('execution failed')
             self.repeat = True
 
-
-
 class PlaceBottle(AbstractActionElement):
     """
-    Calls the placing action
+    Calls the place action
     """
     def __init__(self, blackboard, _):
         super(PlaceBottle, self).__init__(blackboard)
         self.first_iteration = True
         self.repeat = False
-        self.goals = []
+        self.goal = PlaceGoal()
+        self.goal.place_pose = blackboard.last_bottle_pose
 
     def perform(self, blackboard, reevaluate=False):
-        if not self.goals:
-            goal = PlaceGoal()
-            frame = blackboard.place_bottle_offset['frame']
-            goal.place_pose = blackboard.tf_listener_.transformPose(frame, blackboard.last_bottle_pose)
-            left_goal = copy.deepcopy(goal)
-            right_goal = copy.deepcopy(goal)
-            offset_x = blackboard.place_bottle_offset['x']
-            offset_y = blackboard.place_bottle_offset['y']
-            left_goal.place_pose.pose.position.x = left_goal.place_pose.pose.position.x + offset_x
-            left_goal.place_pose.pose.position.y = left_goal.place_pose.pose.position.y + offset_y
-            right_goal.place_pose.pose.position.x = right_goal.place_pose.pose.position.x - offset_x
-            right_goal.place_pose.pose.position.y = right_goal.place_pose.pose.position.y - offset_y
-
-            self.goals = [left_goal, right_goal]
-
         if self.first_iteration or self.repeat:
             print('PlaceBottle')
             blackboard.add_invisible_collision_object()
-            blackboard.pour_action_client.send_goal(self.goals.pop(0))
+            blackboard.place_action_client.send_goal(self.goal)
             self.first_iteration = False
             self.repeat  = False
 
@@ -550,15 +534,18 @@ class PlaceBottle(AbstractActionElement):
             return
 
         blackboard.remove_invisible_collision_object()
-        result = blackboard.place_action_client.get_result()
-        if result.result == ManipulationResult.SUCCESS:
+        result = blackboard.place_action_client.get_result().result.result
+        if result == ManipulationResult.SUCCESS:
             blackboard.bottle_grasped = False
             self.pop()
-        elif result.result == ManipulationResult.UNREACHABLE:
+        elif result == ManipulationResult.UNREACHABLE:
+            print("Bottle place pose unreachable")
             self.repeat = True
-        elif result.result == ManipulationResult.NO_PLAN_FOUND:
+        elif result == ManipulationResult.NO_PLAN_FOUND:
+            print("No plan found for place")
             self.repeat = True
-        elif result.result == ManipulationResult.EXECUTION_FAILED:
+        elif result == ManipulationResult.EXECUTION_FAILED:
+            print("Execution failed for place")
             self.repeat = True
 
 class MoveToBottlePose(AbstractActionElement):
