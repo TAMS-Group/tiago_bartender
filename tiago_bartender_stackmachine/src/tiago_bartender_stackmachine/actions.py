@@ -20,25 +20,35 @@ import tf
 class AbstractTiagoActionElement(AbstractActionElemnt):
     def __init__(self, blackboard, _):
         super(AbstractTiagoActionElement, self).__init__(blackboard)
-        action_marker = Marker()
-        action_marker.header.frame_id = 'base_footprint'
-        action_marker.ns = 'tiago_bartender_action'
-        action_marker.id = 0
-        action_marker.type = Marker.TEXT_VIEW_FACING
-        action_marker.action = Marker.ADD
-        action_marker.pose.position.z = 2.0
-        action_marker.scale.x = 1.0
-        action_marker.scale.y = 1.0
-        action_marker.scale.z = 1.0
-        action_marker.color.r = 1.0
-        action_marker.color.g = 1.0
-        action_marker.color.b = 1.0
-        action_marker.color.a = 0.5
-        action_marker.frame_locked = True
-        action_marker.text = self.__class__.__name__
-        blackboard.action_marker_pub.publish(action_marker)
+        self.action_marker = Marker()
+        self.action_marker.header.frame_id = 'base_footprint'
+        self.action_marker.ns = 'tiago_bartender_action'
+        self.action_marker.id = 0
+        self.action_marker.type = Marker.TEXT_VIEW_FACING
+        self.action_marker.action = Marker.ADD
+        self.action_marker.pose.position.z = 2.0
+        self.action_marker.scale.x = 1.0
+        self.action_marker.scale.y = 1.0
+        self.action_marker.scale.z = 1.0
+        self.action_marker.color.r = 1.0
+        self.action_marker.color.g = 1.0
+        self.action_marker.color.b = 1.0
+        self.action_marker.color.a = 0.5
+        self.action_marker.frame_locked = True
+        self.action_marker.text = self.__class__.__name__
+        self.first_time = True
 
-class IdleMoveAround(AbstractActionElement):
+    def perform(self, blackboard, reevaluate=False):
+        if self.first_time:
+            blackboard.action_marker_pub.publish(action_marker)
+            self.first_time = False
+        
+        self.do(blackboard, reevaluate)
+
+    def do(self, blackboard, reevaluate):
+        raise NotImplementedError()
+
+class IdleMoveAround(AbstractTiagoActionElement):
     """
     move to random pose behind the counter
     """
@@ -60,7 +70,7 @@ class IdleMoveAround(AbstractActionElement):
         self.goal.target_pose.pose.position.y = self.goal_y
         self.goal.target_pose.pose.orientation.w = 1.0
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
             print("IdleMoveAround")
             blackboard.move_base_action_client.send_goal(self.goal)
@@ -77,32 +87,38 @@ class IdleMoveAround(AbstractActionElement):
             self.repeat = True
 
 
-class WaitForRos(AbstractActionElement):
+class WaitForRos(AbstractTiagoActionElement):
     def __init__(self, blackboard, args=''):
         super(WaitForRos, self).__init__(blackboard)
         self.first_iteration = True
         self.name = args
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         rospy.loginfo_throttle(10, "Waiting for server %s"% self.name)
         self.pop()
 
-class HomePose(AbstractActionElement):
-    def perform(self, blackboard, reevaluate=False):
+class HomePose(AbstractTiagoActionElement):
+    def __init__(self, blackboard, _):
+        super(HomePose, self).__init__(blackboard)
+
+    def do(self, blackboard, reevaluate=False):
         mg = moveit_commander.MoveGroupCommander("arm_torso")
         mg.set_named_target("home")
         mg.go()
         blackboard.in_home_pose = True
         self.pop()
 
-class WaitingToResume(AbstractActionElement):
+class WaitingToResume(AbstractTiagoActionElement):
     """
     This action doesn't do anything and is only put on the stack for visualization purposes
     """
-    def perform(self, blackboard, reevaluate=False):
+    def __init__(self, blackboard, _):
+        super(WaitingToResume, self).__init__(blackboard)
+
+    def do(self, blackboard, reevaluate=False):
         rospy.loginfo_throttle(10, "I'm currently paused. Please show pause card to unpause me.")
 
 
-class MoveToCustomer(AbstractActionElement):
+class MoveToCustomer(AbstractTiagoActionElement):
     def __init__(self, blackboard, _):
         super(MoveToCustomer, self).__init__(blackboard)
         self.first_iteration = True
@@ -116,7 +132,7 @@ class MoveToCustomer(AbstractActionElement):
         self.goal.target_pose.pose.orientation.z = blackboard.take_order_pose['ori_z']
         self.goal.target_pose.pose.orientation.w = blackboard.take_order_pose['ori_w']
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
             print("MoveToCustomer")
             blackboard.move_base_action_client.send_goal(self.goal)
@@ -132,7 +148,7 @@ class MoveToCustomer(AbstractActionElement):
         else:
             self.repeat = True
 
-class MoveToBottle(AbstractActionElement):
+class MoveToBottle(AbstractTiagoActionElement):
     """
     Moves to the pose to put down the last bottle of the recipe
     """
@@ -146,7 +162,7 @@ class MoveToBottle(AbstractActionElement):
         self.goal.target = blackboard.current_bottle
         self.goal.look_at_target = False
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
             print('MoveToBottle')
             blackboard.move_action_client.send_goal(self.goal)
@@ -167,7 +183,7 @@ class MoveToBottle(AbstractActionElement):
         else:
             self.repeat = True
 
-class MoveToPouringPosition(AbstractActionElement):
+class MoveToPouringPosition(AbstractTiagoActionElement):
     """
     Moves to the pose to put down the last bottle of the recipe
     """
@@ -180,7 +196,7 @@ class MoveToPouringPosition(AbstractActionElement):
         self.goal.target = 'glass'
         self.goal.look_at_target = False
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
             print('MoveToPouringPosition')
             blackboard.move_action_client.send_goal(self.goal)
@@ -197,12 +213,12 @@ class MoveToPouringPosition(AbstractActionElement):
         else:
             self.repeat = True
 
-class AbstractLookAt(AbstractActionElement):
+class AbstractLookAt(AbstractTiagoActionElement):
     def __init__(self, blackboard, _):
         super(AbstractLookAt, self).__init__(blackboard)
         self.blackboard = blackboard
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         target = self.target()
         pose = PointStamped()
         print("Looking at " + target)
@@ -216,8 +232,11 @@ class AbstractLookAt(AbstractActionElement):
         raise NotImplementedError
 
 
-class LookAtCustomer(AbstractActionElement):
-    def perform(self, blackboard, reevaluate=False):
+class LookAtCustomer(AbstractTiagoActionElement):
+    def __init__(self, blackboard, _):
+        super(LookAtCustomer, self).__init__(blackboard)
+
+    def do(self, blackboard, reevaluate=False):
         target = "customer"
 	point = PointStamped()
 	point.header.frame_id = 'xtion_optical_frame'
@@ -257,8 +276,11 @@ class LookDefault(AbstractLookAt):
     def target(self):
         return "default"
 
-class LookAtPlacePose(AbstractActionElement):
-    def perform(self, blackboard, reevaluate=False):
+class LookAtPlacePose(AbstractTiagoActionElement):
+    def __init__(self, blackboard, _):
+        super(LookAtPlacePose, self).__init__(blackboard)
+
+    def do(self, blackboard, reevaluate=False):
         target = ""
 	point = PointStamped()
 	point.header = blackboard.last_bottle_pose.header
@@ -270,12 +292,12 @@ class LookAtPlacePose(AbstractActionElement):
             print("Service call failed: %s"%e)
         self.pop()
 
-class LookForCustomer(AbstractActionElement):
+class LookForCustomer(AbstractTiagoActionElement):
     def __init__(self, blackboard, _):
         super(LookForCustomer, self).__init__(blackboard)
         self.first_iteration = True
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration:
             print('LookForCustomer')
             target = 'look_around'
@@ -307,7 +329,7 @@ class LookForCustomer(AbstractActionElement):
 
             self.pop()
 
-class AbstractSay(AbstractActionElement):
+class AbstractSay(AbstractTiagoActionElement):
     def __init__(self, blackboard, _):
         super(AbstractSay, self).__init__(blackboard)
         self.blackboard = blackboard
@@ -317,7 +339,7 @@ class AbstractSay(AbstractActionElement):
         self.goal.rawtext.text = text
         self.goal.rawtext.lang_id = "en_GB"
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration:
             print("Saying '" + self.goal.rawtext.text + "'")
             blackboard.tts_action_client.send_goal(self.goal)
@@ -372,14 +394,14 @@ class SayGlassNotFound(AbstractSay):
         self.blackboard.glass_not_found = False
         return ["I was sure I put the glass right here. Please help me by putting the it in front of me."]
 
-class ObserveOrder(AbstractActionElement):
+class ObserveOrder(AbstractTiagoActionElement):
     def __init__(self, blackboard, _):
         super(ObserveOrder, self).__init__(blackboard)
         self.first_iteration = True
         self.goal = TakeOrderGoal()
         self.goal.timeout = rospy.Duration.from_sec(20)
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration:
             print('ObserveOrder')
             blackboard.take_order_action_client.send_goal(self.goal)
@@ -403,7 +425,7 @@ class ObserveOrder(AbstractActionElement):
                 blackboard.recipe = copy.deepcopy(blackboard.recipes[result.selection])
                 self.pop()
 
-class UpdateBottlePose(AbstractActionElement):
+class UpdateBottlePose(AbstractTiagoActionElement):
     def __init__(self, blackboard, _):
         super(UpdateBottlePose, self).__init__(blackboard)
         self.first_iteration = True
@@ -411,7 +433,7 @@ class UpdateBottlePose(AbstractActionElement):
         self.goal.timeout = rospy.Duration.from_sec(10)
         self.goal.stability_threshold = 5
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration:
             print('UpdateBottlePose')
             blackboard.detect_bottles_action_client.send_goal(self.goal)
@@ -429,14 +451,14 @@ class UpdateBottlePose(AbstractActionElement):
             blackboard.bottle_not_found = True
             self.pop()
 
-class UpdateGlassPose(AbstractActionElement):
+class UpdateGlassPose(AbstractTiagoActionElement):
     def __init__(self, blackboard, _):
         super(UpdateGlassPose, self).__init__(blackboard)
         self.first_iteration = True
         self.goal = DetectGlassGoal()
         self.goal.timeout = rospy.Duration.from_sec(10)
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration:
             print('UpdateGlassPose')
             blackboard.detect_glass_action_client.send_goal(self.goal)
@@ -456,7 +478,7 @@ class UpdateGlassPose(AbstractActionElement):
             blackboard.glass_not_found = True
             self.pop()
 
-class ExtendTorso(AbstractActionElement):
+class ExtendTorso(AbstractTiagoActionElement):
     """
     Extend the torso to maximum height
     """
@@ -477,7 +499,7 @@ class ExtendTorso(AbstractActionElement):
         self.goal.goal_tolerance.append(jt)
         self.goal.goal_tolerance
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration:
             print('ExtendTorso')
             blackboard.torso_action_client.send_goal(self.goal)
@@ -489,7 +511,7 @@ class ExtendTorso(AbstractActionElement):
         if result == FollowJointTrajectoryResult.SUCCESSFUL:
             self.pop()
 
-class PickUpBottle(AbstractActionElement):
+class PickUpBottle(AbstractTiagoActionElement):
     """
     Calls the pick action
     """
@@ -499,7 +521,7 @@ class PickUpBottle(AbstractActionElement):
         self.goal = PickGoal()
         self.goal.object_id = blackboard.current_bottle
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration:
             print("Trying to pick " + self.goal.object_id)
             blackboard.add_invisible_collision_object()
@@ -526,7 +548,7 @@ class PickUpBottle(AbstractActionElement):
             print("Execution of pick failed for " + self.goal.object_id)
             self.pop()
 
-class PourLiquid(AbstractActionElement):
+class PourLiquid(AbstractTiagoActionElement):
     """
     Calls the pouring action
     """
@@ -536,7 +558,7 @@ class PourLiquid(AbstractActionElement):
         self.goal = PourGoal()
         self.goal.container_id = 'glass'
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration:
             print('PourLiquid')
             blackboard.add_invisible_collision_object()
@@ -564,7 +586,7 @@ class PourLiquid(AbstractActionElement):
             print('execution failed')
             self.pop()
 
-class PlaceBottle(AbstractActionElement):
+class PlaceBottle(AbstractTiagoActionElement):
     """
     Calls the place action
     """
@@ -575,7 +597,7 @@ class PlaceBottle(AbstractActionElement):
         self.goal = PlaceGoal()
         self.goal.place_pose = blackboard.last_bottle_pose
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
             print('PlaceBottle')
             blackboard.add_invisible_collision_object()
@@ -602,7 +624,7 @@ class PlaceBottle(AbstractActionElement):
             print("Execution failed for place")
             self.repeat = True
 
-class MoveToBottlePose(AbstractActionElement):
+class MoveToBottlePose(AbstractTiagoActionElement):
     """
     Moves to the pose to put down the last bottle of the recipe
     """
@@ -616,7 +638,7 @@ class MoveToBottlePose(AbstractActionElement):
         self.goal.target_pose = blackboard.last_bottle_pose
         self.goal.look_at_target = False
 
-    def perform(self, blackboard, reevaluate=False):
+    def do(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
             print('MoveToBottlePose')
             blackboard.move_action_client.send_goal(self.goal)
@@ -633,12 +655,15 @@ class MoveToBottlePose(AbstractActionElement):
         else:
             self.repeat = True
 
-class GetNextBottle(AbstractActionElement):
+class GetNextBottle(AbstractTiagoActionElement):
     """
     Gets only pushed on the stack temporarily by the MakeCocktail decision.
     Only to signal that the next bottle is supposed to be brought and the stack to be emptied.
     """
-    def perform(self, blackboard, reevaluate=False):
+    def __init__(self, blackboard, _):
+        super(GetNextBottle, self).__init__(blackboard)
+
+    def do(self, blackboard, reevaluate=False):
         print('getting next bottle')
         current_ingredient = blackboard.recipe.pop(0)
         blackboard.current_bottle = current_ingredient.keys()[0]
@@ -646,7 +671,7 @@ class GetNextBottle(AbstractActionElement):
         blackboard.get_next_bottle = False
         blackboard.got_next_bottle = True
 
-class Wait(AbstractActionElement):
+class Wait(AbstractTiagoActionElement):
     """
     Waits the amount of seconds given on init and pops
     """
@@ -655,6 +680,6 @@ class Wait(AbstractActionElement):
         self.resume_time = rospy.get_time() + args
 	print('Waiting for %s seconds.'% args)
 
-    def perform(self, connector, reevaluate=False):       
+    def do(self, connector, reevaluate=False):       
         if self.resume_time < rospy.get_time():
-            self.pop()        
+            self.pop()
