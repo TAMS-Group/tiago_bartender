@@ -290,6 +290,12 @@ class SayPleaseOrder(AbstractSay):
         return ["Welcome. You can order by pointing at the drink of your choice on the menu card.",
                 "Hello there. Please order by pointing at one of the drinks on the menu card."]
 
+class SayAcid(AbstractSay):
+    def text(self):
+        self.blackboard.current_drink = ''
+        return ["I am sorry. We only serve this to robots. But if you'd like you can choose a different drink.",
+                "I am sorry. But I don't think your weak human body will be able to handle this. Please choose a different drink."]
+
 class SayNoMenuFoundRepeat(AbstractSay):
     def text(self):
         return ["I thought I put the menu card here? Could you help me and put the menu card in front of me.", 
@@ -346,8 +352,11 @@ class ObserveOrder(AbstractActionElement):
             self.pop()
         else:
             blackboard.current_drink = result.selection
-            blackboard.recipe = copy.deepcopy(blackboard.recipes[result.selection])
-            self.pop()
+            if blackboard.current_drink == 'sulfuric_acid':
+                self.pop()
+            else:
+                blackboard.recipe = copy.deepcopy(blackboard.recipes[result.selection])
+                self.pop()
 
 class UpdateBottlePose(AbstractActionElement):
     def __init__(self, blackboard, _):

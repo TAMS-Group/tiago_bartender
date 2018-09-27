@@ -1,0 +1,4 @@
+<launch>
+  <node name="tiago_bartender_stackmachine" pkg="tiago_bartender_stackmachine" type="place_test.py" output="screen">
+  </node>
+</launch>

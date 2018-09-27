@@ -140,6 +140,8 @@ class TakeOrder(AbstractDecisionElement):
         blackboard.no_menu_found = False
 
     def perform(self, blackboard, reevaluate=False):
+        if blackboard.current_drink == 'sulfuric_acid':
+            return self.push(SayAcid)
         if blackboard.recipe:
             if self.order_confirmed:
                 blackboard.get_next_bottle = True

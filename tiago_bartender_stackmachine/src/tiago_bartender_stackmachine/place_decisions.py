@@ -8,6 +8,7 @@ from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
 from move_base_msgs.msg import MoveBaseAction
 from tiago_bartender_msgs.srv import LookAt
+from geometry_msgs.msg import PoseStamped
 
 
 # @BitBots: see IMPROVE tags
@@ -23,6 +24,7 @@ class Init(AbstractDecisionElement):
         # set variables needed for the test
         blackboard.current_bottle = 'coke'
         blackboard.bottle_grasped = True
+        blackboard.last_bottle_pose = PoseStamped()
 
         self.initilized = False
 
