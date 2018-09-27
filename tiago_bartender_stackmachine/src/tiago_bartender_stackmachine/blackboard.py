@@ -111,7 +111,7 @@ class Blackboard:
         rospy.loginfo("Initializing look_at service client")
         self.look_at_service = rospy.ServiceProxy("head_controller/look_at_service", LookAt)
         self.planning_scene_service = rospy.ServiceProxy("apply_planning_scene", ApplyPlanningScene)
-        self.person_detection_switch_pub = rospy.Publisher("person_detection/set_enabled", Bool, queue_size=10)
+        self.person_detection_switch_pub = rospy.Publisher("person_detection/set_enabled", Bool, queue_size=1, latch=True)
 
     def person_detections_cb(self, detections):
         #TODO: Check if customer in front of bar
