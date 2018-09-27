@@ -13,6 +13,7 @@ from shape_msgs.msg import SolidPrimitive
 from geometry_msgs.msg import Pose
 from moveit_msgs.msg import ObjectColor
 from tf import TransformListener
+from visualization_msgs.msg import Marker
 import math
 
 
@@ -112,6 +113,7 @@ class Blackboard:
         self.look_at_service = rospy.ServiceProxy("head_controller/look_at_service", LookAt)
         self.planning_scene_service = rospy.ServiceProxy("apply_planning_scene", ApplyPlanningScene)
         self.person_detection_switch_pub = rospy.Publisher("person_detection/set_enabled", Bool, queue_size=1, latch=True)
+        self.action_marker_pub = rospy.Publisher("tiago_bartender_action_marker", Marker, queue_size=1)
 
     def person_detections_cb(self, detections):
         #TODO: Check if customer in front of bar
