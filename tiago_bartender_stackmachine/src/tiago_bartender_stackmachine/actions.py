@@ -416,9 +416,11 @@ class UpdateGlassPose(AbstractActionElement):
         blackboard.glass_located = False
         result = blackboard.detect_glass_action_client.get_result()
         if result.detected_glass == 'glass':
+            print('glass located')
             blackboard.glass_located = True
             self.pop()
         else:
+            print('glass not found')
             blackboard.glass_not_found = True
             self.pop()
 
