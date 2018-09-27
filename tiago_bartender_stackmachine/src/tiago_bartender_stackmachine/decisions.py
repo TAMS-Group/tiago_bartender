@@ -8,6 +8,7 @@ from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
 from move_base_msgs.msg import MoveBaseAction
 from tiago_bartender_msgs.srv import LookAt
+import moveit_commander
 
 
 # @BitBots: see IMPROVE tags
@@ -23,6 +24,10 @@ class Init(AbstractDecisionElement):
         self.initilized = False
 
     def perform(self, blackboard, reevaluate=False):
+        mg = moveit_commander.MoveGroupCommander("arm_torso")
+        mg.set_named_target("home")
+        mg.go()
+
         if not blackboard.move_action_client.wait_for_server(rospy.Duration(0.01)):
             return self.push(WaitForRos, 'move_to_target')
         if not blackboard.torso_action_client.wait_for_server(rospy.Duration(0.01)):
