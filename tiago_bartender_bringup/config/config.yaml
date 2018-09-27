@@ -105,7 +105,7 @@ scene_objects:
   glass:
       frame: 'map'
       type: glass
-      pos_x: 1.25
+      pos_x: 1.1
       pos_y: -0.3
       pos_z: 0.8
 
