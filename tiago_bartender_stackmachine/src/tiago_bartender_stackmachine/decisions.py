@@ -2,12 +2,13 @@ import rospy
 import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
-from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight, SayAcid, LookAtGlass, LookAtPlacePose, HomePose
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
 from move_base_msgs.msg import MoveBaseAction
 from tiago_bartender_msgs.srv import LookAt
+import moveit_commander
 
 
 # @BitBots: see IMPROVE tags
@@ -80,6 +81,8 @@ class HasCustomer(AbstractDecisionElement):
     Decide what to do based on whether we currently have a customer
     """
     def perform(self, blackboard, reevaluate=False):
+        if not blackboard.in_home_pose:
+            return self.push(HomePose)
         if blackboard.has_customer:
             return self.push(InFrontOfCustomer)
         else:
@@ -175,7 +178,7 @@ class DrinkFinished(AbstractDecisionElement):
     """
     The Drink is finished. Tell it to the costumer and clean up
     """
-    def __init__(self, blackboard):
+    def __init__(self, blackboard, _):
         super(AbstractDecisionElement, self).__init__(blackboard)
         self.first = True
 
@@ -190,12 +193,16 @@ class PutLastBottleBack(AbstractDecisionElement):
     """
     Put away last bottle and go back to init via interrupt.
     """
+    def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)
+        blackboard.arrived_at_bottle = False
+
     def perform(self, blackboard, reevaluate=False):
         if not blackboard.arrived_at_bottle:
             first_iteration = False
             return self.push_action_sequence(SequenceElement, [LookDefault, MoveToBottlePose], [None, None])
         elif blackboard.bottle_grasped:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, PlaceBottle], [None, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtPlacePose, Wait, UpdateBottlePose, PlaceBottle], [None, None, 4, None, None])
         else:
             # resetting variables in blackboard and going back to HasCustomer
             blackboard.reset()
@@ -212,7 +219,7 @@ class PutBottleBack(AbstractDecisionElement):
         if not blackboard.arrived_at_bottle and blackboard.bottle_grasped:
             return self.push_action_sequence(SequenceElement, [LookDefault, MoveToBottlePose], [None, None])
         elif blackboard.bottle_grasped:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, PlaceBottle], [None, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtPlacePose, Wait, UpdateBottlePose, PlaceBottle], [None, None, 4, None, None])
         else:
             return self.push(InFrontOfRequiredBottle)
 
@@ -252,15 +259,21 @@ class BottleLocated(AbstractDecisionElement):
         elif blackboard.bottle_not_found:
             return self.push_action_sequence(SequenceElement, [SearchBottleLeft, Wait, SearchBottleRight, SayBottleNotFound], [None, 2, None, None])
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtBottle, UpdateBottlePose], [None, None, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtBottle, Wait, UpdateBottlePose], [None, None, 4, None])
 
 class BottleGrasped(AbstractDecisionElement):
     """
     Graps the bottle
     """
+    def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)        
+        blackboard.manipulation_iteration = 0
+
     def perform(self, blackboard, reevaluate=False):
         if blackboard.bottle_grasped:
             return self.push(InPouringPosition)
+        if blackboard.manipulation_iteration >= 2:
+            return self.push_action_sequence(SequenceElement, [LookAtBottle, Wait, UpdateBottlePose, PickUpBottle], [None, 4, None, None])
         else:
             return self.push(PickUpBottle)
 
@@ -293,11 +306,14 @@ class GlassLocated(AbstractDecisionElement):
         super(AbstractDecisionElement, self).__init__(blackboard)
         blackboard.glass_located = False
         blackboard.glass_not_found = False
+        blackboard.manipulation_iteration = 0
 
     def perform(self, blackboard, reevaluate=False):
+        if blackboard.manipulation_iteration >= 3:
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose ,PourLiquid], [None, None, 4, None ,None])
         if blackboard.glass_located:
-            return self.push_action_sequence(SequenceElement, [PourLiquid, Wait], [None, 5])
+            return self.push_action_sequence(SequenceElement, [PourLiquid], [None])
         if blackboard.glass_not_found:
             return self.push(SayGlassNotFound)
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose], [None, None, 2, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose], [None, None, 4, None])
