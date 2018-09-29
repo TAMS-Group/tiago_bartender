@@ -19,7 +19,8 @@ public:
   LookAt() : ac_("/head_controller/point_head_action", true),
              hm_ac_("pal_head_manager/disable", true),
              hm_has_goal_(false),
-             ph_has_goal_(false)
+             ph_has_goal_(false),
+             update_person_pose_(false)
   {
     geometry_msgs::PointStamped named_target;
     named_target.header.frame_id = "torso_lift_link";
@@ -59,6 +60,9 @@ public:
     bn.param("size_z", la_radius_z, 0.0);
     bn.param("euler_z", look_around_rotation_, 0.0);
     bn.param("customer_distance_threshold", customer_distance_thresh_, 0.25);
+
+    ros::NodeHandle pn("~");
+    pn.param("update_person_pose", update_person_pose_, false);
 
     unif_x_ = std::uniform_real_distribution<double>(la_center_x_ - la_radius_x/2.0, la_center_x_ + la_radius_x/2.0);
     unif_y_ = std::uniform_real_distribution<double>(la_center_y_ - la_radius_y/2.0, la_center_y_ + la_radius_y/2.0);
@@ -219,6 +223,11 @@ private:
 
   void person_detection_cb(const person_detection::PersonDetections::ConstPtr& msg)
   {
+    if(!update_person_pose_ || current_target_name_ != "customer")
+    {
+      ros::Duration(0.1).sleep();
+      return;
+    }
     double min_distance = std::numeric_limits<double>::max();
     for(auto pd : msg->detections)
     {
@@ -254,6 +263,7 @@ private:
   double look_around_rotation_;
   bool hm_has_goal_;
   bool ph_has_goal_;
+  bool update_person_pose_;
 };
 
 int main(int argc, char** argv)
