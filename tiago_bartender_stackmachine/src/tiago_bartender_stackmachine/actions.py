@@ -28,9 +28,9 @@ class AbstractTiagoActionElement(AbstractActionElement):
         self.action_marker.type = Marker.TEXT_VIEW_FACING
         self.action_marker.action = Marker.ADD
         self.action_marker.pose.position.z = 2.0
-        self.action_marker.scale.x = 1.0
-        self.action_marker.scale.y = 1.0
-        self.action_marker.scale.z = 1.0
+        self.action_marker.scale.x = 0.5
+        self.action_marker.scale.y = 0.5
+        self.action_marker.scale.z = 0.5
         self.action_marker.color.r = 1.0
         self.action_marker.color.g = 1.0
         self.action_marker.color.b = 1.0
