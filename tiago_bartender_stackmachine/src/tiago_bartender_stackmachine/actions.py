@@ -18,8 +18,8 @@ from visualization_msgs.msg import Marker
 import tf
 import moveit_commander
 
-class AbstractTiagoActionElement(AbstractActionElemnt):
-    def __init__(self, blackboard, _):
+class AbstractTiagoActionElement(AbstractActionElement):
+    def __init__(self, blackboard):
         super(AbstractTiagoActionElement, self).__init__(blackboard)
         self.action_marker = Marker()
         self.action_marker.header.frame_id = 'base_footprint'
