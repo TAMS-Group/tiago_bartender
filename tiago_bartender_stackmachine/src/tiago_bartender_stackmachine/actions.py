@@ -16,6 +16,7 @@ from control_msgs.msg import FollowJointTrajectoryGoal, JointTolerance, FollowJo
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from visualization_msgs.msg import Marker
 import tf
+import moveit_commander
 
 class AbstractTiagoActionElement(AbstractActionElemnt):
     def __init__(self, blackboard, _):
