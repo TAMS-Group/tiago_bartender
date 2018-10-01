@@ -41,7 +41,7 @@ class AbstractTiagoActionElement(AbstractActionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_time:
-            blackboard.action_marker_pub.publish(action_marker)
+            blackboard.action_marker_pub.publish(self.action_marker)
             self.first_time = False
         
         self.do(blackboard, reevaluate)
