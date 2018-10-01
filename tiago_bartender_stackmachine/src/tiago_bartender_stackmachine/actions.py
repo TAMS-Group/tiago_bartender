@@ -323,7 +323,7 @@ class LookForCustomer(AbstractTiagoActionElement):
             blackboard.customer_position = blackboard.person_position
             blackboard.has_customer = True
             blackboard.person_detected = False
-        elif rospy.get_rostime() - self.begin >= rospy.Duration.from_sec(60.0):
+        elif rospy.get_rostime() - self.begin >= rospy.Duration.from_sec(20.0):
             disable = Bool()
             disable.data = False
             blackboard.person_detection_switch_pub.publish(disable)
