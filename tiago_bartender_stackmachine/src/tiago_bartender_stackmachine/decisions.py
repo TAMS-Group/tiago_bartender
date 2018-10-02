@@ -188,7 +188,7 @@ class DrinkFinished(AbstractDecisionElement):
     def perform(self, blackboard, reevaluate=False):
         if self.first:
             self.first = False
-            return self.push(SayDrinkFinished)
+            return self.push_action_sequence(SequenceElement, [LookAtCustomer, Wait, SayDrinkFinished], [None, 2, None])
         else:
             return self.push(PutLastBottleBack)
 
