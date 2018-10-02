@@ -360,8 +360,15 @@ class SayPleaseOrder(AbstractSay):
 class SayAcid(AbstractSay):
     def text(self):
         self.blackboard.current_drink = ''
+        self.blackboard.drink_not_found = False
         return ["I am sorry. We only serve this to robots. But if you'd like you can choose a different drink.",
                 "I am sorry. But I don't think your weak human body will be able to handle this. Please choose a different drink."]
+
+class SayDrinkNotFound(AbstractSay):
+    def text(self):
+        self.blackboard.current_drink = ''
+        self.blackboard.drink_not_found = False
+        return ["I am sorry. We do not have this drink right now. Please choose a different one."]
 
 class SayNoMenuFoundRepeat(AbstractSay):
     def text(self):
@@ -419,10 +426,11 @@ class ObserveOrder(AbstractTiagoActionElement):
             self.pop()
         else:
             blackboard.current_drink = result.selection
-            if blackboard.current_drink == 'sulfuric_acid':
+            if blackboard.current_drink in blackboard.recipes:
+                blackboard.recipe = copy.deepcopy(blackboard.recipes[result.selection])
                 self.pop()
             else:
-                blackboard.recipe = copy.deepcopy(blackboard.recipes[result.selection])
+                blackboard.drink_not_found = True
                 self.pop()
 
 class UpdateBottlePose(AbstractTiagoActionElement):

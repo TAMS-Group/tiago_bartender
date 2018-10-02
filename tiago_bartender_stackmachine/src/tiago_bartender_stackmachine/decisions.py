@@ -2,7 +2,7 @@ import rospy
 import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
-from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight, SayAcid, LookAtGlass, LookAtPlacePose, HomePose
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight, SayAcid, LookAtGlass, LookAtPlacePose, HomePose, SayDrinkNotFound
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -139,10 +139,13 @@ class TakeOrder(AbstractDecisionElement):
         self.order_confirmed = False
         blackboard.recipe = None
         blackboard.no_menu_found = False
+        blackboard.drink_not_found = False
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.current_drink == 'sulfuric_acid':
             return self.push(SayAcid)
+        if blackboard.drink_not_found:
+            return self.push(SayDrinkNotFound)
         if blackboard.recipe:
             if self.order_confirmed:
                 blackboard.get_next_bottle = True
@@ -152,9 +155,9 @@ class TakeOrder(AbstractDecisionElement):
                 return self.push(SayOrderConfirmed)
         elif blackboard.no_menu_found:
             blackboard.no_menu_found = False
-            return self.push_action_sequence(SequenceElement, [SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer], [None, None, None, None])
+            return self.push_action_sequence(SequenceElement, [SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, None, None, None, 2])
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer], [None, None, None, None, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, None, None, None, None, 2])
 
 
 class MakeCocktail(AbstractDecisionElement):
