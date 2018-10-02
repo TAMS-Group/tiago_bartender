@@ -1,16 +1,17 @@
 Panels:
   - Class: rviz/Displays
-    Help Height: 89
+    Help Height: 0
     Name: Displays
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /Robot1
         - /Navigation1
         - /Navigation1/Global Plan1/Offset1
         - /MoveIt1
-        - /MarkerArray1
+        - /MoveIt1/MTC1
       Splitter Ratio: 0.52821672
-    Tree Height: 184
+    Tree Height: 604
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -29,7 +30,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Camera
+    SyncSource: LaserScan
 Visualization Manager:
   Class: ""
   Displays:
@@ -321,35 +322,47 @@ Visualization Manager:
           Value: true
           Visual Enabled: true
         - Class: rviz/Camera
-          Enabled: true
+          Enabled: false
           Image Rendering: background and overlay
           Image Topic: /xtion/rgb/image_rect_color
-          Name: Camera
+          Name: Xtion Camera
           Overlay Alpha: 0.5
           Queue Size: 2
           Transport Hint: compressed
           Unreliable: false
-          Value: true
+          Value: false
           Visibility:
+            Current Action: true
             Grid: true
-            MarkerArray: true
+            Menu: true
             MoveIt:
-              Bartender MTC: true
-              MotionPlanning: true
-              PlanningScene: true
+              "":
+                "": true
+                Value: true
               Value: true
             Navigation:
-              Costmap: true
-              Global Plan: true
-              Localization: true
-              Map: true
+              "": true
               Value: true
+            Person Detection: true
             Robot:
               LaserScan: true
               RobotModel: true
               Value: true
+              Xtion Image: true
             Value: true
           Zoom Factor: 1
+        - Class: rviz/Image
+          Enabled: false
+          Image Topic: /xtion/rgb/image_rect_color
+          Max Value: 1
+          Median window: 5
+          Min Value: 0
+          Name: Xtion Image
+          Normalize Range: true
+          Queue Size: 2
+          Transport Hint: raw
+          Unreliable: false
+          Value: false
       Enabled: true
       Name: Robot
     - Class: rviz/Group
@@ -380,7 +393,7 @@ Visualization Manager:
           Unreliable: false
           Use Timestamp: false
           Value: true
-        - Alpha: 0.100000001
+        - Alpha: 0.300000012
           Class: rviz/Map
           Color Scheme: costmap
           Draw Behind: false
@@ -469,7 +482,7 @@ Visualization Manager:
             Goal State Color: 250; 128; 0
             Interactive Marker Size: 0
             Joint Violation Color: 255; 0; 255
-            Planning Group: arm
+            Planning Group: arm_torso
             Query Goal State: true
             Query Start State: false
             Show Workspace: false
@@ -742,271 +755,816 @@ Visualization Manager:
             Show Robot Collision: false
             Show Robot Visual: true
           Value: true
-        - Class: moveit_task_constructor/Motion Planning Tasks
+        - Class: rviz/Group
+          Displays:
+            - Class: moveit_task_constructor/Motion Planning Tasks
+              Enabled: false
+              Interrupt Display: false
+              Loop Animation: false
+              Markers:
+                All at once?: false
+                Value: true
+                approach: true
+                lift: true
+              Name: MTC Pick
+              Robot:
+                Fixed Robot Color: 150; 50; 150
+                Links:
+                  All Links Enabled: true
+                  Expand Joint Details: false
+                  Expand Link Details: false
+                  Expand Tree: false
+                  Link Tree Style: Links in Alphabetic Order
+                  arm_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_3_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_4_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_5_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_6_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_7_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  arm_tool_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_antenna_left_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_antenna_right_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_cover_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_footprint:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  base_imu_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  base_laser_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_sonar_01_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_sonar_02_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_sonar_03_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_back_left_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_back_left_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_back_right_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_back_right_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_front_left_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_front_left_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_front_right_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_front_right_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  gripper_grasping_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  gripper_left_finger_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  gripper_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  gripper_right_finger_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  gripper_tool_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  head_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  head_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  suspension_left_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  suspension_right_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  torso_fixed_column_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  torso_fixed_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  torso_lift_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  wheel_left_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  wheel_right_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  world:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_depth_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_depth_optical_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_optical_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_rgb_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_rgb_optical_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                Robot Alpha: 0.5
+                Show Robot Collision: false
+                Show Robot Visual: true
+                Use Fixed Robot Color: false
+                Value: ""
+              Robot Description: robot_description
+              Scene:
+                Attached Body Color: 150; 50; 150
+                Scene Alpha: 0.899999976
+                Scene Color: 50; 230; 50
+                Value: true
+                Voxel Coloring: Z-Axis
+                Voxel Rendering: Occupied Voxels
+              Show Trail: false
+              State Display Time: 0.02
+              Task Solution Topic: /manipulation_server/pick_object/solution
+              Tasks:
+                task pipeline: 1
+              Trail Step Size: 1
+              Value: false
+            - Class: moveit_task_constructor/Motion Planning Tasks
+              Enabled: false
+              Interrupt Display: true
+              Loop Animation: false
+              Markers:
+                All at once?: false
+                Value: true
+                pouring waypoints: true
+              Name: MTC Pour
+              Robot:
+                Fixed Robot Color: 150; 50; 150
+                Links:
+                  All Links Enabled: true
+                  Expand Joint Details: false
+                  Expand Link Details: false
+                  Expand Tree: false
+                  Link Tree Style: Links in Alphabetic Order
+                  arm_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_3_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_4_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_5_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_6_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_7_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  arm_tool_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_antenna_left_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_antenna_right_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_cover_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_footprint:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  base_imu_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  base_laser_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_sonar_01_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_sonar_02_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_sonar_03_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_back_left_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_back_left_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_back_right_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_back_right_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_front_left_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_front_left_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_front_right_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_front_right_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  gripper_grasping_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  gripper_left_finger_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  gripper_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  gripper_right_finger_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  gripper_tool_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  head_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  head_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  suspension_left_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  suspension_right_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  torso_fixed_column_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  torso_fixed_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  torso_lift_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  wheel_left_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  wheel_right_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  world:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_depth_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_depth_optical_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_optical_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_rgb_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_rgb_optical_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                Robot Alpha: 1
+                Show Robot Collision: false
+                Show Robot Visual: true
+                Use Fixed Robot Color: false
+                Value: ""
+              Robot Description: robot_description
+              Scene:
+                Attached Body Color: 150; 50; 150
+                Scene Alpha: 1
+                Scene Color: 50; 230; 50
+                Value: true
+                Voxel Coloring: Z-Axis
+                Voxel Rendering: Occupied Voxels
+              Show Trail: false
+              State Display Time: 0.02
+              Task Solution Topic: /manipulation_server/pour_to_glass/solution
+              Tasks:
+                task pipeline: 1
+              Trail Step Size: 1
+              Value: false
+            - Class: moveit_task_constructor/Motion Planning Tasks
+              Enabled: true
+              Interrupt Display: false
+              Loop Animation: false
+              Markers:
+                All at once?: false
+                Value: true
+                approach_place: true
+                ik frame: true
+              Name: Place
+              Robot:
+                Fixed Robot Color: 150; 50; 150
+                Links:
+                  All Links Enabled: true
+                  Expand Joint Details: false
+                  Expand Link Details: false
+                  Expand Tree: false
+                  Link Tree Style: Links in Alphabetic Order
+                  arm_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_3_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_4_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_5_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_6_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  arm_7_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  arm_tool_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_antenna_left_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_antenna_right_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_cover_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_footprint:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  base_imu_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  base_laser_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_sonar_01_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_sonar_02_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  base_sonar_03_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_back_left_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_back_left_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_back_right_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_back_right_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_front_left_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_front_left_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_front_right_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  caster_front_right_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  gripper_grasping_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  gripper_left_finger_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  gripper_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  gripper_right_finger_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  gripper_tool_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  head_1_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  head_2_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  suspension_left_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  suspension_right_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  torso_fixed_column_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  torso_fixed_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  torso_lift_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  wheel_left_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  wheel_right_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                    Value: true
+                  world:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_depth_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_depth_optical_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_link:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_optical_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_rgb_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                  xtion_rgb_optical_frame:
+                    Alpha: 1
+                    Show Axes: false
+                    Show Trail: false
+                Robot Alpha: 0.5
+                Show Robot Collision: false
+                Show Robot Visual: true
+                Use Fixed Robot Color: false
+                Value: ""
+              Robot Description: robot_description
+              Scene:
+                Attached Body Color: 150; 50; 150
+                Scene Alpha: 0.899999976
+                Scene Color: 50; 230; 50
+                Value: true
+                Voxel Coloring: Z-Axis
+                Voxel Rendering: Occupied Voxels
+              Show Trail: false
+              State Display Time: 0.05 s
+              Task Solution Topic: /manipulation_server/place_object/solution
+              Tasks:
+                {}
+              Trail Step Size: 1
+              Value: true
           Enabled: true
-          Interrupt Display: true
-          Loop Animation: false
-          Markers:
-            All at once?: false
-            Value: true
-          Name: Bartender MTC
-          Robot:
-            Fixed Robot Color: 150; 50; 150
-            Links:
-              All Links Enabled: true
-              Expand Joint Details: false
-              Expand Link Details: false
-              Expand Tree: false
-              Link Tree Style: Links in Alphabetic Order
-              arm_1_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              arm_2_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              arm_3_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              arm_4_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              arm_5_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              arm_6_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              arm_7_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              arm_tool_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              base_antenna_left_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              base_antenna_right_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              base_cover_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              base_footprint:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              base_imu_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              base_laser_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              base_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              base_sonar_01_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              base_sonar_02_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              base_sonar_03_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              caster_back_left_1_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              caster_back_left_2_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              caster_back_right_1_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              caster_back_right_2_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              caster_front_left_1_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              caster_front_left_2_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              caster_front_right_1_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              caster_front_right_2_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              gripper_grasping_frame:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              gripper_left_finger_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              gripper_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              gripper_right_finger_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              gripper_tool_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              head_1_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              head_2_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              suspension_left_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              suspension_right_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              torso_fixed_column_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              torso_fixed_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              torso_lift_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              wheel_left_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              wheel_right_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-                Value: true
-              world:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              xtion_depth_frame:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              xtion_depth_optical_frame:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              xtion_link:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              xtion_optical_frame:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              xtion_rgb_frame:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-              xtion_rgb_optical_frame:
-                Alpha: 1
-                Show Axes: false
-                Show Trail: false
-            Robot Alpha: 1
-            Show Robot Collision: false
-            Show Robot Visual: true
-            Use Fixed Robot Color: false
-            Value: ""
-          Robot Description: robot_description
-          Scene:
-            Attached Body Color: 150; 50; 150
-            Scene Alpha: 1
-            Scene Color: 50; 230; 50
-            Value: true
-            Voxel Coloring: Z-Axis
-            Voxel Rendering: Occupied Voxels
-          Show Trail: false
-          State Display Time: 0.02
-          Task Solution Topic: /tiago_bartender_mtc_pick/pick_object/solution
-          Tasks:
-            {}
-          Trail Step Size: 1
-          Value: true
+          Name: MTC
       Enabled: true
       Name: MoveIt
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /person_detection/person_markers
-      Name: MarkerArray
+      Name: Person Detection
       Namespaces:
+        cage: true
+        cage_global: true
         persons: true
+      Queue Size: 105
+      Value: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /menu/image_finger
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Menu
+      Normalize Range: true
+      Queue Size: 1
+      Transport Hint: compressed
+      Unreliable: false
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /tiago_bartender_action_marker
+      Name: Current Action
+      Namespaces:
+        tiago_bartender_action: true
       Queue Size: 100
       Value: true
   Enabled: true
@@ -1034,43 +1592,47 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.27055192
+      Distance: 2.52078199
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 1.09704924
-        Y: -0.444924682
-        Z: 0.796369433
+        X: -0.887280107
+        Y: -0.359339684
+        Z: 0.864846766
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.574797094
+      Pitch: 0.0297967792
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.11220264
+      Yaw: 4.96401834
     Saved: ~
 Window Geometry:
-  Bartender MTC - Slider:
-    collapsed: false
-  Camera:
-    collapsed: false
   Displays:
     collapsed: false
-  Height: 1027
+  Height: 1017
   Hide Left Dock: false
   Hide Right Dock: false
+  MTC Pick - Slider:
+    collapsed: false
+  MTC Pour - Slider:
+    collapsed: false
+  Menu:
+    collapsed: false
   Motion Planning Tasks:
     collapsed: false
   MotionPlanning:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001bd00000380fc0200000014fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006f00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000002800000152000000f300fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d0061006700650200000780000002450000034f00000267fb0000000a0049006d00610067006502000007800000027300000280000001cffb0000000a0049006d00610067006503fffff8800000001e000003ba00000414fb0000000a0049006d00610067006503fffff8800000001e000003ba00000414fb000000120020002d00200053006c00690064006500720000000000ffffffff0000000000000000fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670000000146000001800000018b00fffffffb0000000c00430061006d00650072006101000001800000011f0000001600fffffffb0000003c004d006f00740069006f006e00200050006c0061006e006e0069006e00670020005400610073006b00730020002d00200053006c00690064006500720000000000ffffffff0000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000004300fffffffb0000002c00420061007200740065006e0064006500720020004d005400430020002d00200053006c00690064006500720000000000ffffffff0000004300fffffffb0000002a004d006f00740069006f006e00200050006c0061006e006e0069006e00670020005400610073006b007301000002a500000103000000ef00ffffff00000001000001d100000380fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073010000002800000380000000bd00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073d00000039fc0100000002fb0000000800540069006d006501000000000000073d000002f500fffffffb0000000800540069006d00650100000000000004500000000000000000000003a30000038000000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Place - Slider:
+    collapsed: false
+  QMainWindow State: 000000ff00000000fd0000000400000000000001c100000366fc0200000017fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003a00000296000000c600fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d0061006700650200000780000002450000034f00000267fb0000000a0049006d00610067006502000007800000027300000280000001cffb0000000a0049006d00610067006503fffff8800000001e000003ba00000414fb0000000a0049006d00610067006503fffff8800000001e000003ba00000414fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067000000022a000001760000016b00fffffffb00000018005800740069006f006e002000430061006d00650072006100000002140000018c0000001600fffffffb0000003c004d006f00740069006f006e00200050006c0061006e006e0069006e00670020005400610073006b00730020002d00200053006c00690064006500720000000000ffffffff0000003e00fffffffb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000003e00fffffffb0000002c00420061007200740065006e0064006500720020004d005400430020002d00200053006c00690064006500720000000000ffffffff0000000000000000fb00000022004d0054004300200050006f007500720020002d00200053006c00690064006500720000000000ffffffff0000003e00fffffffb00000022004d005400430020005000690063006b0020002d00200053006c00690064006500720000000000ffffffff0000003e00fffffffb00000016005800740069006f006e00200049006d006100670065000000014a000001ff0000001600fffffffb000000120020002d00200053006c00690064006500720000000000ffffffff0000000000000000fb00000008004d0065006e007501000002d6000000ca0000001600ffffff000000010000020900000366fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fc0000003a00000366000000ea01000019fa000000000100000002fb0000002a004d006f00740069006f006e00200050006c0061006e006e0069006e00670020005400610073006b00730100000000ffffffff000000e000fffffffb0000000a005600690065007700730100000577000002090000010000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000078000000039fc0100000002fb0000000800540069006d00650100000000000007800000024400fffffffb0000000800540069006d00650100000000000004500000000000000000000003aa0000036600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -1079,6 +1641,10 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: false
-  Width: 1853
-  X: 67
-  Y: 28
+  Width: 1920
+  X: 0
+  Xtion Camera:
+    collapsed: false
+  Xtion Image:
+    collapsed: false
+  Y: 27

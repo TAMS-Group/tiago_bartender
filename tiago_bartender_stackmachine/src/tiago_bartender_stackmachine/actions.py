@@ -16,9 +16,10 @@ from control_msgs.msg import FollowJointTrajectoryGoal, JointTolerance, FollowJo
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from visualization_msgs.msg import Marker
 import tf
+import moveit_commander
 
-class AbstractTiagoActionElement(AbstractActionElemnt):
-    def __init__(self, blackboard, _):
+class AbstractTiagoActionElement(AbstractActionElement):
+    def __init__(self, blackboard):
         super(AbstractTiagoActionElement, self).__init__(blackboard)
         self.action_marker = Marker()
         self.action_marker.header.frame_id = 'base_footprint'
@@ -27,9 +28,9 @@ class AbstractTiagoActionElement(AbstractActionElemnt):
         self.action_marker.type = Marker.TEXT_VIEW_FACING
         self.action_marker.action = Marker.ADD
         self.action_marker.pose.position.z = 2.0
-        self.action_marker.scale.x = 1.0
-        self.action_marker.scale.y = 1.0
-        self.action_marker.scale.z = 1.0
+        self.action_marker.scale.x = 0.5
+        self.action_marker.scale.y = 0.5
+        self.action_marker.scale.z = 0.5
         self.action_marker.color.r = 1.0
         self.action_marker.color.g = 1.0
         self.action_marker.color.b = 1.0
@@ -40,7 +41,7 @@ class AbstractTiagoActionElement(AbstractActionElemnt):
 
     def perform(self, blackboard, reevaluate=False):
         if self.first_time:
-            blackboard.action_marker_pub.publish(action_marker)
+            blackboard.action_marker_pub.publish(self.action_marker)
             self.first_time = False
         
         self.do(blackboard, reevaluate)
@@ -322,7 +323,7 @@ class LookForCustomer(AbstractTiagoActionElement):
             blackboard.customer_position = blackboard.person_position
             blackboard.has_customer = True
             blackboard.person_detected = False
-        elif rospy.get_rostime() - self.begin >= rospy.Duration.from_sec(60.0):
+        elif rospy.get_rostime() - self.begin >= rospy.Duration.from_sec(20.0):
             disable = Bool()
             disable.data = False
             blackboard.person_detection_switch_pub.publish(disable)

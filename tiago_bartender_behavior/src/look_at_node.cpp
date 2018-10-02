@@ -114,7 +114,7 @@ public:
       }
       else if(current_target_name_ == "look_around")
       {
-        if(ros::Duration(20.0) < (ros::Time::now() - look_around_start_))
+        if(ros::Duration(5.0) < (ros::Time::now() - look_around_start_))
         {
           look_around_start_ = ros::Time::now();
           Eigen::AngleAxis<double> aa(look_around_rotation_, Eigen::Vector3d(0,0,1));
