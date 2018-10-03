@@ -350,7 +350,8 @@ int main(int argc, char **argv) {
       std::vector<cv::DMatch> matches;
       for (size_t i = 0; i < knn_matches.size(); i++) {
         if (knn_matches[i].size() > 1 &&
-            knn_matches[i][0].distance / knn_matches[i][1].distance <= 0.7f) {
+            knn_matches[i][0].distance / knn_matches[i][1].distance <= 0.6f) {
+          // knn_matches[i][0].distance / knn_matches[i][1].distance <= 0.7f) {
           // knn_matches[i][0].distance / knn_matches[i][1].distance <= 0.8f) {
           matches.push_back(knn_matches[i][0]);
         }
@@ -361,12 +362,12 @@ int main(int argc, char **argv) {
       // std::cout << "matches " << matches.size() << std::endl;
       // ROS_INFO("matches %i", (int)matches.size());
 
-      /*{
+      if (0) {
         cv::Mat img_matches;
         cv::drawMatches(image_object, keypoints_object, image_scene,
                         keypoints_scene, matches, img_matches);
         cv::imshow("matches", img_matches);
-      }*/
+      }
 
       if (matches.size() < minMatches) {
         cancelOrderAction();
