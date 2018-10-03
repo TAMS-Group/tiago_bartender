@@ -2,7 +2,7 @@ import rospy
 import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
-from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight, SayAcid, LookAtGlass, LookAtPlacePose, HomePose, SayDrinkNotFound
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight, SayAcid, LookAtGlass, LookAtPlacePose, HomePose, SayDrinkNotFound, UpdateCustomerPose
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -111,16 +111,15 @@ class InFrontOfCustomer(AbstractDecisionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.redo_requested and blackboard.last_redoable == blackboard.TAKE_ORDER and blackboard.arrived_at_customer:
-
-           blackboard.redo_requested = False
-           blackboard.arrived_at_customer = False
-           #TODO: maybe remove MoveToCustomer here
-           return self.push_action_sequence(SequenceElement, [SayRepeatOrder, MoveToCustomer], [None, None])
+            blackboard.redo_requested = False
+            blackboard.arrived_at_customer = False
+            #TODO: maybe remove MoveToCustomer here
+            return self.push_action_sequence(SequenceElement, [SayRepeatOrder, MoveToCustomer], [None, None])
 
         if blackboard.arrived_at_customer:
             return self.push(TakeOrder)
         else:
-            return self.push(MoveToCustomer)
+            return self.push_action_sequence(SequenceElement, [LookAtCustomer, MoveToCustomer], [None, None])
 
     # IMPROVE: you want to allow to have logic in this decision, but
     # 1) is this really necessary or can you use as static variable instead?
@@ -157,7 +156,7 @@ class TakeOrder(AbstractDecisionElement):
             blackboard.no_menu_found = False
             return self.push_action_sequence(SequenceElement, [SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, None, None, None, 2])
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, None, None, None, None, 2])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, Wait, UpdateCustomerPose, LookAtCustomer, Wait, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, 1, None, None, 1, None, None, None, None, 2])
 
 
 class MakeCocktail(AbstractDecisionElement):

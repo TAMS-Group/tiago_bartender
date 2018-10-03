@@ -332,6 +332,34 @@ class LookForCustomer(AbstractTiagoActionElement):
 
             self.pop()
 
+class UpdateCustomerPose(AbstractTiagoActionElement):
+    def __init__(self, blackboard, _):
+        super(UpdateCustomerPose, self).__init__(blackboard)
+        self.first_iteration = True
+
+    def do(self, blackboard, reevaluate=False):
+        if self.first_iteration:
+            self.begin = rospy.get_rostime()
+
+            enable = Bool()
+            enable.data = True
+            blackboard.person_detection_switch_pub.publish(enable)
+            self.first_iteration = False
+
+        if blackboard.person_detected:
+            disable = Bool()
+            disable.data = False
+            blackboard.person_detection_switch_pub.publish(disable)
+
+            blackboard.customer_position = blackboard.person_position
+            blackboard.person_detected = False
+            self.pop()
+        elif rospy.get_rostime() - self.begin >= rospy.Duration.from_sec(5.0):
+            disable = Bool()
+            disable.data = False
+            blackboard.person_detection_switch_pub.publish(disable)
+            self.pop()
+
 class AbstractSay(AbstractTiagoActionElement):
     def __init__(self, blackboard, _):
         super(AbstractSay, self).__init__(blackboard)
