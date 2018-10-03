@@ -61,8 +61,9 @@ public:
     bn.param("euler_z", look_around_rotation_, 0.0);
     bn.param("customer_distance_threshold", customer_distance_thresh_, 0.25);
 
-    ros::NodeHandle pn("~");
-    pn.param("update_person_pose", update_person_pose_, false);
+    ros::NodeHandle ln("tiago_bartender/look_at");
+    ln.param("update_person_pose", update_person_pose_, false);
+    ln.param("max_head_velocity", max_head_velocity_, 3.0);
 
     unif_x_ = std::uniform_real_distribution<double>(la_center_x_ - la_radius_x/2.0, la_center_x_ + la_radius_x/2.0);
     unif_y_ = std::uniform_real_distribution<double>(la_center_y_ - la_radius_y/2.0, la_center_y_ + la_radius_y/2.0);
@@ -76,7 +77,7 @@ public:
     current_goal_.pointing_frame = "xtion_optical_frame";
     current_goal_.pointing_axis.z = 1.0;
     current_goal_.min_duration = ros::Duration(0.5);
-    current_goal_.max_velocity = 1.0;
+    current_goal_.max_velocity = max_head_velocity_;
     current_goal_.target = named_target_map_["forward"];
 
     disable_hm_.duration = 0.0;
@@ -259,6 +260,7 @@ private:
   bool look_at_person_;
   geometry_msgs::PointStamped last_person_point_;
   double customer_distance_thresh_;
+  double max_head_velocity_;
   std::string look_around_frame_;
   double look_around_rotation_;
   bool hm_has_goal_;

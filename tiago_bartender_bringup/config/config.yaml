@@ -59,6 +59,10 @@ customer_zone:
   size_y: 2.20
   size_z: 1.2
 
+look_at:
+  update_person_pose: false
+  max_head_velocity: 1.0
+
 scene_objects:
   table1:
       frame: 'map'
