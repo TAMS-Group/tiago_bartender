@@ -58,10 +58,8 @@ class InPouringPosition(AbstractDecisionElement):
             return self.push(MoveToPouringPosition)
 
         if blackboard.arrived_at_pouring_position:
-            print('glass was located')
             return self.push(GlassLocated)
         else:
-            print('Move to pouring position')
             return self.push_action_sequence(SequenceElement, [LookDefault, MoveToPouringPosition], [None, None])
 
         def get_reevaluate(self):
@@ -75,13 +73,14 @@ class GlassLocated(AbstractDecisionElement):
         super(AbstractDecisionElement, self).__init__(blackboard)
         blackboard.glass_located = False
         blackboard.glass_not_found = False
-        print('in glass located')
+        blackboard.manipulation_iteration = 0
 
     def perform(self, blackboard, reevaluate=False):
+        if blackboard.manipulation_iteration >= 3:
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose, PourLiquid], [None, None, 4, None])
         if blackboard.glass_located:
-            print('pour liquid')
-            return self.push_action_sequence(SequenceElement, [PourLiquid, Wait], [None, 5])
+            return self.push(PourLiquid)
         if blackboard.glass_not_found:
             return self.push(SayGlassNotFound)
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose], [None, None, 5, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose], [None, None, 4, None])
