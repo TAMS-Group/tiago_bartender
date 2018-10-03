@@ -1,22 +1,22 @@
 recipes:
   tequila_sunrise:
     - tequila: 1.0
-    - orange: 1.0
+    - orange: 5.0
     - cherry: 1.0
   cuba_libre:
     - rum: 1.0
-    - coke: 1.0
+    - coke: 5.0
   sunrise:
-    - orange: 1.0
+    - orange: 5.0
     - cherry: 1.0
   driver:
-    - orange: 1.0
+    - orange: 5.0
     - cherry: 1.0
     - lime: 1.0
   water:
-    - water: 1.0
+    - water: 5.0
   sulfuric_acid:
-    - acid: 1.0
+    - acid: 30.0
 
 idle_zone:
   center_x: 0.0
