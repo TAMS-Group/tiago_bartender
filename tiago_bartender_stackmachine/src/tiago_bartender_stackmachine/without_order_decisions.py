@@ -1,6 +1,7 @@
 import rospy
 import actionlib
 import copy
+import sys
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
 from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight, SayAcid, LookAtGlass, LookAtPlacePose, HomePose, SayDrinkNotFound, UpdateCustomerPose
@@ -23,8 +24,18 @@ class Init(AbstractDecisionElement):
     def __init__(self, blackboard, _):
         super(AbstractDecisionElement, self).__init__(blackboard)        
         self.initilized = False
+        self.first_iteration = True
 
     def perform(self, blackboard, reevaluate=False):
+        if self.first_iteration:
+            if len(sys.argv) > 1:
+                blackboard.current_drink = sys.argv[1]
+            else:
+                blackboard.current_drink = 'water'
+            blackboard.recipe = copy.deepcopy(blackboard.current_drink)
+            self.first_iteration = False
+            return self.push(SayOrderConfirmed)
+
         if not blackboard.move_action_client.wait_for_server(rospy.Duration(0.01)):
             return self.push(WaitForRos, 'move_to_target')
         if not blackboard.torso_action_client.wait_for_server(rospy.Duration(0.01)):
@@ -47,6 +58,7 @@ class Init(AbstractDecisionElement):
             rospy.wait_for_service('head_controller/look_at_service', 0.1)
 	except rospy.ROSException:
             return self.push(WaitForRos, '/head_controller/look_at_service')
+
         return self.push(Paused)
 
 # TODO: refactor as AbstractPausableAction
@@ -74,8 +86,6 @@ class Paused(AbstractDecisionElement):
                 self.saved_stack = None
                 return
             else:
-                blackboard.current_drink = 'cuba_libre'
-                blackboard.recipe = copy.deepcopy(blackboard.current_drink)
                 return self.push(MakeCocktail)
 
 class MakeCocktail(AbstractDecisionElement):
