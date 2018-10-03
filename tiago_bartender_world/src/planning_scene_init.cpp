@@ -28,6 +28,7 @@ public:
       pos_x_.push_back(static_cast<double>(i->second["pos_x"]));
       pos_y_.push_back(static_cast<double>(i->second["pos_y"]));
       pos_z_.push_back(static_cast<double>(i->second["pos_z"]));
+      euler_z_.push_back(static_cast<double>(i->second["euler_z"]));
     }
   }
 
@@ -65,7 +66,8 @@ public:
         pose.position.x = pos_x_[i];
         pose.position.y = pos_y_[i];
         pose.position.z = pos_z_[i];
-        pose.orientation.w = 1.0;
+        pose.orientation.z = std::sin(euler_z_[i]/2.0);
+        pose.orientation.w = std::cos(euler_z_[i]/2.0);
         collision_object.mesh_poses.push_back(pose);
         collision_objects.push_back(collision_object);
 
@@ -87,7 +89,8 @@ public:
         pose.position.x = pos_x_[i];
         pose.position.y = pos_y_[i];
         pose.position.z = pos_z_[i];
-        pose.orientation.w = 1.0;
+        pose.orientation.z = std::sin(euler_z_[i]/2.0);
+        pose.orientation.w = std::cos(euler_z_[i]/2.0);
         collision_object.mesh_poses.push_back(pose);
         collision_objects.push_back(collision_object);
 
@@ -115,7 +118,8 @@ public:
         pose.position.x = pos_x_[i];
         pose.position.y = pos_y_[i];
         pose.position.z = pos_z_[i];
-        pose.orientation.w = 1.0;
+        pose.orientation.z = std::sin(euler_z_[i]/2.0);
+        pose.orientation.w = std::cos(euler_z_[i]/2.0);
         collision_object.mesh_poses.push_back(pose);
         collision_objects.push_back(collision_object);
 
@@ -145,7 +149,8 @@ public:
         pose.position.x = pos_x_[i];
         pose.position.y = pos_y_[i];
         pose.position.z = pos_z_[i];
-        pose.orientation.w = 1.0;
+        pose.orientation.z = std::sin(euler_z_[i]/2.0);
+        pose.orientation.w = std::cos(euler_z_[i]/2.0);
         collision_object.mesh_poses.push_back(pose);
         collision_objects.push_back(collision_object);
 
@@ -168,6 +173,7 @@ private:
   std::vector<double> pos_x_;
   std::vector<double> pos_y_;
   std::vector<double> pos_z_;
+  std::vector<double> euler_z_;
   std::vector<std::string> frames_;
 
   ros::ServiceServer init_server_;

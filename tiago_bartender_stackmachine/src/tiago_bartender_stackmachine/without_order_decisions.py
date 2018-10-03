@@ -1,5 +1,7 @@
 import rospy
 import actionlib
+import copy
+import sys
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
 from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight, SayAcid, LookAtGlass, LookAtPlacePose, HomePose, SayDrinkNotFound, UpdateCustomerPose
@@ -22,8 +24,18 @@ class Init(AbstractDecisionElement):
     def __init__(self, blackboard, _):
         super(AbstractDecisionElement, self).__init__(blackboard)        
         self.initilized = False
+        self.first_iteration = True
 
     def perform(self, blackboard, reevaluate=False):
+        if self.first_iteration:
+            if len(sys.argv) > 1:
+                blackboard.current_drink = sys.argv[1]
+            else:
+                blackboard.current_drink = 'water'
+            blackboard.recipe = copy.deepcopy(blackboard.current_drink)
+            self.first_iteration = False
+            return self.push(SayOrderConfirmed)
+
         if not blackboard.move_action_client.wait_for_server(rospy.Duration(0.01)):
             return self.push(WaitForRos, 'move_to_target')
         if not blackboard.torso_action_client.wait_for_server(rospy.Duration(0.01)):
@@ -46,6 +58,7 @@ class Init(AbstractDecisionElement):
             rospy.wait_for_service('head_controller/look_at_service', 0.1)
 	except rospy.ROSException:
             return self.push(WaitForRos, '/head_controller/look_at_service')
+
         return self.push(Paused)
 
 # TODO: refactor as AbstractPausableAction
@@ -73,91 +86,7 @@ class Paused(AbstractDecisionElement):
                 self.saved_stack = None
                 return
             else:
-                return self.push(HasCustomer)
-
-
-class HasCustomer(AbstractDecisionElement):
-    """
-    Decide what to do based on whether we currently have a customer
-    """
-    def perform(self, blackboard, reevaluate=False):
-        if not blackboard.in_home_pose:
-            return self.push(HomePose)
-        if blackboard.has_customer:
-            return self.push(InFrontOfCustomer)
-        else:
-            return self.push(Idle)
-
-    def get_reevaluate(self):
-        return True
-
-
-class Idle(AbstractDecisionElement):
-    """
-    Act in idle mode, checking for customer every so often
-    """
-    def perform(self, blackboard, reevaluate=False):
-        # TODO: implement alternatives
-        return self.push_action_sequence(SequenceElement, [LookDefault, IdleMoveAround, LookForCustomer], [None, None, None])
-
-class InFrontOfCustomer(AbstractDecisionElement):
-    """
-    Decide whether to take order or move to customer first
-    """
-    def __init__(self, blackboard, _):
-        super(AbstractDecisionElement, self).__init__(blackboard)
-        blackboard.last_redoable = blackboard.TAKE_ORDER
-        blackboard.arrived_at_customer = False
-
-    def perform(self, blackboard, reevaluate=False):
-        if blackboard.redo_requested and blackboard.last_redoable == blackboard.TAKE_ORDER and blackboard.arrived_at_customer:
-            blackboard.redo_requested = False
-            blackboard.arrived_at_customer = False
-            #TODO: maybe remove MoveToCustomer here
-            return self.push_action_sequence(SequenceElement, [SayRepeatOrder, MoveToCustomer], [None, None])
-
-        if blackboard.arrived_at_customer:
-            return self.push(TakeOrder)
-        else:
-            return self.push_action_sequence(SequenceElement, [LookAtCustomer, MoveToCustomer], [None, None])
-
-    # IMPROVE: you want to allow to have logic in this decision, but
-    # 1) is this really necessary or can you use as static variable instead?
-    # 2) the logic probably would depend on the blackboard, which is not given here
-    def get_reevaluate(self):
-        return True
-
-
-
-class TakeOrder(AbstractDecisionElement):
-    """
-    Let the robot take an order from the human
-    """
-    def __init__(self, blackboard, _):
-        super(AbstractDecisionElement, self).__init__(blackboard)        
-        self.order_confirmed = False
-        blackboard.recipe = None
-        blackboard.no_menu_found = False
-        blackboard.drink_not_found = False
-
-    def perform(self, blackboard, reevaluate=False):
-        if blackboard.current_drink == 'sulfuric_acid':
-            return self.push(SayAcid)
-        if blackboard.drink_not_found:
-            return self.push(SayDrinkNotFound)
-        if blackboard.recipe:
-            if self.order_confirmed:
-                blackboard.get_next_bottle = True
                 return self.push(MakeCocktail)
-            else:
-                self.order_confirmed = True
-                return self.push(SayOrderConfirmed)
-        elif blackboard.no_menu_found:
-            blackboard.no_menu_found = False
-            return self.push_action_sequence(SequenceElement, [SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, None, None, None, 2])
-        else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, Wait, UpdateCustomerPose, LookAtCustomer, Wait, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, 1, None, None, 1, None, None, None, None, 2])
-
 
 class MakeCocktail(AbstractDecisionElement):
     """
@@ -187,7 +116,7 @@ class DrinkFinished(AbstractDecisionElement):
     def perform(self, blackboard, reevaluate=False):
         if self.first:
             self.first = False
-            return self.push_action_sequence(SequenceElement, [LookAtCustomer, Wait, SayDrinkFinished], [None, 2, None])
+            return self.push_action_sequence(SequenceElement, [LookForward, Wait, SayDrinkFinished], [None, 2, None])
         else:
             return self.push(PutLastBottleBack)
 
@@ -206,8 +135,9 @@ class PutLastBottleBack(AbstractDecisionElement):
         elif blackboard.bottle_grasped:
             return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtPlacePose, Wait, UpdateBottlePose, PlaceBottle], [None, None, 4, None, None])
         else:
+            rospy.signal_shutdown('done')
             # resetting variables in blackboard and going back to HasCustomer
-            blackboard.reset()
+            #blackboard.reset()
 
 class PutBottleBack(AbstractDecisionElement):
     """

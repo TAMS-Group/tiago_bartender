@@ -70,48 +70,56 @@ scene_objects:
       pos_x: -1.25
       pos_y: -0.1
       pos_z: 0.0
+      euler_z: 0.0
   table2:
       frame: 'map'
       type: large_table
       pos_x: 1.25
       pos_y: 0.0
       pos_z: 0.0
+      euler_z: 0.0
   rum:
       frame: 'map'
       type: bottle
       pos_x: -1.20
       pos_y: -0.7
       pos_z: 0.875
+      euler_z: 0.0
   water:
       frame: 'map'
       type: bottle
       pos_x: -1.20
       pos_y: -0.4
       pos_z: 0.875
+      euler_z: 0.0
   coke:
       frame: 'map'
       type: bottle
       pos_x: -1.20
       pos_y: -0.1
       pos_z: 0.875
+      euler_z: 0.0
   tequila:
       frame: 'map'
       type: bottle
       pos_x: -1.20
       pos_y: 0.2
       pos_z: 0.875
+      euler_z: 0.0
   orange:
       frame: 'map'
       type: bottle
       pos_x: -1.20
       pos_y: 0.5
       pos_z: 0.875
+      euler_z: 0.0
   glass:
       frame: 'map'
       type: glass
       pos_x: 1.1
       pos_y: -0.3
       pos_z: 0.8
+      euler_z: 0.0
 
 move_to_target_lines:
   in_front_of_bottles:
