@@ -236,6 +236,7 @@ class InFrontOfRequiredBottle(AbstractDecisionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.redo_requested and blackboard.last_redoable == blackboard.PICK:
+            blackboard.redo_requested = False
             #TODO maybe go back to init position
             return self.push(MoveToBottle)
         elif blackboard.arrived_at_bottle:
@@ -289,6 +290,7 @@ class InPouringPosition(AbstractDecisionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.redo_requested and blackboard.last_redoable == blackboard.POUR:
+            blackboard.redo_requested = False
             return self.push(MoveToPouringPosition)
 
         if blackboard.arrived_at_pouring_position:

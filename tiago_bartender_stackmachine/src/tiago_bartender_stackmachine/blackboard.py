@@ -127,6 +127,9 @@ class Blackboard:
                 self.last_pause_detection = rospy.Time.now()
                 self.is_paused = not self.is_paused
 
+        if command.data == 'redo':
+            self.redo_requested = True
+
     def reset_for_next_bottle(self):
         self.arrived_at_pouring_position = False
         self.arrived_at_bottle = False
