@@ -80,6 +80,8 @@ class HasCustomer(AbstractDecisionElement):
     Decide what to do based on whether we currently have a customer
     """
     def perform(self, blackboard, reevaluate=False):
+        if not blackboard.in_home_pose:
+            return self.push(HomePose)
         if blackboard.has_customer:
             return self.push(InFrontOfCustomer)
         else:
@@ -110,16 +112,15 @@ class InFrontOfCustomer(AbstractDecisionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.redo_requested and blackboard.last_redoable == blackboard.TAKE_ORDER and blackboard.arrived_at_customer:
-
-           blackboard.redo_requested = False
-           blackboard.arrived_at_customer = False
-           #TODO: maybe remove MoveToCustomer here
-           return self.push_action_sequence(SequenceElement, [SayRepeatOrder, MoveToCustomer], [None, None])
+            blackboard.redo_requested = False
+            blackboard.arrived_at_customer = False
+            #TODO: maybe remove MoveToCustomer here
+            return self.push_action_sequence(SequenceElement, [SayRepeatOrder, MoveToCustomer], [None, None])
 
         if blackboard.arrived_at_customer:
             return self.push(TakeOrder)
         else:
-            return self.push(MoveToCustomer)
+            return self.push_action_sequence(SequenceElement, [LookAtCustomer, MoveToCustomer], [None, None])
 
     # IMPROVE: you want to allow to have logic in this decision, but
     # 1) is this really necessary or can you use as static variable instead?
@@ -138,10 +139,13 @@ class TakeOrder(AbstractDecisionElement):
         self.order_confirmed = False
         blackboard.recipe = None
         blackboard.no_menu_found = False
+        blackboard.drink_not_found = False
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.current_drink == 'sulfuric_acid':
             return self.push(SayAcid)
+        if blackboard.drink_not_found:
+            return self.push(SayDrinkNotFound)
         if blackboard.recipe:
             if self.order_confirmed:
                 rospy.signal_shutdown('done')
@@ -150,7 +154,7 @@ class TakeOrder(AbstractDecisionElement):
                 return self.push(SayOrderConfirmed)
         elif blackboard.no_menu_found:
             blackboard.no_menu_found = False
-            return self.push_action_sequence(SequenceElement, [SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer], [None, None, None, None])
+            return self.push_action_sequence(SequenceElement, [SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, None, None, None, 2])
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer], [None, None, None, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, Wait, UpdateCustomerPose, LookAtCustomer, Wait, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, 1, None, None, 1, None, None, None, None, 2])
 
