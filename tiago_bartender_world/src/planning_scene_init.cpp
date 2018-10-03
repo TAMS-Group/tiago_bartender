@@ -121,9 +121,11 @@ public:
 
         object_colors.push_back(object_color);
       } else if (object_types_[i] == "large_table") {
+        // competition table
+        // original scale: 0.8x2.0x0.75
         Eigen::Vector3d table_scale;
-        table_scale[0] = 1.0;
-        table_scale[1] = 1.0;
+        table_scale[0] = 0.75;
+        table_scale[1] = 0.95;
         table_scale[2] = 1.0;
 
         shapes::Mesh *m = shapes::createMeshFromResource(
