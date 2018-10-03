@@ -309,6 +309,8 @@ class LookForCustomer(AbstractTiagoActionElement):
                 print("Service call failed: %s"%e)
 
             self.begin = rospy.get_rostime()
+            # Wait till head was moved
+            rospy.sleep(2)
 
             enable = Bool()
             enable.data = True
