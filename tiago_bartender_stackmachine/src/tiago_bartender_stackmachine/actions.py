@@ -179,8 +179,6 @@ class MoveToBottle(AbstractTiagoActionElement):
             blackboard.last_bottle_pose = result.target_pose_result;
             blackboard.arrived_at_bottle = True
             self.pop()
-        if state == GoalStatus.ABORTED:
-            rospy.logerr("Target '%s' not found in scene!", self.goal.target)
         else:
             self.repeat = True
 
@@ -393,19 +391,19 @@ class SayAcid(AbstractSay):
         self.blackboard.current_drink = ''
         self.blackboard.drink_not_found = False
         return ["I am sorry. We only serve this to robots. But if you'd like you can choose a different drink.",
-                "I am sorry. But I don't think your weak human body will be able to handle this. Please choose a different drink."]
+                "I am sorry. But I don't think your human body will be able to handle this. Please choose a different drink."]
 
 class SayDrinkNotFound(AbstractSay):
     def text(self):
         self.blackboard.current_drink = ''
         self.blackboard.drink_not_found = False
-        return ["I am sorry. We do not have this drink right now. Please choose a different one."]
+        return ["I am sorry. We are out of this drink. Please choose a different one."]
 
 class SayNoMenuFoundRepeat(AbstractSay):
     def text(self):
-        return ["I thought I put the menu card here? Could you help me and put the menu card in front of me.", 
-                "I was sure the menu card was right here. Could you help me by putting it in front of me.", 
-                "Where did I put the menu again? Please help me and put it in front of me, so I can see it."]
+        return ["I thought I put the menu card here? Please put it back in front of me.", 
+                "I was sure the menu card was right here a moment ago. Could you put it back on the bar please.", 
+                "Where did I put the menu again? Do you know where it is?"]
 
 class SayRepeatOrder(AbstractSay):
     def text(self):
