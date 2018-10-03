@@ -2,7 +2,7 @@ import rospy
 import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
-from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, ExtendTorso
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, ExtendTorso, LookAtPlacePose
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -24,6 +24,7 @@ class Init(AbstractDecisionElement):
         # set variables needed for the test
         blackboard.current_bottle = 'coke'
         blackboard.bottle_grasped = True
+        # TODO: enter coke default pose for last_bottle_pose
         blackboard.last_bottle_pose = PoseStamped()
 
         self.initilized = False
@@ -47,12 +48,18 @@ class Init(AbstractDecisionElement):
         #    return self.push(WaitForRos, 'head_controller/look_at_service')
         return self.push(BottlePlaced)
 
-class BottlePlaced(AbstractDecisionElement):
+class PutBottleBack(AbstractDecisionElement):
     """
     Places the old bottle
     """
+    def __init__(self, blackboard, _):
+        super(AbstractDecisionElement, self).__init__(blackboard)
+        blackboard.arrived_at_bottle = False
+
     def perform(self, blackboard, reevaluate=False):
+        if not blackboard.arrived_at_bottle and blackboard.bottle_grasped:
+            return self.push_action_sequence(SequenceElement, [LookDefault, MoveToBottlePose], [None, None])
         if blackboard.bottle_grasped:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, PlaceBottle], [None, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtPlacePose, Wait, UpdateBottlePose, PlaceBottle], [None, None, 4, None, None])
         else:
             rospy.signal_shutdown("done")
