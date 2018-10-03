@@ -7,6 +7,7 @@
 #include <chrono>
 #include <person_detection/PersonDetections.h>
 #include <pal_common_msgs/DisableAction.h>
+#include <std_msgs/Bool.h>
 
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 
@@ -20,7 +21,8 @@ public:
              hm_ac_("pal_head_manager/disable", true),
              hm_has_goal_(false),
              ph_has_goal_(false),
-             update_person_pose_(false)
+             update_person_pose_(false),
+             pd_enabled_(false)
   {
     geometry_msgs::PointStamped named_target;
     named_target.header.frame_id = "torso_lift_link";
@@ -88,6 +90,7 @@ public:
 
     look_at_server = nh_.advertiseService("head_controller/look_at_service", &LookAt::look_at_cb, this);
     person_detection_sub_ = nh_.subscribe("person_detection/person_detections", 1000, &LookAt::person_detection_cb, this);
+    person_detection_switch_pub_ = nh_.advertise<std_msgs::Bool>("person_detection/set_enabled", 0);
 
     while(!ac_.waitForServer(ros::Duration(5.0)))
     {
@@ -175,6 +178,14 @@ private:
       hm_has_goal_ = true;
     }
 
+    if(req.direction != "customer" && pd_enabled_)
+    {
+      std_msgs::Bool disable_pd;
+      disable_pd.data = false;
+      person_detection_switch_pub_.publish(disable_pd);
+      pd_enabled_ = false;
+    }
+
     if(req.direction.empty())
     {
       current_goal_.target = req.target_point;
@@ -182,6 +193,13 @@ private:
     }
     else if(req.direction == "customer")
     {
+      if(update_person_pose_)
+      {
+        std_msgs::Bool enable_pd;
+        enable_pd.data = true;
+        person_detection_switch_pub_.publish(enable_pd);
+        pd_enabled_ = true;
+      }
       current_goal_.target = req.target_point;
       last_person_point_ = current_goal_.target;
       current_target_name_ = req.direction;
@@ -249,6 +267,7 @@ private:
   std::map<std::string, geometry_msgs::PointStamped> named_target_map_;
   ros::ServiceServer look_at_server;
   ros::Subscriber person_detection_sub_;
+  ros::Publisher person_detection_switch_pub_;
   std::uniform_real_distribution<double> unif_x_;
   std::uniform_real_distribution<double> unif_y_;
   std::uniform_real_distribution<double> unif_z_;
@@ -266,6 +285,7 @@ private:
   bool hm_has_goal_;
   bool ph_has_goal_;
   bool update_person_pose_;
+  bool pd_enabled_;
 };
 
 int main(int argc, char** argv)
