@@ -69,7 +69,7 @@ class IdleMoveAround(AbstractTiagoActionElement):
         self.goal_x, self.goal_y = blackboard.rotate_point(origin, point, angle)
         self.goal.target_pose.pose.position.x = self.goal_x
         self.goal.target_pose.pose.position.y = self.goal_y
-        self.goal.target_pose.pose.orientation.w = 1.0
+        self.goal.target_pose.pose.orientation.z = 1.0
 
     def do(self, blackboard, reevaluate=False):
         if self.first_iteration or self.repeat:
