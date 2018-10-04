@@ -21,7 +21,7 @@ class Init(AbstractDecisionElement):
     def __init__(self, blackboard, _):
         super(AbstractDecisionElement, self).__init__(blackboard)
         # set variables needed for the test
-        blackboard.current_bottle = 'coke'
+        blackboard.current_bottle = 'water'
 
         self.initilized = False
 
