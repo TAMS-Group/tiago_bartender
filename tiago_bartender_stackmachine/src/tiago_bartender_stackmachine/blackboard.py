@@ -15,6 +15,7 @@ from moveit_msgs.msg import ObjectColor
 from tf import TransformListener
 from visualization_msgs.msg import Marker
 import math
+import tf
 
 
 class Blackboard:
@@ -29,6 +30,8 @@ class Blackboard:
         self.redo_requested = False
 
         self.manipulation_iteration = 0
+
+        self.tfl = tf.TransformListener()
 
         self.last_redoable = None
         self.TAKE_ORDER = 1
