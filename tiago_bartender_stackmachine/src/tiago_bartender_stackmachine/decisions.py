@@ -119,7 +119,7 @@ class InFrontOfCustomer(AbstractDecisionElement):
         if blackboard.arrived_at_customer:
             return self.push(TakeOrder)
         else:
-            return self.push_action_sequence(SequenceElement, [LookAtCustomer, MoveToCustomer], [None, None])
+            return self.push_action_sequence(SequenceElement, [LookDefault, MoveToCustomer], [None, None])
 
     # IMPROVE: you want to allow to have logic in this decision, but
     # 1) is this really necessary or can you use as static variable instead?
@@ -156,7 +156,7 @@ class TakeOrder(AbstractDecisionElement):
             blackboard.no_menu_found = False
             return self.push_action_sequence(SequenceElement, [SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, None, None, None, 2])
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, Wait, UpdateCustomerPose, LookAtCustomer, Wait, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, 1, None, None, 1, None, None, None, None, 2])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtCustomer, Wait, UpdateCustomerPose, LookAtCustomer, Wait, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, None, 4, None, None, 1, None, None, None, None, 2])
 
 
 class MakeCocktail(AbstractDecisionElement):
