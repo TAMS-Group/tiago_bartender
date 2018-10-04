@@ -1,6 +1,6 @@
 %YAML:1.0
-template: tiagobar-79.png
-areas: tiagobar-76-mask.png
+template: tiagobar-81.png
+areas: tiagobar-81-mask.png
 labels:
     FF0000: tequila_sunrise
     00FF00: cuba_libre

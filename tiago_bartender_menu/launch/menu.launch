@@ -1,5 +1,4 @@
 <launch>
-
   <node
     pkg="tiago_bartender_menu"
     type="tiago_bartender_menu"
@@ -7,12 +6,8 @@
     args="$(find tiago_bartender_menu)/data/tiagobar.yml"
     output="screen"
     >
-
     <!--<remap from="/camera/rgb/image_raw" to="/xtion/rgb/image_rect_color" />-->
-
     <remap from="/xtion/rgb/image_rect_color" to="/usb_cam/image_raw" />
     <remap from="/xtion/rgb/image_rect_color/compressed" to="/usb_cam/image_raw/compressed" />
-
   </node>
-
 </launch>
