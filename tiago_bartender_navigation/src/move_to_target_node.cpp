@@ -252,7 +252,7 @@ public:
       Eigen::Vector2d line_direction =
           (line_point_b - line_point_a).normalized();
 
-      double fpos = target_point.dot(line_direction);
+      double fpos = (target_point - line_point_a).dot(line_direction);
       if (fpos < 0)
         fpos = 0;
       if (fpos > line_length)
@@ -283,14 +283,14 @@ public:
       marker.ns = "target";
       marker.type = visualization_msgs::Marker::SPHERE;
       marker.action = visualization_msgs::Marker::ADD;
-      marker.pose = matched_pose.pose;
-      marker.scale.x = 0.1;
-      marker.scale.y = 0.1;
-      marker.scale.z = 0.1;
+      marker.pose = target_pose.pose;
+      marker.scale.x = 0.5;
+      marker.scale.y = 0.5;
+      marker.scale.z = 0.5;
       marker.color.a = 1.0;
-      marker.color.r = 0.0;
+      marker.color.r = 1.0;
       marker.color.g = 0.0;
-      marker.color.b = 1.0;
+      marker.color.b = 0.0;
       vis_pub_.publish(marker);
     }
 
