@@ -15,8 +15,6 @@ recipes:
   #  - lime: 1.0
   water:
     - water: 5.0
-  sulfuric_acid:
-    - acid: 30.0
 
 idle_zone:
   center_x: 0.0
@@ -139,9 +137,9 @@ move_to_target_lines:
     orientation_z: 0.0
     orientation_w: 1.0
   in_front_of_glass:
-    start_point_x: -0.5
+    start_point_x: -0.45
     start_point_y: 1.0
-    end_point_x: -0.78
+    end_point_x: -0.68
     end_point_y: -1.0
     orientation_x: 0.0
     orientation_y: 0.0
