@@ -522,6 +522,7 @@ class ExtendTorso(AbstractTiagoActionElement):
     def __init__(self, blackboard, _):
         super(ExtendTorso, self).__init__(blackboard)
         self.first_iteration = True
+        self.repeat = False
         self.goal = FollowJointTrajectoryGoal()
         torso_command = JointTrajectory()
         torso_command.joint_names.append("torso_lift_joint")
@@ -541,12 +542,15 @@ class ExtendTorso(AbstractTiagoActionElement):
             print('ExtendTorso')
             blackboard.torso_action_client.send_goal(self.goal)
             self.first_iteration = False
+            self.repeat = False
 
         if not blackboard.torso_action_client.wait_for_result(rospy.Duration.from_sec(0.01)):
             return
         result = blackboard.torso_action_client.get_result().error_code
         if result == FollowJointTrajectoryResult.SUCCESSFUL:
             self.pop()
+        else:
+            self.repeat = True
 
 class PickUpBottle(AbstractTiagoActionElement):
     """
