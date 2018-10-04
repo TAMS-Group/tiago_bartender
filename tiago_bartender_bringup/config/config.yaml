@@ -3,16 +3,16 @@ recipes:
     - tequila: 1.0
     - orange: 5.0
     - cherry: 1.0
-  cuba_libre:
-    - rum: 1.0
-    - coke: 5.0
+  #cuba_libre:
+  #  - rum: 1.0
+  #  - coke: 5.0
   sunrise:
     - orange: 5.0
     - cherry: 1.0
-  driver:
-    - orange: 5.0
-    - cherry: 1.0
-    - lime: 1.0
+  #driver:
+  #  - orange: 5.0
+  #  - cherry: 1.0
+  #  - lime: 1.0
   water:
     - water: 5.0
   sulfuric_acid:
@@ -78,39 +78,46 @@ scene_objects:
       pos_y: 0.1
       pos_z: 0.0
       euler_z: -0.07
-  rum:
+  #rum:
+  #    frame: 'map'
+  #    type: bottle
+  #    pos_x: 1.20
+  #    pos_y: -0.7
+  #    pos_z: 0.875
+  #    euler_z: 0.0
+  water:
       frame: 'map'
       type: bottle
       pos_x: 1.20
-      pos_y: -0.7
+      pos_y: 0.0
       pos_z: 0.875
       euler_z: 0.0
-  water:
+  #coke:
+  #    frame: 'map'
+  #    type: bottle
+  #    pos_x: 1.20
+  #    pos_y: -0.1
+  #    pos_z: 0.875
+  #    euler_z: 0.0
+  tequila:
       frame: 'map'
       type: bottle
       pos_x: 1.20
       pos_y: -0.4
       pos_z: 0.875
       euler_z: 0.0
-  coke:
-      frame: 'map'
-      type: bottle
-      pos_x: 1.20
-      pos_y: -0.1
-      pos_z: 0.875
-      euler_z: 0.0
-  tequila:
-      frame: 'map'
-      type: bottle
-      pos_x: 1.20
-      pos_y: 0.2
-      pos_z: 0.875
-      euler_z: 0.0
   orange:
       frame: 'map'
       type: bottle
       pos_x: 1.20
-      pos_y: 0.5
+      pos_y: -0.8
+      pos_z: 0.875
+      euler_z: 0.0
+  cherry:
+      frame: 'map'
+      type: bottle
+      pos_x: 1.20
+      pos_y: 0.4
       pos_z: 0.875
       euler_z: 0.0
   glass:
