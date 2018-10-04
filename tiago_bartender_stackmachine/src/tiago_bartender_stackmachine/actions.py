@@ -240,7 +240,7 @@ class LookAtCustomer(AbstractTiagoActionElement):
 	point = PointStamped()
 	point.header.frame_id = 'xtion_optical_frame'
 	point.point = blackboard.customer_position
-        blackboard.tfl.transformPoint('map', point)
+        point = blackboard.tfl.transformPoint('map', point)
         print("Looking at " + target)
         try:
             blackboard.look_at_service(target, point)
