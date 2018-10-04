@@ -19,8 +19,6 @@ protected:
 public:
   LookAt() : ac_("/head_controller/point_head_action", true),
              hm_ac_("pal_head_manager/disable", true),
-             hm_has_goal_(false),
-             ph_has_goal_(false),
              update_person_pose_(false),
              pd_enabled_(false)
   {
@@ -141,17 +139,10 @@ public:
       }
       current_goal_.target.header.stamp = ros::Time::now();
       ac_.sendGoal(current_goal_);
-      ph_has_goal_ = true;
       ros::Duration(0.1).sleep();
     }
-    if(ph_has_goal_)
-    {
-      ac_.cancelGoal();
-    }
-    if(hm_has_goal_)
-    {
-      hm_ac_.cancelGoal();
-    }
+    ac_.cancelAllGoals();
+    hm_ac_.cancelAllGoals();
   }
 
 private:
@@ -160,22 +151,13 @@ private:
     if(req.direction == "default")
     {
       current_target_name_ = req.direction;
-      if(ph_has_goal_)
-      {
-        ac_.cancelGoal();
-        ph_has_goal_ = false;
-      }
-      if(hm_has_goal_)
-      {
-        hm_ac_.cancelGoal();
-        hm_has_goal_ = false;
-      }
+      ac_.cancelAllGoals();
+      hm_ac_.cancelAllGoals();
       return true;
     }
     else
     {
       hm_ac_.sendGoal(disable_hm_);
-      hm_has_goal_ = true;
     }
 
     if(req.direction != "customer" && pd_enabled_)
@@ -282,8 +264,6 @@ private:
   double max_head_velocity_;
   std::string look_around_frame_;
   double look_around_rotation_;
-  bool hm_has_goal_;
-  bool ph_has_goal_;
   bool update_person_pose_;
   bool pd_enabled_;
 };
