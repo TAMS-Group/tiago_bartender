@@ -156,7 +156,7 @@ class TakeOrder(AbstractDecisionElement):
             blackboard.no_menu_found = False
             return self.push_action_sequence(SequenceElement, [SayNoMenuFoundRepeat, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, None, None, None, 2])
         else:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtCustomer, Wait, UpdateCustomerPose, LookAtCustomer, Wait, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, None, 4, None, None, 1, None, None, None, None, 2])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtCustomer, Wait, SayPleaseOrder, LookAtMenu, ObserveOrder, LookAtCustomer, Wait], [None, None, 4, None, None, None, None, 2])
 
 
 class MakeCocktail(AbstractDecisionElement):
