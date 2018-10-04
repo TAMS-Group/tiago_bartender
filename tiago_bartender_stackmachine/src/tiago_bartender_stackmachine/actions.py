@@ -235,6 +235,23 @@ class AbstractLookAt(AbstractTiagoActionElement):
 class LookAtCustomer(AbstractTiagoActionElement):
     def __init__(self, blackboard, _):
         super(LookAtCustomer, self).__init__(blackboard)
+        self.action_marker = Marker()
+        self.action_marker.header.frame_id = 'map'
+        self.action_marker.ns = 'tiago_bartender_look_at_customer'
+        self.action_marker.id = 1
+        self.action_marker.type = Marker.CUBE
+        self.action_marker.action = Marker.ADD
+        self.action_marker.scale.x = 0.5
+        self.action_marker.scale.y = 0.5
+        self.action_marker.scale.z = 0.5
+        self.action_marker.color.r = 1.0
+        self.action_marker.color.g = 1.0
+        self.action_marker.color.b = 1.0
+        self.action_marker.color.a = 0.5
+        self.action_marker.frame_locked = True
+        self.action_marker.text = self.__class__.__name__
+        self.first_time = True
+
 
     def do(self, blackboard, reevaluate=False):
         target = ""
@@ -242,6 +259,9 @@ class LookAtCustomer(AbstractTiagoActionElement):
 	point.header.frame_id = 'xtion_optical_frame'
 	point.point = copy.deepcopy(blackboard.customer_position)
         point = blackboard.tfl.transformPoint('map', point)
+        self.action_marker.pose.position = point.point
+        blackboard.customer_marker_pub.publish(self.action_marker)
+
         print("Looking at " + target)
         try:
             blackboard.look_at_service(target, point)
