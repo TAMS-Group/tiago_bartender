@@ -15,6 +15,7 @@ from actionlib_msgs.msg import GoalStatus
 from control_msgs.msg import FollowJointTrajectoryGoal, JointTolerance, FollowJointTrajectoryResult
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from visualization_msgs.msg import Marker
+from geometry_msgs.msg import Twist
 import tf
 import moveit_commander
 
@@ -696,6 +697,18 @@ class MoveToBottlePose(AbstractTiagoActionElement):
             self.pop()
         else:
             self.repeat = True
+
+class MoveBack(AbstractTiagoActionElement):
+    """
+    Publishes backwards velocity commands to move base controller for 1.5 seconds
+    """
+    def do(self, blackboard, reevaluate=False):
+        goal = Twist()
+        goal.linear.x = -1
+        start = rospy.get_time()
+        while (rospy.get_time() - start) < 1.5:
+            blackboard.move_base_pub.publish(goal)
+        self.pop()
 
 class GetNextBottle(AbstractTiagoActionElement):
     """
