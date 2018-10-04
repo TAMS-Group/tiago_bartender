@@ -255,16 +255,12 @@ class LookAtCustomer(AbstractTiagoActionElement):
 
     def do(self, blackboard, reevaluate=False):
         target = ""
-	point = PointStamped()
-	point.header.frame_id = 'xtion_optical_frame'
-	point.point = copy.deepcopy(blackboard.customer_position)
-        point = blackboard.tfl.transformPoint('map', point)
-        self.action_marker.pose.position = point.point
+        self.action_marker.pose.positition = blackboard.customer_position.point
         blackboard.customer_marker_pub.publish(self.action_marker)
 
         print("Looking at " + target)
         try:
-            blackboard.look_at_service(target, point)
+            blackboard.look_at_service(target, blackboard.customer_position)
         except rospy.ServiceException, e:
             print("Service call failed: %s"%e)
         self.pop()
@@ -342,7 +338,11 @@ class LookForCustomer(AbstractTiagoActionElement):
             disable.data = False
             blackboard.person_detection_switch_pub.publish(disable)
 
-            blackboard.customer_position = blackboard.person_position
+	    point = PointStamped()
+	    point.header.frame_id = 'xtion_optical_frame'
+	    point.point = copy.deepcopy(blackboard.person_position)
+            point = blackboard.tfl.transformPoint('map', point)
+            blackboard.customer_position = point
             blackboard.has_customer = True
             blackboard.person_detected = False
         elif rospy.get_rostime() - self.begin >= rospy.Duration.from_sec(20.0):
@@ -371,7 +371,11 @@ class UpdateCustomerPose(AbstractTiagoActionElement):
             disable.data = False
             blackboard.person_detection_switch_pub.publish(disable)
 
-            blackboard.customer_position = blackboard.person_position
+	    point = PointStamped()
+	    point.header.frame_id = 'xtion_optical_frame'
+	    point.point = copy.deepcopy(blackboard.person_position)
+            point = blackboard.tfl.transformPoint('map', point)
+            blackboard.customer_position = point
             blackboard.person_detected = False
             self.pop()
         elif rospy.get_rostime() - self.begin >= rospy.Duration.from_sec(5.0):
