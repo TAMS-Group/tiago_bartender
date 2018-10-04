@@ -702,6 +702,9 @@ class MoveBack(AbstractTiagoActionElement):
     """
     Publishes backwards velocity commands to move base controller for 1.5 seconds
     """
+    def __init__(self, blackboard, _):
+        super(MoveBack, self).__init__(blackboard)
+
     def do(self, blackboard, reevaluate=False):
         goal = Twist()
         goal.linear.x = -1

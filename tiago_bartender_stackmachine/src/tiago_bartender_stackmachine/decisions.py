@@ -2,7 +2,7 @@ import rospy
 import actionlib
 from bitbots_stackmachine.abstract_decision_element import AbstractDecisionElement
 from bitbots_stackmachine.sequence_element import SequenceElement
-from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight, SayAcid, LookAtGlass, LookAtPlacePose, HomePose, SayDrinkNotFound, UpdateCustomerPose
+from .actions import IdleMoveAround, WaitingToResume, MoveToCustomer, SayRepeatOrder, SayNoMenuFoundRepeat, SayOrderConfirmed, ObserveOrder, LookAtCustomer, SayPleaseOrder, LookAtMenu, MoveToBottle, LookAtBottle, MoveToPouringPosition, PourLiquid, Wait, PickUpBottle, SayDrinkFinished, LookForward, LookForCustomer, LookDefault, UpdateBottlePose, GetNextBottle, PlaceBottle, MoveToBottlePose, SayBottleNotFound, WaitForRos, ExtendTorso, SayGlassNotFound, UpdateGlassPose, SearchBottleLeft, SearchBottleRight, SayAcid, LookAtGlass, LookAtPlacePose, HomePose, SayDrinkNotFound, UpdateCustomerPose, MoveBack
 from tiago_bartender_msgs.msg import PourAction, PickAction, MoveToTargetAction, TakeOrderAction
 from control_msgs.msg import FollowJointTrajectoryAction
 from pal_interaction_msgs.msg import TtsAction
@@ -219,7 +219,7 @@ class PutBottleBack(AbstractDecisionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if not blackboard.arrived_at_bottle and blackboard.bottle_grasped:
-            return self.push_action_sequence(SequenceElement, [LookDefault, MoveToBottlePose], [None, None])
+            return self.push_action_sequence(SequenceElement, [LookDefault, MoveBack, MoveToBottlePose], [None, None, None])
         elif blackboard.bottle_grasped:
             return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtPlacePose, Wait, UpdateBottlePose, PlaceBottle], [None, None, 4, None, None])
         else:
@@ -297,7 +297,7 @@ class InPouringPosition(AbstractDecisionElement):
             # fill in liquid and wait a moment to see if redo card was shown
             return self.push(GlassLocated)
         else:
-            return self.push(MoveToPouringPosition)
+            return self.push_action_sequence(SequenceElement, [MoveBack, MoveToPouringPosition], [None, None])
 
     def get_reevaluate(self):
         return True
@@ -313,7 +313,7 @@ class GlassLocated(AbstractDecisionElement):
         blackboard.manipulation_iteration = 0
 
     def perform(self, blackboard, reevaluate=False):
-        if blackboard.manipulation_iteration >= 3:
+        if blackboard.manipulation_iteration >= 1:
             return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose ,PourLiquid], [None, None, 4, None ,None])
         if blackboard.glass_located:
             return self.push_action_sequence(SequenceElement, [PourLiquid], [None])
