@@ -77,7 +77,7 @@ class GlassLocated(AbstractDecisionElement):
 
     def perform(self, blackboard, reevaluate=False):
         if blackboard.manipulation_iteration >= 3:
-            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose, PourLiquid], [None, None, 4, None])
+            return self.push_action_sequence(SequenceElement, [ExtendTorso, LookAtGlass, Wait, UpdateGlassPose, PourLiquid], [None, None, 4, None, None])
         if blackboard.glass_located:
             return self.push(PourLiquid)
         if blackboard.glass_not_found:
