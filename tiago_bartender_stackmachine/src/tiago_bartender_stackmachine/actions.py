@@ -236,7 +236,7 @@ class LookAtCustomer(AbstractTiagoActionElement):
         super(LookAtCustomer, self).__init__(blackboard)
 
     def do(self, blackboard, reevaluate=False):
-        target = "customer"
+        target = ""
 	point = PointStamped()
 	point.header.frame_id = 'xtion_optical_frame'
 	point.point = blackboard.customer_position
