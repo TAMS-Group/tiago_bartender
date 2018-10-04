@@ -21,8 +21,8 @@ recipes:
 idle_zone:
   center_x: 0.0
   center_y: 0.0
-  radius_x: 0.2
-  radius_y: 0.5
+  radius_x: 0.3
+  radius_y: 1.0
   euler_z: 0.0
   frame: 'map'
 
@@ -31,17 +31,17 @@ home_pose:
   pos_y: 0.0
   ori_x: 0.0
   ori_y: 0.0
-  ori_z: 0.0
-  ori_w: 1.0
+  ori_z: 1.0
+  ori_w: 0.0
   frame: 'map'
 
 take_order_pose:
-  pos_x: 0.4
+  pos_x: -0.3
   pos_y: 0.0
   ori_x: 0.0
   ori_y: 0.0
-  ori_z: 0.0
-  ori_w: 1.0
+  ori_z: 1.0
+  ori_w: 0.0
   frame: 'map'
 
 place_bottle_offset:
@@ -51,7 +51,7 @@ place_bottle_offset:
 
 customer_zone:
   frame: 'map'
-  center_x: 1.65
+  center_x: -1.9
   center_y: 0.0
   center_z: 1.5
   euler_z: 0.0
@@ -66,77 +66,77 @@ look_at:
 scene_objects:
   table1:
       frame: 'map'
-      type: small_table
-      pos_x: -1.25
-      pos_y: -0.1
+      type: large_table
+      pos_x: 1.17
+      pos_y: -0.2
       pos_z: 0.0
       euler_z: 0.0
   table2:
       frame: 'map'
       type: large_table
-      pos_x: 1.25
-      pos_y: 0.0
+      pos_x: -1.15
+      pos_y: 0.1
       pos_z: 0.0
-      euler_z: 0.0
+      euler_z: -0.07
   rum:
       frame: 'map'
       type: bottle
-      pos_x: -1.20
+      pos_x: 1.20
       pos_y: -0.7
       pos_z: 0.875
       euler_z: 0.0
   water:
       frame: 'map'
       type: bottle
-      pos_x: -1.20
+      pos_x: 1.20
       pos_y: -0.4
       pos_z: 0.875
       euler_z: 0.0
   coke:
       frame: 'map'
       type: bottle
-      pos_x: -1.20
+      pos_x: 1.20
       pos_y: -0.1
       pos_z: 0.875
       euler_z: 0.0
   tequila:
       frame: 'map'
       type: bottle
-      pos_x: -1.20
+      pos_x: 1.20
       pos_y: 0.2
       pos_z: 0.875
       euler_z: 0.0
   orange:
       frame: 'map'
       type: bottle
-      pos_x: -1.20
+      pos_x: 1.20
       pos_y: 0.5
       pos_z: 0.875
       euler_z: 0.0
   glass:
       frame: 'map'
       type: glass
-      pos_x: 1.1
+      pos_x: -1.1
       pos_y: -0.3
       pos_z: 0.8
       euler_z: 0.0
 
 move_to_target_lines:
   in_front_of_bottles:
-    start_point_x: -0.55
+    start_point_x: 0.5
     start_point_y: 1.0
-    end_point_x: -0.55
-    end_point_y: -1.0
-    orientation_x: 0.0
-    orientation_y: 0.0
-    orientation_z: 1.0
-    orientation_w: 0.0
-  in_front_of_glass:
-    start_point_x: 0.4
-    start_point_y: 1.0
-    end_point_x: 0.4
+    end_point_x: 0.5
     end_point_y: -1.0
     orientation_x: 0.0
     orientation_y: 0.0
     orientation_z: 0.0
     orientation_w: 1.0
+  in_front_of_glass:
+    start_point_x: -0.4
+    start_point_y: 1.0
+    end_point_x: -0.4
+    end_point_y: -1.0
+    orientation_x: 0.0
+    orientation_y: 0.0
+    orientation_z: 1.0
+    orientation_w: 0.0
