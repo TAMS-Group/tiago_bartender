@@ -239,7 +239,7 @@ class LookAtCustomer(AbstractTiagoActionElement):
         target = ""
 	point = PointStamped()
 	point.header.frame_id = 'xtion_optical_frame'
-	point.point = blackboard.customer_position
+	point.point = copy.deepcopy(blackboard.customer_position)
         point = blackboard.tfl.transformPoint('map', point)
         print("Looking at " + target)
         try:
