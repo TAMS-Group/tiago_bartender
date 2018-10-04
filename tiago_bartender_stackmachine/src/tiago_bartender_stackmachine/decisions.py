@@ -233,8 +233,12 @@ class InFrontOfRequiredBottle(AbstractDecisionElement):
         super(AbstractDecisionElement, self).__init__(blackboard)        
         blackboard.last_redoable = blackboard.PICK
         blackboard.arrived_at_bottle = False
+        self.first_iteration = True
 
     def perform(self, blackboard, reevaluate=False):
+        if self.first_iteration:
+            self.first_iteration = False
+            return self.push(MoveBack)
         if blackboard.redo_requested and blackboard.last_redoable == blackboard.PICK:
             blackboard.redo_requested = False
             #TODO maybe go back to init position
