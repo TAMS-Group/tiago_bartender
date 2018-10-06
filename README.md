@@ -3,6 +3,8 @@
 Launch files, messages, high-level coordination, and other modules for our TIAGo-based bartender demo, 
 demonstrated at the Mobile Manipulation Hackathon during IROS-2018 in Madrid, based on ROS kinetic.
 
+![](tiago_bartender_world/doc/rviz_screenshot.png)
+
 All custom modules ran on an external laptop mounted to the robot,
 in some cases overriding modules on the robot, especially MoveIt.
 
