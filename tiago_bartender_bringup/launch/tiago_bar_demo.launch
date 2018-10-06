@@ -4,13 +4,13 @@
   <!-- load parameters in namespace 'tiago_bartender' -->
   <include file="$(find tiago_bartender_bringup)/launch/config_bringup.launch"/>
 
-  <!-- override factory robot description to include world link -->
+  <!-- override factory robot description to include world link and wide gripper -->
   <include file="$(find tiago_description)/robots/upload_tiago.launch"/>
 
   <!-- provide a FollowJointTrajectory action for the gripper -->
   <include file="$(find tiago_bartender_mtc)/launch/gripper_controller.launch" />
 
-  <!-- replace factory moveit configuration -->
+  <!-- replace PAL's moveit configuration -->
   <include file="$(find tiago_moveit_config)/launch/move_group.launch"/>
   <!-- create a "world" link for MoveIt that coincides with amcl's map -->
   <include file="$(find tiago_bartender_bringup)/launch/world_link.launch"/>
