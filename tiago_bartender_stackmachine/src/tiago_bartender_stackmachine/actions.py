@@ -255,7 +255,7 @@ class LookAtCustomer(AbstractTiagoActionElement):
 
     def do(self, blackboard, reevaluate=False):
         target = ""
-        self.action_marker.pose.positition = blackboard.customer_position.point
+        self.action_marker.pose.position = blackboard.customer_position.point
         blackboard.customer_marker_pub.publish(self.action_marker)
 
         print("Looking at " + target)
