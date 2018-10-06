@@ -1,13 +1,24 @@
 # tiago_bartender
 
 Launch files, messages, high-level coordination, and other modules for our TIAGo-based bartender demo, 
-demonstrated at the Mobile Manipulation Hackathon during IROS-2018 in Madrid.
+demonstrated at the Mobile Manipulation Hackathon during IROS-2018 in Madrid, based on ROS kinetic.
 
 All custom modules ran on an external laptop mounted to the robot,
 in some cases overriding modules on the robot, especially MoveIt.
 
 See tiago_bartender_bringup/config/tams-runtime-changes.sh
 for changes required on the robot's computer.
+
+# rosinstall files
+
+The system was setup in two workspaces on top of /opt/ros:
+- ros-system, providing modules we overlayed or non-standard modules not available in debs
+- ros, with everything we implemented for the demonstration
+
+The corresponding .rosinstall files for both workspaces with build instructions
+can be found in rosinstalls/ .
+
+# Modules in this repository
 
 ## tiago_bartender_bringup
 

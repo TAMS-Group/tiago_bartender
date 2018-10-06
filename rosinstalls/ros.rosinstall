@@ -1,0 +1,40 @@
+# top-level catkin_make development workspace
+# for TIAGo bartender demo
+
+# to build, source underlying -system (install) workspace, then
+# - rename file to src/.rosinstall
+# - run `wstool update -t src`
+# - `catkin_make`
+
+- git:
+    local-name: apriltag_command_cards
+    uri: https://github.com/tams-group/apriltag_command_cards
+- git:
+    local-name: bitbots_behaviour
+    uri: https://github.com/tams-group/bitbots_behaviour
+    version: tams-master
+- git:
+    local-name: mtc_pour
+    uri: https://github.com/tams-group/mtc_pour
+- git:
+    local-name: person_detection
+    uri: https://github.com/tams-group/person_detection
+- git:
+    local-name: tams_apriltags
+    uri: https://github.com/tams-group/tams_apriltags
+- git:
+    local-name: tams_bartender_recognition
+    uri: https://github.com/tams-group/tams_bartender_recognition.git
+- git:
+    local-name: tams_bartender_glass_recognition
+    uri: https://github.com/tams-group/tams_bartender_glass_recognition
+- git:
+    local-name: tiago_bartender_mtc
+    uri: https://github.com/tams-group/tiago_bartender_mtc
+- git:
+    local-name: tiago_moveit_config
+    uri: https://github.com/tams-group/tiago_moveit_config.git
+    version: tams-indigo-devel
+- git:
+    local-name: tiago_bartender
+    uri: https://github.com/tams-group/tiago_bartender

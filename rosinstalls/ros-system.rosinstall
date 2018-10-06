@@ -1,0 +1,63 @@
+# the underlying system workspace used for the TIAGo bartender
+
+# to build,
+# - rename file to src/.rosinstall
+# $ wstool update -t src/
+# $ catkin init
+# $ catkin config --install --extend /opt/ros/kinetic --cmake-args -DCMAKE_BUILD_TYPE=Release -DCATKIN_ENABLE_TESTING=OFF
+# $ catkin build
+
+- git:
+    local-name: moveit/bio_ik
+    uri: https://github.com/tams-group/bio_ik
+- git:
+    local-name: moveit/fcl
+    uri: https://github.com/tams-group/fcl
+    version: tams-fcl-0.5
+- git:
+    local-name: moveit/moveit
+    uri: https://github.com/v4hn/moveit
+    version: kinetic-devel-overlay-fcl-ompl
+- git:
+    local-name: moveit/moveit_task_constructor
+    uri: https://github.com/ros-planning/moveit_task_constructor
+    version: v4hn-master
+- git:
+    local-name: moveit/ompl
+    uri: https://github.com/tams-group/ompl
+    version: tams-master
+- git:
+    local-name: tiago/pal_gripper
+    uri: https://github.com/tams-group/pal_gripper.git
+    version: wide-fingers_kinetic-devel
+- git:
+    local-name: tiago/pal_msgs
+    uri: https://github.com/pal-robotics/pal_msgs
+- git:
+    local-name: tiago/iros_mmh_msgs
+    uri: https://github.com/pal-robotics/iros_mmh_msgs
+- git:
+    local-name: tiago/play_motion
+    uri: https://github.com/pal-robotics/play_motion
+- git:
+    local-name: tiago/pmb2_robot
+    uri: https://github.com/pal-robotics/pmb2_robot.git
+- git:
+    local-name: tiago/tiago_robot
+    uri: https://github.com/tams-group/tiago_robot.git
+    version: tams-kinetic
+- git:
+    local-name: various/apriltags_ros
+    uri: https://github.com/RIVeR-Lab/apriltags_ros
+    version: indigo-devel
+- git:
+    local-name: various/apriltags2_ros
+    uri: https://github.com/v4hn/apriltags2_ros
+    version: pr-master-apriltags-include-folder
+- git:
+    local-name: various/humanoid_league_msgs
+    uri: https://github.com/bit-bots/humanoid_league_msgs
+- git:
+    local-name: various/joint_state_publisher
+    uri: https://github.com/v4hn/joint_state_publisher.git
+    version: pr-kinetic-fix-planar-joint
